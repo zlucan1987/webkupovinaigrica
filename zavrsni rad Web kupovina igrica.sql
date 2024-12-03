@@ -8,29 +8,29 @@ use webkupovinaigrica;
 go
 
 create table proizvodi(
-sifra int, 
-nazivigre varchar(100), 
-cijena decimal (18,2), 
+sifra int not null primary key identity(1,1), 
+nazivigre varchar(100) not null, 
+cijena decimal (18,2) not null, 
 datumkupnje datetime
 );
 
 create table stavke (
-racun int,
-proizvod varchar (100),
-kolicina varchar (100), 
-cijena decimal (18,2) 
+racun int not null references racuni(sifra),
+proizvod int not null references proizvodi(sifra),
+kolicina varchar (100) not null, 
+cijena decimal (18,2) not null 
 );
 
 create table racuni(
-sifra int,
-datum datetime,
-kupac varchar(50),
+sifra int not null primary key identity(1,1),
+datum datetime not null,
+kupac int not null references kupci(sifra)
 );
 
 create table kupci(
-sifra int,
-ime varchar(50),
-prezime varchar(50),
-ulica varchar(50),
-mjesto varchar(50),
+sifra int not null primary key identity(1,1),
+ime varchar(50) not null,
+prezime varchar(50) not null,
+ulica varchar(50) not null,
+mjesto varchar(50) not null
 );
