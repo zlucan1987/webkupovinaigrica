@@ -31,6 +31,6 @@ kupac int not null references kupci(sifra)
 create table stavke(
 racun int not null references racuni(sifra),
 proizvod int not null references proizvodi(sifra),
-kolicina varchar (100) not null, 
+kolicina int not null, 
 cijena decimal (18,2) not null 
 );
