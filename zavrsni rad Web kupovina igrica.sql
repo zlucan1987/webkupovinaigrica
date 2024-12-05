@@ -29,6 +29,7 @@ kupac int not null references kupci(sifra)
 );
 
 create table stavke(
+sifra int not null primary key identity(1,1),
 racun int not null references racuni(sifra),
 proizvod int not null references proizvodi(sifra),
 kolicina int not null, 
