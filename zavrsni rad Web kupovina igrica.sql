@@ -33,7 +33,7 @@ racun int not null references racuni(sifra),
 proizvod int not null references proizvodi(sifra),
 kolicina int not null, 
 cijena decimal (18,2) not null,
-datumkupnje datetime
+datumkupnje datetime --"Datumkupnje" prebacen iz table (proizvodi) u table (stavke) jer ce datum biti upisan kada se odredjeni proizvod kupi.
 );
 
 select * from proizvodi;
