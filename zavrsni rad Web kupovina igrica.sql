@@ -1,8 +1,8 @@
-use master;
+﻿use master;
 go
 drop database if exists webkupovinaigrica;
 go
-create database webkupovinaigrica;
+create database webkupovinaigrica collate Croatian_CI_AS;
 go
 use webkupovinaigrica;
 go
@@ -10,8 +10,7 @@ go
 create table proizvodi(
 sifra int not null primary key identity(1,1), 
 nazivigre varchar(100) not null, 
-cijena decimal (18,2) not null, 
-datumkupnje datetime,
+cijena decimal (18,2) not null
 );
 
 create table kupci(
@@ -33,5 +32,46 @@ sifra int not null primary key identity(1,1),
 racun int not null references racuni(sifra),
 proizvod int not null references proizvodi(sifra),
 kolicina int not null, 
-cijena decimal (18,2) not null 
+cijena decimal (18,2) not null,
+datumkupnje datetime
 );
+
+select * from proizvodi;
+--1
+insert into proizvodi(nazivigre, cijena) values
+('World of Tanks', 0.00),
+('LOL', 0.00),
+('PUBG', 21.99),
+('FIFA', 99.99),
+('RDR', 49.99);
+
+
+select * from kupci;
+--2
+insert into kupci(ime,prezime,ulica,mjesto) values
+--1
+('Marko', 'Perić', 'Matice hrvatske 12', 'Vinkovci'),
+--2
+('Ivan','Marković','Ulica Kralja Zvonimira','Vinkovci'),
+--3
+('Martin','Vida', 'Duga ulica', 'Vinkovci'),
+--4
+('Željko','Baraban', 'Lapovačka 19', 'Vinkovci'),
+--5
+('Petar','Maj','Ružina ulica','Vinkovci');
+
+
+
+select * from racuni;
+--3
+insert into racuni(datum, kupac) values
+('2025-11-25', 1), -- Prvi kupac
+('2025-10-19', 3), -- itd
+('2025-09-15', 2); 
+
+select * from stavke;
+--4
+insert into stavke(racun, proizvod, kolicina, cijena) values
+(1, 1, 2, 0.00), -- Prvi račun, prvi proizvod, 2 komada
+(1, 3, 1, 21.99), -- itd
+(2, 2, 3, 0.00); 
