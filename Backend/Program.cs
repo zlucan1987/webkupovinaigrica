@@ -1,4 +1,4 @@
-using BackendAPP.Data;
+using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +14,9 @@ builder.Services.AddSwaggerGen();
 
 
 // dodavanje db contexta
-builder.Services.AddDbContext<webkupovinaigrica>(o => {
-    o.UseSqlServer(builder.Configuration.GetConnectionString("webkupovinaigrica"));
+builder.Services.AddDbContext<BackendContext>(o =>
+{
+    o.UseSqlServer(builder.Configuration.GetConnectionString("BackendContext"));
 });
 
 var app = builder.Build();
@@ -32,10 +33,12 @@ app.UseAuthorization();
 
 // swagger sucelje
 app.UseSwagger();
-app.UseSwaggerUI(o =>
+app.UseSwaggerUI( o =>
 {
     o.EnableTryItOutByDefault();
     o.ConfigObject.AdditionalItems.Add("requestSnippetsEnabled", true);
+
+
 });
 
 app.MapControllers();
