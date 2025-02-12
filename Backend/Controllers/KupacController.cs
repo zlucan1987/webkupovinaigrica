@@ -52,7 +52,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Kupac kupac) // Change parameter type to Kupac
+        public IActionResult Post(Kupac kupac) 
         {
             try
             {
