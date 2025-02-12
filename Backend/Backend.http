@@ -1,6 +1,0 @@
-@Backend_HostAddress = http://localhost:5181
-
-GET {{Backend_HostAddress}}/http://localhost:5181/
-Accept: application/json
-
-###

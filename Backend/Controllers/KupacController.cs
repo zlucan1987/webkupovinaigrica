@@ -7,11 +7,11 @@ namespace Backend.Controllers
     [ApiController]
     [Route("api/v1/[controller]")]
 
-    public class KupciController : ControllerBase
+    public class KupacController : ControllerBase
     {
         private readonly BackendContext _context;
 
-        public KupciController(BackendContext context)
+        public KupacController(BackendContext context)
         {
             _context = context;
         }
