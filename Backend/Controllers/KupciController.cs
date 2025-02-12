@@ -106,7 +106,7 @@ namespace Backend.Controllers
                 var smjer = _context.Kupci.Find(sifra);
                 if (smjer == null)
                 {
-                    return NotFound(new { poruka = $"Kupci s šifrom {sifra} ne postoji" });
+                    return NotFound(new { poruka = $"Kupci s šifrom {sifra} ne postoje" });
                 }
                 _context.Kupci.Remove(smjer);
                 _context.SaveChanges();
