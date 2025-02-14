@@ -38,12 +38,12 @@ namespace Backend.Controllers
             }
             try
             {
-                var smjer = _context.Kupci.Find(sifra);
-                if (smjer == null)
+                var kupac = _context.Kupci.Find(sifra);
+                if (kupac == null)
                 {
-                    return NotFound(new { poruka = $"Smjer s šifrom {sifra} ne postoji" });
+                    return NotFound(new { poruka = $"Kupac s šifrom {sifra} ne postoji" });
                 }
-                return Ok(smjer);
+                return Ok(kupac);
             }
             catch (Exception e)
             {
@@ -52,7 +52,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Kupac kupac) 
+        public IActionResult Post(Kupac kupac)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{sifra:int}")]
-        public IActionResult Put(int sifra, Kupac smjer)
+        public IActionResult Put(int sifra, Kupac kupac)
         {
             try
             {
@@ -79,10 +79,10 @@ namespace Backend.Controllers
                 }
 
                 // rucni mapping - kasnije automatika
-                kupciBaza.Ime = smjer.Ime;
-                kupciBaza.Prezime = smjer.Prezime;
-                kupciBaza.Ulica = smjer.Ulica;
-                kupciBaza.Mjesto = smjer.Mjesto;
+                kupciBaza.Ime = kupac.Ime;
+                kupciBaza.Prezime = kupac.Prezime;
+                kupciBaza.Ulica = kupac.Ulica;
+                kupciBaza.Mjesto = kupac.Mjesto;
 
                 _context.Kupci.Update(kupciBaza);
                 _context.SaveChanges();
@@ -103,12 +103,12 @@ namespace Backend.Controllers
             }
             try
             {
-                var smjer = _context.Kupci.Find(sifra);
-                if (smjer == null)
+                var kupac = _context.Kupci.Find(sifra);
+                if (kupac == null)
                 {
-                    return NotFound(new { poruka = $"Kupci s šifrom {sifra} ne postoje" });
+                    return NotFound(new { poruka = $"Kupac s šifrom {sifra} ne postoji" });
                 }
-                _context.Kupci.Remove(smjer);
+                _context.Kupci.Remove(kupac);
                 _context.SaveChanges();
                 return NoContent();
             }
