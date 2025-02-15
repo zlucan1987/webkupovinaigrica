@@ -1,11 +1,16 @@
-use master;
-go
-drop database if exists webkupovinaigrica;
-go
-create database webkupovinaigrica collate Croatian_CI_AS;
-go
-use webkupovinaigrica;
-go
+
+SELECT name, collation_name FROM sys.databases;
+GO
+ALTER DATABASE db_ab2d4b_webkupovinaigrica SET SINGLE_USER WITH
+ROLLBACK IMMEDIATE;
+GO
+ALTER DATABASE db_ab2d4b_webkupovinaigrica COLLATE Croatian_CI_AS;
+GO
+ALTER DATABASE db_ab2d4b_webkupovinaigrica SET MULTI_USER;
+GO
+SELECT name, collation_name FROM sys.databases;
+GO
+
 
 create table proizvodi(
 sifra int not null primary key identity(1,1), 
