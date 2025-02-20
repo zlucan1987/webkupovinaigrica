@@ -1,0 +1,208 @@
+.copyright {
+    color: white !important; /* Postavite boju teksta na bijelu */
+}
+
+/* Globalni stilovi */
+body {
+    background-image: url('/gamingbackground.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: rgb(0, 173, 58);
+    color: white; /* Postavite globalnu boju teksta na bijelu */
+}
+
+/* Navigacijska traka */
+.navbar-brand {
+    color: white !important;
+}
+
+.navbar-lightgray .nav-link,
+.navbar-lightgray .nav-item {
+    color: rgb(255, 255, 255) !important;
+}
+
+.navbar-lightgray {
+    background-color: transparent !important;
+    border: none !important;
+    color: rgb(15, 15, 15) !important;
+}
+
+/* Padajući izbornik */
+.navbar-nav .dropdown-menu {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0px;
+    padding: 5px;
+}
+
+.navbar-nav .dropdown-item {
+    color: white; /* Promijenjena boja teksta na bijelu */
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+.navbar-nav .dropdown-item:hover {
+    background-color: transparent;
+    color: #09a803;
+}
+
+/* Gumbi */
+a.btn.btn-success.siroko {
+    background-color: transparent;
+    color: rgb(15, 167, 1);
+    border: none;
+    border-radius: none;
+    padding: 10px 20px;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+a.btn.btn-success.siroko:hover {
+    background-color: rgb(0, 252, 21);
+    color: rgb(12, 12, 12);
+}
+
+.btn {
+    color: rgb(0, 0, 0); /* Boja teksta za sve gumbe */
+}
+
+.btn-danger {
+    color: white; /* Boja teksta za gumbe s klasom "btn-danger" */
+}
+
+/* Kupci stranica */
+.kupci-stranica {
+    background-color: transparent !important;
+    color: white !important; /* Promijenjena boja teksta na bijelu */
+}
+
+.kupci-stranica * {
+    background-color: transparent !important;
+    color: white !important;
+}
+
+.table {
+    background-color: transparent !important; /* Dodana prozirna pozadina */
+    color: white !important; /* Promijenjena boja teksta na bijelu */
+}
+
+.table td,
+.table th {
+    background-color: transparent !important; /* Dodana prozirna pozadina za ćelije */
+    color: white !important; /* Promijenjena boja teksta na bijelu za ćelije */
+}
+
+/* Kupci komponenta */
+.kupci-komponenta form label {
+    color: white !important; /* Promijenjena boja teksta na bijelu */
+}
+
+/* Animacije */
+.plutajuca-poruka {
+    animation: klizanje 4s infinite ease-in-out; /* Dodana animacija klizanja za ulaznu poruku Welcome */
+  display: inline-block;
+}
+
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #3498db; /* Efekt svjetlucanja */
+    transition: box-shadow 0.3s ease;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 0 20px #3498db; /* Pojačani efekt svjetlucanja pri hoveru */
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #e74c3c; /* Efekt svjetlucanja */
+    transition: box-shadow 0.3s ease;
+}
+
+.btn-danger:hover {
+    box-shadow: 0 0 20px #e74c3c; /* Pojačani efekt svjetlucanja pri hoveru */
+}
+
+
+
+
+.table tr td:last-child {
+    width: 300px; /* Prilagodite širinu prema potrebi */
+    text-align: center; /* Centriranje teksta i gumba */
+}
+
+/* Centriranje gumba unutar ćelija stupca "Akcija" */
+.table tr td:last-child .btn, /* Ako je zadnji stupac */
+.akcija-stupac .btn { /* Ako ima klasu "akcija-stupac" */
+    display: inline-block;
+    margin: 5px; /* Dodajte malo prostora oko gumba */
+}
+
+.table td,
+.table th {
+    text-align: center;
+}
+
+
+
+/* rubovi tablice */
+.table {
+    border-collapse: separate; /* Odvojeni rubovi ćelija */
+    border-spacing: 0; /* Uklanjanje razmaka između ćelija */
+    border: 2px solid #555; /* Glavni rub tablice */
+    border-radius: 10px; /* Zaobljeni rubovi tablice */
+    overflow: hidden; /* Skrivanje viška sadržaja izvan rubova */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sjena za 3D efekt */
+}
+
+/* rubovi ćelija (stupaca i redova) */
+.table td,
+.table th {
+    border: 1px solid #777; /* Rubovi ćelija */
+    padding: 12px 15px; /* Dodavanje prostora unutar ćelija */
+    transition: background-color 0.3s ease; /* Glatki prijelaz boje pozadine */
+}
+
+/* Hover efekt na ćelijama */
+.table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.1); /* Svjetliji hover efekt */
+}
+
+/* Prvi red (zaglavlje) */
+.table thead th {
+    background-color: #333; /* Tamnija pozadina za zaglavlje */
+    color: #fff; /* Bijeli tekst u zaglavlju */
+    font-weight: bold; /* Podebljani tekst u zaglavlju */
+}
+
+/* Alternativne boje redova (zebra efekt) */
+.table tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.1); /* Lagano tamnija pozadina za parne redove */
+}
+
+
+
+@keyframes klizanje {
+  0% {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+}

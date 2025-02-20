@@ -1,36 +1,31 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
-import './App.css'
-import { Container } from 'react-bootstrap'
-import NavBarEdunova from './components/NavBarEdunova'
-import { Route, Routes } from 'react-router-dom'
-import { RouteNames } from './constants'
-import Pocetna from './pages/Pocetna'
-import SmjeroviPregled from './pages/smjerovi/SmjeroviPregled'
-import SmjeroviDodaj from './pages/smjerovi/SmjeroviDodaj'
-import SmjeroviPromjena from './pages/smjerovi/SmjeroviPromjena'
-
-
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { RouteNames } from './constants';
+import Pocetna from './pages/Pocetna.jsx';
+import KupciPregled from './pages/kupci/KupciPregled.jsx';
+import KupciDodaj from './pages/kupci/KupciDodaj.jsx';
+import KupciPromjena from './pages/kupci/KupciPromjena.jsx';
+import { Container } from 'react-bootstrap';
+import Webkupovinaigrica from './components/NavBarWebkupovinaigrica.jsx';
+import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-
   return (
     <>
       <Container>
-        <NavBarEdunova />
-        
+        <Webkupovinaigrica />
         <Routes>
           <Route path={RouteNames.HOME} element={<Pocetna />} />
-          <Route path={RouteNames.SMJER_PREGLED} element={<SmjeroviPregled />} />
-          <Route path={RouteNames.SMJER_NOVI} element={<SmjeroviDodaj />} />
-          <Route path={RouteNames.SMJER_PROMJENA} element={<SmjeroviPromjena />} />
+          <Route path={RouteNames.KUPAC_PREGLED} element={<KupciPregled />} />
+          <Route path={RouteNames.KUPAC_NOVI} element={<KupciDodaj />} />
+          <Route path={RouteNames.KUPAC_PROMJENA} element={<KupciPromjena />} />
         </Routes>
-
         <hr />
-        &copy; Edunova 2025
+        <p className="copyright">&copy; Web kupovina igrica 2025</p> {/* Dodana klasa "copyright" */}
       </Container>
-     
     </>
-  )
+  );
 }
 
-export default App
+export default App;

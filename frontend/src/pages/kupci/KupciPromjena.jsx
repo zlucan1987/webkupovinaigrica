@@ -1,109 +1,112 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import moment from "moment";
-import SmjerService from "../../services/SmjerService";
+import KupacService from "../../services/KupacService"; // Promijenjeno na KupacService
 import { useEffect, useState } from "react";
 
+export default function KupciPromjena() { 
 
-export default function SmjeroviPromjena(){
+  const navigate = useNavigate();
+  const [kupac, setKupac] = useState({}); 
+  const routeParams = useParams();
 
-    const navigate = useNavigate();
-    const [smjer,setSmjer] = useState({});
-    const [vaucer,setVaucer] = useState(false)
-    const routeParams = useParams();
+  async function dohvatiKupca() { 
+    const odgovor = await KupacService.getBySifra(routeParams.sifra); 
+    setKupac(odgovor); 
+  }
 
-    async function dohvatiSmjer(){
-        const odgovor = await SmjerService.getBySifra(routeParams.sifra)
+  function KupciPromjena() {
+    return (
+      <div className="kupci-komponenta"> {/* Dodajte klasu */}
+        {/* ...sadržaj komponente... */}
+      </div>
+    );
+  }
+  useEffect(() => {
+    dohvatiKupca(); 
+  }, []);
 
-        if(odgovor.izvodiSeOd!=null){
-            odgovor.izvodiSeOd = moment.utc(odgovor.izvodiSeOd).format('yyyy-MM-DD')
-        }
-        
-        setSmjer(odgovor)
-        setVaucer(odgovor.vaucer)
+  async function promjena(kupac) { 
+    const odgovor = await KupacService.promjena(routeParams.sifra, kupac); 
+    if (odgovor.greska) {
+      alert(odgovor.poruka);
+      return;
     }
+    navigate(RouteNames.KUPAC_PREGLED); 
+  }
 
-    useEffect(()=>{
-        dohvatiSmjer();
-    },[])
+  function odradiSubmit(e) {
+    e.preventDefault();
 
-    async function promjena(smjer){
-        const odgovor = await SmjerService.promjena(routeParams.sifra,smjer);
-        if(odgovor.greska){
-            alert(odgovor.poruka)
-            return
-        }
-        navigate(RouteNames.SMJER_PREGLED)
-    }
+    let podaci = new FormData(e.target);
 
-    function odradiSubmit(e){ // e je event
-        e.preventDefault(); // nemoj odraditi zahtjev na server pa standardnom načinu
+    promjena({
+      ime: podaci.get("ime"),
+      prezime: podaci.get("prezime"),
+      ulica: podaci.get("ulica"),
+      mjesto: podaci.get("mjesto"),
+    });
+  }
 
-        let podaci = new FormData(e.target);
-
-        promjena(
-            {
-                naziv: podaci.get('naziv'),
-                cijenaSmjera: parseFloat(podaci.get('cijenaSmjera')),
-                izvodiSeOd: moment.utc(podaci.get('izvodiSeOd')),
-                vaucer: podaci.get('vaucer')=='on' ? true : false
-            }
-        );
-    }
-
-    return(
+  return (
     <>
-    Promjena smjera
-    <Form onSubmit={odradiSubmit}>
-
-        <Form.Group controlId="naziv">
-            <Form.Label>Naziv</Form.Label>
-            <Form.Control type="text" name="naziv" required 
-            defaultValue={smjer.naziv}/>
+      Promjena kupca 
+      <Form onSubmit={odradiSubmit}>
+        <Form.Group controlId="ime">
+          <Form.Label>Ime</Form.Label>
+          <Form.Control
+            type="text"
+            name="ime"
+            required
+            defaultValue={kupac.ime} 
+          />
         </Form.Group>
 
-        <Form.Group controlId="cijenaSmjera">
-            <Form.Label>Cijena</Form.Label>
-            <Form.Control type="number" name="cijenaSmjera" step={0.01} 
-            defaultValue={smjer.cijenaSmjera}/>
+        <Form.Group controlId="prezime">
+          <Form.Label>Prezime</Form.Label>
+          <Form.Control
+            type="text"
+            name="prezime"
+            defaultValue={kupac.prezime} 
+          />
         </Form.Group>
 
-        <Form.Group controlId="izvodiSeOd">
-            <Form.Label>Izvodi se od</Form.Label>
-            <Form.Control type="date" name="izvodiSeOd" 
-            defaultValue={smjer.izvodiSeOd}/>
+        <Form.Group controlId="ulica">
+          <Form.Label>Ulica</Form.Label>
+          <Form.Control
+            type="text"
+            name="ulica"
+            defaultValue={kupac.ulica} 
+          />
         </Form.Group>
 
+        <Form.Group controlId="mjesto">
+          <Form.Label>Mjesto</Form.Label>
+          <Form.Control
+            type="text"
+            name="mjesto"
+            defaultValue={kupac.mjesto} 
+          />
+        </Form.Group>
 
-        <Form.Group controlId="vaucer">
-            <Form.Check label="Vaučer" name="vaucer" 
-                onChange={(e)=>setVaucer(e.target.checked)}
-                checked={vaucer}  />
-            </Form.Group>
-        <hr/>
+        <hr />
 
         <Row>
-            <Col xs={6} sm={6} md={3} lg={2} xl={6} xxl={6}>
-                <Link
-                to={RouteNames.SMJER_PREGLED}
-                className="btn btn-danger siroko"
-                >Odustani</Link>
-            </Col>
-            <Col xs={6} sm={6} md={9} lg={10} xl={6} xxl={6}>
-                <Button variant="success" type="submit" className="siroko">
-                    Promjeni smjer
-                </Button>
-            </Col>
+          <Col xs={6} sm={6} md={3} lg={2} xl={6} xxl={6}>
+            <Link
+              to={RouteNames.KUPAC_PREGLED} 
+              className="btn btn-danger siroko"
+            >
+              Odustani
+            </Link>
+          </Col>
+          <Col xs={6} sm={6} md={9} lg={10} xl={6} xxl={6}>
+            <Button variant="success" type="submit" className="siroko">
+              Promjeni kupca 
+            </Button>
+          </Col>
         </Row>
-
-
-    </Form>
-
-
-
-
-   
+      </Form>
     </>
-    )
+  );
 }

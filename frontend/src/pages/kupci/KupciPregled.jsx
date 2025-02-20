@@ -1,114 +1,82 @@
-import { useEffect, useState } from "react"
-import SmjerService from "../../services/SmjerService"
+import { useEffect, useState } from "react";
+import KupacService from "../../services/KupacService";
 import { Button, Table } from "react-bootstrap";
-import { NumericFormat } from "react-number-format";
 import moment from "moment";
-import { GrValidate } from "react-icons/gr";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
 
+export default function KupciPregled() {
+  const [kupci, setKupci] = useState([]);
+  const navigate = useNavigate();
 
-export default function SmjeroviPregled(){
+  async function dohvatiKupce() {
+    const odgovor = await KupacService.get();
+    setKupci(odgovor);
+  }
 
-    const[smjerovi, setSmjerovi] = useState();
-    const navigate = useNavigate();
+  useEffect(() => {
+    dohvatiKupce();
+  }, []);
 
-    async function dohvatiSmjerove(){
-        const odgovor = await SmjerService.get()
-        setSmjerovi(odgovor)
+  function formatirajDatum(datum) {
+    if (datum == null) {
+      return "Nije definirano";
     }
+    return moment.utc(datum).format("DD. MM. YYYY.");
+  }
 
-    // hooks (kuka) se izvodi prilikom dolaska na stranicu Smjerovi
-    useEffect(()=>{
-        dohvatiSmjerove();
-    },[])
-
-
-    function formatirajDatum(datum){
-        if(datum==null){
-            return 'Nije definirano'
-        }
-        return moment.utc(datum).format('DD. MM. YYYY.')
+  function obrisi(sifra) {
+    if (!confirm("Sigurno obrisati?")) {
+      return;
     }
+    brisanjeKupca(sifra);
+  }
 
-    function vaucer(v){
-        if(v==null) return 'gray'
-        if(v) return 'green'
-        return 'red'
+  async function brisanjeKupca(sifra) {
+    const odgovor = await KupacService.obrisi(sifra);
+    if (odgovor.greska) {
+      alert(odgovor.poruka);
+      return;
     }
+    dohvatiKupce();
+  }
 
-    function vaucerText(v){
-        if(v==null) return 'Nije definirano'
-        if(v) return 'Vaučer'
-        return 'NIJE vaučer'
-    }
-
-    function obrisi(sifra){
-        if(!confirm('Sigurno obrisati')){
-            return;
-        }
-        brisanjeSmjera(sifra);
-    }
-
-    async function brisanjeSmjera(sifra) {
-        const odgovor = await SmjerService.obrisi(sifra);
-        if(odgovor.greska){
-            alert(odgovor.poruka);
-            return;
-        }
-        dohvatiSmjerove();
-    }
-
-
-    return(
-        <>
-        <Link
-        to={RouteNames.SMJER_NOVI}
-        className="btn btn-success siroko"
-        >Dodaj novi smjer</Link>
-        <Table striped bordered hover responsive>
-            <thead>
-                <tr>
-                    <th>Ime</th>
-                    <th>Prezime</th>
-                    <th>Ulica</th>
-                    <th>Mjesto</th>
-                    <th>Akcija</th>
-                </tr>
-            </thead>
-            <tbody>
-                {smjerovi && smjerovi.map((kupac,index)=>(
-                    <tr key={index}>
-                        <td>
-                            {kupac.ime}
-                        </td>
-                        <td>
-                            {kupac.prezime}
-                        </td>
-                        <td>
-                            {kupac.ulica}
-                        </td>
-                        <td>
-                            {kupac.mjesto}
-                        </td>
-                     
-                        
-                        <td>
-                            <Button
-                            onClick={()=>navigate(`/smjerovi/${kupac.sifra}`)}
-                            >Promjena</Button>
-                            &nbsp;&nbsp;&nbsp;
-                            <Button
-                            variant="danger"
-                            onClick={()=>obrisi(kupac.sifra)}
-                            >Obriši</Button>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </Table>
-        </>
-    )
-
-
+  return (
+    <div className="kupci-komponenta">
+      <Link to={RouteNames.KUPAC_NOVI} className="btn btn-success siroko">
+        Dodaj novog kupca
+      </Link>
+      <Table striped bordered hover responsive>
+        <thead>
+          <tr>
+            <th>Ime</th>
+            <th>Prezime</th>
+            <th>Ulica</th>
+            <th>Mjesto</th>
+            <th>Akcija</th>
+          </tr>
+        </thead>
+        <tbody>
+          {kupci &&
+            kupci.map((kupac, index) => (
+              <tr key={index}>
+                <td>{kupac.ime}</td>
+                <td>{kupac.prezime}</td>
+                <td>{kupac.ulica}</td>
+                <td>{kupac.mjesto}</td>
+                <td>
+                  <Button onClick={() => navigate(`/kupci/${kupac.sifra}`)}>
+                    Promjena
+                  </Button>
+                  &nbsp;&nbsp;&nbsp;
+                  <Button variant="danger" onClick={() => obrisi(kupac.sifra)}>
+                    Obriši
+                  </Button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </Table>
+    </div>
+  );
 }
