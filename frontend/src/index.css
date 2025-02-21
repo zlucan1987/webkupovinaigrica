@@ -94,7 +94,7 @@ a.btn.btn-success.siroko:hover {
 }
 
 /* Kupci komponenta */
-.kupci-komponenta form label {
+.kupci-komponenta {
     color: white !important; /* Promijenjena boja teksta na bijelu */
 }
 
@@ -191,7 +191,11 @@ a.btn.btn-success.siroko:hover {
 }
 
 
-
+.input-manja-sirina {
+    max-width: 300px; /* Prilagodi širinu prema potrebi */
+    display: inline-block; /* Da se ne proteže na cijelu širinu */
+  }
+  
 @keyframes klizanje {
   0% {
     transform: translateX(-50px);

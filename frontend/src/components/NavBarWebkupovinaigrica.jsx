@@ -1,37 +1,31 @@
 import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import { useNavigate } from 'react-router-dom';
-import { PRODUKCIJA, RouteNames } from '../constants';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { RouteNames } from '../constants';
 
 export default function Webkupovinaigrica() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isHomePage = location.pathname === '/';
 
   return (
     <>
-      <Navbar expand="lg" className="navbar-lightgray"> {/* Dodana klasa */}
+      <Navbar expand="lg" className="navbar-lightgray">
         <Container>
           <Navbar.Brand
             className="ruka"
             onClick={() => navigate(RouteNames.HOME)}
           >
-            Web kupovina igrica
+           
           </Navbar.Brand>
+          {isHomePage && (
+            <div className="animirana-poruka">
+              WELCOME, FEEL FREE TO TEST IT OUT !!!
+            </div>
+          )}
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <NavDropdown title="Programi" id="basic-nav-dropdown">
-                <NavDropdown.Item
-                  onClick={() => navigate(RouteNames.KUPAC_PREGLED)}
-                >
-                  Kupci
-                </NavDropdown.Item>
-              </NavDropdown>
-              <Nav.Link href={PRODUKCIJA + '/swagger'} target="_blank">
-                Swagger
-              </Nav.Link>
-            </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
