@@ -61,26 +61,25 @@
     margin-right: 10px;
   }
 
-  /* App.css ili NavBarWebkupovinaigrica.css */
-.animirana-poruka {
-    position: absolute; /* Postavljamo apsolutnu poziciju */
-    top: 470px; /* Prilagodite udaljenost od vrha */
-    left: 50%; /* Centriramo horizontalno */
-    transform: translateX(-50%); /* Centriramo horizontalno */
-    font-size: 2em; /* Povećavamo veličinu teksta */
-    font-weight: bold; /* Podebljavamo tekst */
+  .animirana-poruka {
+    position: absolute;
+    top: 470px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2em;
+    font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
-    animation: fadeInOut 2s infinite linear; /* Animacija pojavljivanja i nestajanja */
-    opacity: 0; /* Početna neprozirnost */
+    animation: fadeInOut 2s infinite linear;
+    opacity: 0;
   }
   
   @keyframes fadeInOut {
     0%, 100% {
-      opacity: 0; /* Neprozirno na početku i kraju */
+      opacity: 0;
     }
     10%, 90% {
-      opacity: 1; /* Prozirno tijekom animacije */
+      opacity: 1;
     }
   }
 

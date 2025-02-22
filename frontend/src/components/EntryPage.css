@@ -1,0 +1,75 @@
+/* EntryPage.css */
+
+.entry-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-image: url('/gamingbackground.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: white;
+    text-align: center;
+}
+
+.entry-content {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-messages {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.welcome-top {
+    font-size: 3em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: transform 0.5s ease, color 0.5s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: typing 4s steps(30, end) infinite;
+}
+
+.welcome-top:hover {
+    transform: scale(1.1);
+    color: #00ff00;
+}
+
+@keyframes typing {
+    0% { width: 0; }
+    100% { width: 100%; }
+}
+
+.entry-buttons {
+    margin-top: 30px;
+}
+
+.entry-button {
+    display: inline-flex;
+    align-items: center;
+    background-color: #3498db;
+    color: white;
+    padding: 15px 30px;
+    margin: 10px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.2em;
+    transition: background-color 0.3s ease;
+}
+
+.entry-button:hover {
+    background-color: #2980b9;
+}
+
+.entry-icon {
+    margin-right: 10px;
+}
