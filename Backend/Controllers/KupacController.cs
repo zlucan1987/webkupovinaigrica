@@ -1,12 +1,14 @@
 ﻿using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Data;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 
 namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-
     public class KupacController : ControllerBase
     {
         private readonly BackendContext _context;
@@ -25,7 +27,7 @@ namespace Backend.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
 
@@ -47,22 +49,37 @@ namespace Backend.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
 
         [HttpPost]
-        public IActionResult Post(Kupac kupac)
+        public IActionResult Post([FromBody] Kupac kupac)
         {
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"Validacijska greška: {error.Key} - {error.Value.Errors.FirstOrDefault()?.ErrorMessage}");
+                }
+                return BadRequest(ModelState);
+            }
             try
             {
                 _context.Kupci.Add(kupac);
+                Console.WriteLine($"Kupac za upis: {System.Text.Json.JsonSerializer.Serialize(kupac)}");
                 _context.SaveChanges();
                 return StatusCode(StatusCodes.Status201Created, kupac);
             }
-            catch (Exception e)
+            catch (DbUpdateException dbEx)
             {
-                return BadRequest(e);
+                Console.WriteLine($"Greška pri upisu u bazu: {dbEx.ToString()}");
+                return BadRequest("Greška pri upisu u bazu podataka.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Opća greška: {ex.Message}");
+                return BadRequest("Opća greška.");
             }
         }
 
@@ -71,14 +88,12 @@ namespace Backend.Controllers
         {
             try
             {
-
                 var kupciBaza = _context.Kupci.Find(sifra);
                 if (kupciBaza == null)
                 {
                     return NotFound(new { poruka = $"Kupac s šifrom {sifra} ne postoji" });
                 }
 
-                // rucni mapping - kasnije automatika
                 kupciBaza.Ime = kupac.Ime;
                 kupciBaza.Prezime = kupac.Prezime;
                 kupciBaza.Ulica = kupac.Ulica;
@@ -90,7 +105,7 @@ namespace Backend.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
 
@@ -114,9 +129,8 @@ namespace Backend.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
-
         }
     }
 }
