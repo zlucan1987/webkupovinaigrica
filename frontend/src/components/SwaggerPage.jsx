@@ -36,7 +36,7 @@ function SwaggerPage() {
                 ref={iframeRef}
                 src="https://lucko1987vk-001-site1.ktempurl.com/swagger"
                 title="Swagger UI"
-                width="100%"
+                width="100%" // Vraćanje na punu širinu
                 style={{ border: 'none', pointerEvents: 'auto' }}
             />
         </div>

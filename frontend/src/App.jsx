@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, Routes, useNavigate, useLocation, Link } from 'react-router-dom';
 import { RouteNames } from './constants';
 import KupciPregled from './pages/kupci/KupciPregled.jsx';
 import KupciDodaj from './pages/kupci/KupciDodaj.jsx';
 import KupciPromjena from './pages/kupci/KupciPromjena.jsx';
-import { Container } from 'react-bootstrap';
 import Webkupovinaigrica from './components/NavBarWebkupovinaigrica.jsx';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,8 +18,16 @@ function App() {
         navigate(-1);
     };
 
+    useEffect(() => {
+        if (location.pathname === '/') {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+    }, [location.pathname]);
+
     return (
-        <Container style={{ position: 'relative', minHeight: '100vh' }}>
+        <div className="app-container">
             <Webkupovinaigrica />
             <Routes>
                 <Route path="/" element={<EntryPage />} />
@@ -31,15 +38,7 @@ function App() {
             </Routes>
             <hr />
             {location.pathname !== '/' && (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    padding: '10px',
-                    borderRadius: '10px',
-                    position: 'relative', // Dodano
-                    zIndex: '1000' // Dodano
-                }}>
+                <div className="footer-navigation">
                     <Link to="/" className="copyright">
                         FrontPage
                     </Link>
@@ -48,17 +47,10 @@ function App() {
                     </button>
                 </div>
             )}
-            <div style={{
-                position: 'absolute',
-                bottom: '0',
-                width: '100%',
-                textAlign: 'center',
-                color: 'white',
-                padding: '10px 0'
-            }}>
+            <div className="app-copyright">
                 © Web kupovina igrica 2025
             </div>
-        </Container>
+        </div>
     );
 }
 

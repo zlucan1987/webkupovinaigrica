@@ -1,95 +1,48 @@
-.ruka{
-    cursor: pointer;
+/* app.css */
+#root {
+  min-height: 100vh;
+  width: 100vw;
 }
 
-.sredina{
-    text-align: center;
+.app-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Vraćanje na stretch */
+  padding: 0;
 }
 
-.desno{
-    text-align: right;
+.navbar-lightgray {
+  width: 100vw;
+  height: 8vh;
+  margin: 0;
+  padding: 0;
 }
 
-.siroko{
-    width: 100%;
+/* Uvjetno stiliziranje */
+.app-container > *:first-child.navbar-lightgray.entry-page-navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* EntryPage.css */
-.entry-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-image: url('/gamingbackground.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    color: white;
-    text-align: center;
-  }
-  
-  .entry-content {
-    background-color: rgba(0, 0, 0, 0.7); /* Prozirna pozadina */
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-  
-  .entry-buttons {
-    margin-top: 30px;
-  }
-  
-  .entry-button {
-    display: inline-flex;
-    align-items: center;
-    background-color: #3498db;
-    color: white;
-    padding: 15px 30px;
-    margin: 10px;
-    border: none;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 1.2em;
-    transition: background-color 0.3s ease;
-  }
-  
-  .entry-button:hover {
-    background-color: #2980b9;
-  }
-  
-  .entry-icon {
-    margin-right: 10px;
-  }
+.footer-navigation {
+  display: flex;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 10px;
+  position: relative;
+  z-index: 1000;
+}
 
-  .animirana-poruka {
-    position: absolute;
-    top: 470px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 2em;
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    animation: fadeInOut 2s infinite linear;
-    opacity: 0;
-  }
-  
-  @keyframes fadeInOut {
-    0%, 100% {
-      opacity: 0;
-    }
-    10%, 90% {
-      opacity: 1;
-    }
-  }
-
-  .copyright {
-    color: white;
-    text-decoration: none;
-    display: block; /* Postavljamo na block element da zauzme cijelu širinu */
-    text-align: center; /* Centriranje teksta */
-  }
-  
-  .copyright:hover {
-    text-decoration: underline;
-  }
+.app-copyright {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  color: white;
+  padding: 10px 0;
+}

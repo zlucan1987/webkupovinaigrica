@@ -1,20 +1,17 @@
 /* EntryPage.css */
-
 .entry-page {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-image: url('/gamingbackground.jpg');
-    background-size: cover; /* Ili contain ako ne želite zumiranje */
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    width: 100vw;
     color: white;
     text-align: center;
 }
 
 .entry-content {
-    background-color: rgba(0, 0, 0, 0.7); /* Zadržavamo za efekt sjene */
+    background-color: rgba(0, 0, 0, 0.7);
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
