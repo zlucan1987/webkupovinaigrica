@@ -6,4 +6,4 @@ export const RouteNames={
     KUPAC_PROMJENA: '/kupci/:sifra'
 }
 
-export const PRODUKCIJA='https://lucko1987vk-001-site1.ktempurl.com';
+export const PRODUKCIJA = 'https://brutallucko.online';

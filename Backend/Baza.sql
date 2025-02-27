@@ -1,44 +1,35 @@
-
-SELECT name, collation_name FROM sys.databases;
+ÔªøSELECT name, collation_name FROM sys.databases;
 GO
-ALTER DATABASE db_ab2d4b_webkupovinaigrica SET SINGLE_USER WITH
-ROLLBACK IMMEDIATE;
+ALTER DATABASE db_ab2d4b_webkupovinaigrica SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 GO
-ALTER DATABASE db_ab2d4b_webkupovinaigrica COLLATE Croatian_CI_AS;
+ALTER DATABASE db_ab2d4b_webkupovinaigrica COLLATE Latin1_General_100_CI_AI_SC_UTF8;
 GO
 ALTER DATABASE db_ab2d4b_webkupovinaigrica SET MULTI_USER;
 GO
 SELECT name, collation_name FROM sys.databases;
 GO
 
+-- Dodavanje ograniƒçenja duljine na tablicu proizvodi
+-- ALTER TABLE proizvodi
+-- ADD CONSTRAINT CK_Proizvodi_NazivIgre_Duljina
+-- CHECK (LEN(nazivigre) <= 100);
 
-create table proizvodi(
-sifra int not null primary key identity(1,1), 
-nazivigre varchar(100) not null, 
-cijena decimal (18,2) not null
-);
+-- Dodavanje ograniƒçenja duljine na tablicu kupci
+-- ALTER TABLE kupci
+-- ADD CONSTRAINT CK_Kupci_Ime_Duljina
+-- CHECK (LEN(ime) <= 50);
 
-create table kupci(
-sifra int not null primary key identity(1,1),
-ime varchar(50) not null,
-prezime varchar(100) not null,
-ulica varchar(100) not null,
-mjesto varchar(100) not null
-);
+-- ALTER TABLE kupci
+-- ADD CONSTRAINT CK_Kupci_Prezime_Duljina
+-- CHECK (LEN(prezime) <= 100);
 
-create table racuni(
-sifra int not null primary key identity(1,1),
-datum datetime not null, -- "Datum kupnje" upotpunosti uklonjen iz table(stavke) jer prilikom izrade racuna vec imamo datum kupnje, odnosno dana kada se izdao racun.
-kupac int not null references kupci(sifra)
-);
+-- ALTER TABLE kupci
+-- ADD CONSTRAINT CK_Kupci_Ulica_Duljina
+-- CHECK (LEN(ulica) <= 100);
 
-create table stavke(
-sifra int not null primary key identity(1,1),
-racun int not null references racuni(sifra),
-proizvod int not null references proizvodi(sifra),
-kolicina int not null, 
-cijena decimal (18,2) not null--datumkupnje datetime --v 0.1"Datumkupnje" prebacen iz table (proizvodi) u table (stavke) jer ce datum biti upisan kada se odredjeni proizvod kupi. 
-);
+-- ALTER TABLE kupci
+-- ADD CONSTRAINT CK_Kupci_Mjesto_Duljina
+-- CHECK (LEN(mjesto) <= 100);
 
 --1
 insert into proizvodi(nazivigre, cijena) values
@@ -50,29 +41,23 @@ insert into proizvodi(nazivigre, cijena) values
 
 --2
 insert into kupci(ime,prezime,ulica,mjesto) values
---1
-('Marko', 'PeriÊ', 'Matice hrvatske 12', 'Vinkovci'),
---2
-('Ivan','MarkoviÊ','Ulica Kralja Zvonimira','Vinkovci'),
---3
+('Marko', 'Peri√¶', 'Matice hrvatske 12', 'Vinkovci'),
+('Ivan','Markovi√¶','Ulica Kralja Zvonimira','Vinkovci'),
 ('Martin','Vida', 'Duga ulica', 'Vinkovci'),
---4
-('éeljko','Baraban', 'LapovaËka 19', 'Vinkovci'),
---5
-('Petar','Maj','Ruûina ulica','Vinkovci');
+('≈Ωeljko','Baraban', 'Lapova√®ka 19', 'Vinkovci'),
+('Petar','Maj','Ru≈æina ulica','Vinkovci');
 
 --3
 insert into racuni(datum, kupac) values
-('2025-11-25', 1), -- Datum, prvi kupac
-('2025-10-19', 3), -- itd
+('2025-11-25', 1),
+('2025-10-19', 3),
 ('2025-09-15', 2); 
 
 --4
 insert into stavke(racun, proizvod, kolicina, cijena) values
-(1, 1, 2, 0.00), -- Prvi raËun, prvi proizvod, 2 komada, cijena
-(1, 3, 1, 21.99), -- itd
+(1, 1, 2, 0.00),
+(1, 3, 1, 21.99),
 (2, 2, 3, 0.00); 
-
 
 select * from proizvodi;
 select * from kupci;
