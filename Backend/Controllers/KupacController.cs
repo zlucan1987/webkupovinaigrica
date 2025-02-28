@@ -1,29 +1,32 @@
-﻿using Backend.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
 using Backend.Data;
+using Backend.Models;
+using Backend.Models.DTO;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class KupacController : ControllerBase
+    public class KupacController : BackendController
     {
-        private readonly BackendContext _context;
-
-        public KupacController(BackendContext context)
+        public KupacController(BackendContext context, IMapper mapper) : base(context, mapper)
         {
-            _context = context;
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(List<KupacDTORead>), 200)]
         public IActionResult Get()
         {
             try
             {
-                return Ok(_context.Kupci);
+                var kupci = _context.Kupci.ToList();
+                var kupciDTO = _mapper.Map<List<KupacDTORead>>(kupci);
+                return Ok(kupciDTO);
             }
             catch (Exception e)
             {
@@ -32,6 +35,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{sifra:int}")]
+        [ProducesResponseType(typeof(KupacDTORead), 200)]
         public IActionResult Get(int sifra)
         {
             if (sifra <= 0)
@@ -45,7 +49,8 @@ namespace Backend.Controllers
                 {
                     return NotFound(new { poruka = $"Kupac s šifrom {sifra} ne postoji" });
                 }
-                return Ok(kupac);
+                var kupacDTO = _mapper.Map<KupacDTORead>(kupac);
+                return Ok(kupacDTO);
             }
             catch (Exception e)
             {
@@ -54,38 +59,37 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Kupac kupac)
+        public IActionResult Post([FromBody] KupacDTOInsertUpdate kupacDTO)
         {
             if (!ModelState.IsValid)
             {
-                foreach (var error in ModelState)
-                {
-                    Console.WriteLine($"Validacijska greška: {error.Key} - {error.Value.Errors.FirstOrDefault()?.ErrorMessage}");
-                }
                 return BadRequest(ModelState);
             }
             try
             {
+                var kupac = _mapper.Map<Kupac>(kupacDTO);
                 _context.Kupci.Add(kupac);
-                Console.WriteLine($"Kupac za upis: {System.Text.Json.JsonSerializer.Serialize(kupac)}");
                 _context.SaveChanges();
-                return StatusCode(StatusCodes.Status201Created, kupac);
+                var kupacReadDTO = _mapper.Map<KupacDTORead>(kupac);
+                return StatusCode(StatusCodes.Status201Created, kupacReadDTO);
             }
             catch (DbUpdateException dbEx)
             {
-                Console.WriteLine($"Greška pri upisu u bazu: {dbEx.ToString()}");
                 return BadRequest("Greška pri upisu u bazu podataka.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Opća greška: {ex.Message}");
                 return BadRequest("Opća greška.");
             }
         }
 
         [HttpPut("{sifra:int}")]
-        public IActionResult Put(int sifra, Kupac kupac)
+        public IActionResult Put(int sifra, KupacDTOInsertUpdate kupacDTO)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
                 var kupciBaza = _context.Kupci.Find(sifra);
@@ -94,14 +98,12 @@ namespace Backend.Controllers
                     return NotFound(new { poruka = $"Kupac s šifrom {sifra} ne postoji" });
                 }
 
-                kupciBaza.Ime = kupac.Ime;
-                kupciBaza.Prezime = kupac.Prezime;
-                kupciBaza.Ulica = kupac.Ulica;
-                kupciBaza.Mjesto = kupac.Mjesto;
+                _mapper.Map(kupacDTO, kupciBaza);
 
                 _context.Kupci.Update(kupciBaza);
                 _context.SaveChanges();
-                return Ok(kupciBaza);
+                var kupacReadDTO = _mapper.Map<KupacDTORead>(kupciBaza);
+                return Ok(kupacReadDTO);
             }
             catch (Exception e)
             {

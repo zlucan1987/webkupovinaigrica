@@ -4,9 +4,9 @@ using Backend.Models.DTO;
 
 namespace Backend.Mapping
 {
-    public class BackendProfil : Profile
+    public class BackendProfile : Profile
     {
-        public BackendProfil()
+        public BackendProfile()
         {
             // kreiramo mapiranja: izvor, odredište
             CreateMap<Kupac, KupacDTORead>();

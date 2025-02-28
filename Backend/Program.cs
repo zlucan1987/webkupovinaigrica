@@ -31,7 +31,7 @@ builder.Services.AddCors(o =>
     });
 });
 
-builder.Services.AddAutoMapper(typeof(BackendProfil));
+builder.Services.AddAutoMapper(typeof(BackendProfile));
 
 var app = builder.Build();
 
