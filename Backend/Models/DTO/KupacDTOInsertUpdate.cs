@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace webkupovinaigrica.Models.DTO
+namespace Backend.Models.DTO
 {
     public record KupacDTOInsertUpdate(
         [Required(ErrorMessage = "Ime je obavezno")]

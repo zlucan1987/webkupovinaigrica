@@ -1,4 +1,4 @@
-﻿namespace webkupovinaigrica.Models.DTO
+﻿namespace Backend.Models.DTO
 {
         public record KupacDTORead(
             int Sifra, 

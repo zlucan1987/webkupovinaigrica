@@ -1,5 +1,7 @@
 ﻿using Backend.Data;
+using Backend.Mapping;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,8 @@ builder.Services.AddCors(o =>
          .AllowAnyHeader();
     });
 });
+
+builder.Services.AddAutoMapper(typeof(BackendProfil));
 
 var app = builder.Build();
 

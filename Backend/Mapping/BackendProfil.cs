@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using webkupovinaigrica.Models;
-using webkupovinaigrica.Models.DTO;
+using Backend.Models;
+using Backend.Models.DTO;
 
-namespace webkupovinaigrica.Mapping
+namespace Backend.Mapping
 {
     public class BackendProfil : Profile
     {
@@ -12,3 +12,7 @@ namespace webkupovinaigrica.Mapping
             CreateMap<Kupac, KupacDTORead>();
             CreateMap<KupacDTOInsertUpdate, Kupac>();
             CreateMap<Kupac, KupacDTOInsertUpdate>();
+
+        }
+    }
+}
