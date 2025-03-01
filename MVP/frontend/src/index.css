@@ -1,0 +1,37 @@
+/* index.css */
+body {
+    background-image: url('/gamingbackground.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    color: white;
+}
+
+.copyright {
+    color: white !important;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.copyright:hover {
+    text-decoration: underline;
+}
+
+.navbar-brand {
+    color: white !important;
+}
+
+.navbar-lightgray .nav-link,
+.navbar-lightgray .nav-item {
+    color: rgb(255, 255, 255) !important;
+}
+
+.navbar-lightgray {
+    background-color: transparent !important;
+    border: none !important;
+    color: rgb(15, 15, 15) !important;
+}
+
