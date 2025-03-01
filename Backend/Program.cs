@@ -26,12 +26,13 @@ builder.Services.AddCors(o =>
     o.AddPolicy("CorsPolicy", b =>
     {
         b.WithOrigins("https://www.brutallucko.online")
-         .AllowAnyMethod()
-         .AllowAnyHeader();
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
-builder.Services.AddAutoMapper(typeof(BackendProfile));
+// Ispravljena registracija AutoMapper-a
+builder.Services.AddAutoMapper(typeof(Backend.Mapping.BackendProfile));
 
 var app = builder.Build();
 

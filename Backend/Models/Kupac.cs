@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Models
 {
@@ -17,5 +18,7 @@ namespace Backend.Models
 
         [MaxLength(100, ErrorMessage = "Mjesto ne smije biti duže od 100 znakova.")]
         public string Mjesto { get; set; } = "";
+
+        public ICollection<Racun> Racuni { get; set; } // Dodajte ovo svojstvo
     }
 }
