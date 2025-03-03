@@ -9,27 +9,41 @@ GO
 SELECT name, collation_name FROM sys.databases;
 GO
 
--- Dodavanje ograničenja duljine na tablicu proizvodi
--- ALTER TABLE proizvodi
--- ADD CONSTRAINT CK_Proizvodi_NazivIgre_Duljina
--- CHECK (LEN(nazivigre) <= 100);
 
--- Dodavanje ograničenja duljine na tablicu kupci
--- ALTER TABLE kupci
--- ADD CONSTRAINT CK_Kupci_Ime_Duljina
--- CHECK (LEN(ime) <= 50);
+CREATE TABLE Proizvodi (
+    ProizvodID INT PRIMARY KEY IDENTITY(1,1),
+    NazivIgre NVARCHAR(100) NOT NULL,
+    Cijena DECIMAL(10, 2) NOT NULL
+);
+GO
 
--- ALTER TABLE kupci
--- ADD CONSTRAINT CK_Kupci_Prezime_Duljina
--- CHECK (LEN(prezime) <= 100);
 
--- ALTER TABLE kupci
--- ADD CONSTRAINT CK_Kupci_Ulica_Duljina
--- CHECK (LEN(ulica) <= 100);
+CREATE TABLE Kupci (
+    KupacID INT PRIMARY KEY IDENTITY(1,1),
+    Ime NVARCHAR(50) NOT NULL,
+    Prezime NVARCHAR(100) NOT NULL,
+    Ulica NVARCHAR(100) NOT NULL,
+    Mjesto NVARCHAR(100) NOT NULL
+);
+GO
 
--- ALTER TABLE kupci
--- ADD CONSTRAINT CK_Kupci_Mjesto_Duljina
--- CHECK (LEN(mjesto) <= 100);
+
+CREATE TABLE Racuni (
+    RacunID INT PRIMARY KEY IDENTITY(1,1),
+    Datum DATE NOT NULL,
+    Kupac INT FOREIGN KEY REFERENCES Kupci(KupacID)
+);
+GO
+
+
+CREATE TABLE Stavke (
+    StavkaID INT PRIMARY KEY IDENTITY(1,1),
+    Racun INT FOREIGN KEY REFERENCES Racuni(RacunID),
+    Proizvod INT FOREIGN KEY REFERENCES Proizvodi(ProizvodID),
+    Kolicina INT NOT NULL,
+    Cijena DECIMAL(10, 2) NOT NULL
+);
+GO
 
 --1
 insert into proizvodi(nazivigre, cijena) values
