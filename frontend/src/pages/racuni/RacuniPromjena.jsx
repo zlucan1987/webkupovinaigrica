@@ -10,12 +10,16 @@ export default function RacuniPromjena() {
     const [racun, setRacun] = useState({});
     const routeParams = useParams();
 
+    console.log("routeParams:", routeParams);
+
     async function dohvatiRacun() {
         const odgovor = await RacunService.getBySifra(routeParams.sifra);
         setRacun(odgovor);
     }
 
     useEffect(() => {
+        console.log("routeParams.sifra in useEffect:", routeParams.sifra);
+        console.log("racun state in useEffect:", racun);
         dohvatiRacun();
     }, [routeParams.sifra]);
 
@@ -30,13 +34,12 @@ export default function RacuniPromjena() {
 
     function odradiSubmit(e) {
         e.preventDefault();
-    
+
         let podaci = new FormData(e.target);
-    
+
         promjena({
             Datum: podaci.get("Datum"),
             Kupac: podaci.get("Kupac"),
-            // Uklonjena sifra
         });
     }
 

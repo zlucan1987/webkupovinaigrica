@@ -22,7 +22,7 @@ export default function RacuniPregled() {
         if (datum == null) {
             return "Nije definirano";
         }
-        return moment.utc(datum).format("DD. MM. YYYY");
+        return moment.utc(datum).format("DD. MM.YYYY");
     }
 
     function obrisi(sifra) {
@@ -61,11 +61,14 @@ export default function RacuniPregled() {
                                 <td>{formatirajDatum(racun.Datum)}</td>
                                 <td>{racun.Kupac}</td>
                                 <td>
-                                    <Button onClick={() => navigate(`/racuni/${racun.RacunID}`)}>
+                                    <Button onClick={() => {
+                                        console.log("Racun sifra on click:", racun.sifra);
+                                        navigate(`/racuni/${racun.sifra}`);
+                                    }}>
                                         Promjena
                                     </Button>
                                     &nbsp;&nbsp;&nbsp;
-                                    <Button variant="danger" onClick={() => obrisi(racun.RacunID)}>
+                                    <Button variant="danger" onClick={() => obrisi(racun.sifra)}>
                                         Obriši
                                     </Button>
                                 </td>

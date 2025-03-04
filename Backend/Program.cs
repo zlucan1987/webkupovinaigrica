@@ -31,7 +31,7 @@ builder.Services.AddCors(o =>
     });
 });
 
-// Ispravljena registracija AutoMapper-a
+// Registracija AutoMapper-a
 builder.Services.AddAutoMapper(typeof(Backend.Mapping.BackendProfile));
 
 var app = builder.Build();

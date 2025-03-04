@@ -19,7 +19,8 @@ namespace Backend.Mapping
             CreateMap<Proizvod, ProizvodDTOInsertUpdate>();
 
             // Mapiranja za Racun
-            CreateMap<Racun, RacunDTORead>();
+            CreateMap<Racun, RacunDTORead>()
+                .ForMember(dest => dest.Sifra, opt => opt.MapFrom(src => src.Sifra)); // Dodano eksplicitno mapiranje za Sifra
             CreateMap<RacunDTOInsertUpdate, Racun>();
             CreateMap<Racun, RacunDTOInsertUpdate>();
 

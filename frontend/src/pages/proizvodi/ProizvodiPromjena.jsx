@@ -40,8 +40,8 @@ export default function ProizvodiPromjena() {
   }
 
   return (
-    <div className="proizvodi-komponenta bijeli-tekst">
-      Promjena proizvoda
+    <div className="proizvodi-komponenta" style={{ color: 'white' }}>
+    Promjena proizvoda
       <Form onSubmit={odradiSubmit}>
         <Row className="gx-0">
           <Col md={9} className="pe-0">
