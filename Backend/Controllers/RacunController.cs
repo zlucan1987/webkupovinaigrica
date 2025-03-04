@@ -24,7 +24,7 @@ namespace Backend.Controllers
         {
             try
             {
-                var racuni = _context.Racuni.Include(r => r.KupacNavigation).ToList();
+                var racuni = _context.Racuni.Include(r => r.Kupac).ToList();
                 var racuniDTO = _mapper.Map<List<RacunDTORead>>(racuni);
                 return Ok(racuniDTO);
             }
@@ -44,7 +44,7 @@ namespace Backend.Controllers
             }
             try
             {
-                var racun = _context.Racuni.Include(r => r.KupacNavigation).FirstOrDefault(r => r.Sifra == sifra);
+                var racun = _context.Racuni.Include(r => r.Kupac).FirstOrDefault(r => r.Sifra == sifra);
                 if (racun == null)
                 {
                     return NotFound(new { poruka = $"Račun s šifrom {sifra} ne postoji" });

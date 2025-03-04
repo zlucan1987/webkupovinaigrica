@@ -21,20 +21,14 @@ namespace Backend.Data
 
             // Konfiguracija za Racun entitet
             modelBuilder.Entity<Racun>()
-                .HasOne(r => r.KupacNavigation)
-                .WithMany(k => k.Racuni)
-                .HasForeignKey(r => r.Kupac);
+                .HasOne(r => r.Kupac);
 
             // Konfiguracija za Stavka entitet
             modelBuilder.Entity<Stavka>()
-                .HasOne(s => s.RacunNavigation)
-                .WithMany(r => r.Stavke)
-                .HasForeignKey(s => s.Racun);
+                .HasOne(s => s.Racun);
 
             modelBuilder.Entity<Stavka>()
-                .HasOne(s => s.ProizvodNavigation)
-                .WithMany(p => p.Stavke)
-                .HasForeignKey(s => s.Proizvod);
+                .HasOne(s => s.Proizvod);
         }
     }
 }

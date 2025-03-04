@@ -8,6 +8,6 @@ namespace Backend.Models.DTO
         DateTime Datum,
 
         [Required(ErrorMessage = "Kupac je obavezan.")]
-        int Kupac
+        int KupacSifra
     );
 }

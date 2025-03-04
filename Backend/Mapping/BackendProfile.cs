@@ -19,8 +19,12 @@ namespace Backend.Mapping
             CreateMap<Proizvod, ProizvodDTOInsertUpdate>();
 
             // Mapiranja za Racun
-            CreateMap<Racun, RacunDTORead>()
-                .ForMember(dest => dest.Sifra, opt => opt.MapFrom(src => src.Sifra)); // Dodano eksplicitno mapiranje za Sifra
+            CreateMap<Racun, RacunDTORead>().ConstructUsing(entitet =>
+               new RacunDTORead(
+                  entitet.Sifra,
+                  entitet.Datum,
+                  entitet.Kupac.Ime + " " + entitet.Kupac.Prezime
+                 ));
             CreateMap<RacunDTOInsertUpdate, Racun>();
             CreateMap<Racun, RacunDTOInsertUpdate>();
 
