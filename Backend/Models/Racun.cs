@@ -6,8 +6,8 @@ namespace Backend.Models
     {
         public DateTime Datum { get; set; }
 
-        [ForeignKey("kupac")] // Promjena ovdje
-        public required Kupac Kupac{ get; set; } // Dodano navigacijsko svojstvo
+        [ForeignKey("kupac")] 
+        public required Kupac Kupac{ get; set; } 
         public ICollection<Stavka>? Stavke { get; set; }
     }
 }

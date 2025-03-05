@@ -44,7 +44,6 @@ export default function StavkePregled() {
       <Link to={RouteNames.STAVKA_NOVA} className="btn btn-success siroko">
         Dodaj novu stavku
       </Link>
-      <h2>Pregled stavki</h2>
       {poruka && <p>{poruka}</p>}
       <Table striped bordered hover responsive>
         <thead>
