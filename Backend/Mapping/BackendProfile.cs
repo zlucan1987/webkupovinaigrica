@@ -20,16 +20,18 @@ namespace Backend.Mapping
 
             // Mapiranja za Racun
             CreateMap<Racun, RacunDTORead>().ConstructUsing(entitet =>
-               new RacunDTORead(
-                  entitet.Sifra,
-                  entitet.Datum,
-                  entitet.Kupac.Ime + " " + entitet.Kupac.Prezime
-                 ));
+                new RacunDTORead(
+                    entitet.Sifra,
+                    entitet.Datum,
+                    entitet.Kupac.Ime + " " + entitet.Kupac.Prezime
+                ));
             CreateMap<RacunDTOInsertUpdate, Racun>();
             CreateMap<Racun, RacunDTOInsertUpdate>();
 
             // Mapiranja za Stavka
-            CreateMap<Stavka, StavkaDTORead>();
+            CreateMap<Stavka, StavkaDTORead>()
+                .ForMember(dest => dest.Racun, opt => opt.MapFrom(src => src.Racun.Sifra))
+                .ForMember(dest => dest.Proizvod, opt => opt.MapFrom(src => src.Proizvod.Sifra));
             CreateMap<StavkaDTOInsertUpdate, Stavka>();
             CreateMap<Stavka, StavkaDTOInsertUpdate>();
         }

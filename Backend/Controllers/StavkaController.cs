@@ -24,7 +24,7 @@ namespace Backend.Controllers
         {
             try
             {
-                var stavke = _context.Stavke.ToList();
+                var stavke = _context.Stavke.Include(s => s.Racun).Include(s => s.Proizvod).ToList();
                 var stavkeDTO = _mapper.Map<List<StavkaDTORead>>(stavke);
                 return Ok(stavkeDTO);
             }
@@ -44,7 +44,7 @@ namespace Backend.Controllers
             }
             try
             {
-                var stavka = _context.Stavke.Find(sifra);
+                var stavka = _context.Stavke.Include(s => s.Racun).Include(s => s.Proizvod).FirstOrDefault(s => s.Sifra == sifra);
                 if (stavka == null)
                 {
                     return NotFound(new { poruka = $"Stavka s šifrom {sifra} ne postoji" });
