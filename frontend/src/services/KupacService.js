@@ -1,7 +1,7 @@
 import { HttpService } from "./HttpService";
 
 async function get() {
-  return await HttpService.get('/kupac') // Promjena putanje
+  return await HttpService.get('/kupac') 
     .then((odgovor) => {
       return odgovor.data;
     })

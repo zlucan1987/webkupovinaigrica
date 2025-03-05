@@ -8,8 +8,11 @@ import ProizvodiPregled from './pages/proizvodi/ProizvodiPregled.jsx';
 import ProizvodiDodaj from './pages/proizvodi/ProizvodiDodaj.jsx';
 import ProizvodiPromjena from './pages/proizvodi/ProizvodiPromjena.jsx';
 import RacuniPregled from './pages/racuni/RacuniPregled.jsx';
-import RacuniDodaj from './pages/racuni/RacuniDodaj.jsx'; // Dodajemo uvoz za RacunDodaj
-import RacuniPromjena from './pages/racuni/RacuniPromjena.jsx'; // Dodajemo uvoz za RacunPromjena
+import RacuniDodaj from './pages/racuni/RacuniDodaj.jsx';
+import RacuniPromjena from './pages/racuni/RacuniPromjena.jsx';
+import StavkePregled from './pages/stavke/StavkePregled.jsx';
+import StavkeDodaj from './pages/stavke/StavkeDodaj.jsx';
+import StavkePromjena from './pages/stavke/StavkePromjena.jsx';
 import Webkupovinaigrica from './components/NavBarWebkupovinaigrica.jsx';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -43,9 +46,12 @@ function App() {
         <Route path="/proizvodi" element={<ProizvodiPregled />} />
         <Route path={RouteNames.PROIZVOD_NOVI} element={<ProizvodiDodaj />} />
         <Route path={RouteNames.PROIZVOD_PROMJENA} element={<ProizvodiPromjena />} />
-        <Route path="/racuni" element={<RacuniPregled />} /> {/* Dodajemo rutu za RacunPregled */}
-        <Route path={RouteNames.RACUN_NOVI} element={<RacuniDodaj />} /> {/* Dodajemo rutu za RacunDodaj */}
-        <Route path={RouteNames.RACUN_PROMJENA} element={<RacuniPromjena />} /> {/* Dodajemo rutu za RacunPromjena */}
+        <Route path="/racuni" element={<RacuniPregled />} />
+        <Route path={RouteNames.RACUN_NOVI} element={<RacuniDodaj />} />
+        <Route path={RouteNames.RACUN_PROMJENA} element={<RacuniPromjena />} />
+        <Route path="/stavke" element={<StavkePregled />} />
+        <Route path="/stavke/dodaj" element={<StavkeDodaj />} />
+        <Route path="/stavke/promjena/:sifra" element={<StavkePromjena />} />
         <Route path="/swagger" element={<SwaggerPage />} />
       </Routes>
       <hr />

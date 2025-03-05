@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './EntryPage.css';
-import { FaUsers, FaBook, FaGamepad, FaFileInvoice } from 'react-icons/fa';
+import { FaUsers, FaBook, FaGamepad, FaFileInvoice, FaListAlt } from 'react-icons/fa'; 
 
 function EntryPage() {
     return (
@@ -19,8 +19,11 @@ function EntryPage() {
                     <Link to="/proizvodi" className="entry-button">
                         <FaGamepad className="entry-icon" /> Proizvodi
                     </Link>
-                    <Link to="/racuni" className="entry-button"> {/* Dodajemo link za Račune */}
+                    <Link to="/racuni" className="entry-button">
                         <FaFileInvoice className="entry-icon" /> Računi
+                    </Link>
+                    <Link to="/stavke" className="entry-button"> 
+                        <FaListAlt className="entry-icon" /> Stavke
                     </Link>
                     <Link to="/swagger" className="entry-button">
                         <FaBook className="entry-icon" /> Swagger

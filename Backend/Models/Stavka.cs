@@ -6,10 +6,10 @@ namespace Backend.Models
     public class Stavka : Entitet
     {
         [ForeignKey("racun")]
-        public required Racun Racun { get; set; } // Dodano navigacijsko svojstvo
+        public required Racun Racun { get; set; } 
 
         [ForeignKey("proizvod")]
-        public required Proizvod Proizvod { get; set; } // Dodano navigacijsko svojstvo
+        public required Proizvod Proizvod { get; set; }
 
         public int Kolicina { get; set; }
 
