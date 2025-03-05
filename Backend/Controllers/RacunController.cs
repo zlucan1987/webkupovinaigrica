@@ -98,8 +98,15 @@ namespace Backend.Controllers
                     return NotFound(new { poruka = $"Račun s šifrom {sifra} ne postoji" });
                 }
 
-                _mapper.Map(racunDTO, racunBaza);
+                var kupac = _context.Kupci.Find(racunDTO.KupacSifra);
 
+                if (kupac == null)
+                {
+                    return NotFound(new { poruka = $"Kupac s šifrom {racunDTO.KupacSifra} ne postoji" });
+                }
+
+                _mapper.Map(racunDTO, racunBaza);
+                racunBaza.Kupac = kupac;
                 _context.Racuni.Update(racunBaza);
                 _context.SaveChanges();
                 var racunReadDTO = _mapper.Map<RacunDTORead>(racunBaza);
