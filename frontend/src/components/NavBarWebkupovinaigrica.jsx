@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import Dropdown from 'react-bootstrap/Dropdown'; // Dodan import
 import { useNavigate } from 'react-router-dom';
 import { RouteNames } from '../constants';
 import { useLocation } from 'react-router-dom';
@@ -18,17 +19,25 @@ export default function Webkupovinaigrica() {
                     className="ruka"
                     onClick={() => navigate(RouteNames.HOME)}
                 >
-                    {/* Ovdje možete dodati logo ili tekst brenda */}
+                    {/*  logo ili tekst  */}
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        <Nav.Link onClick={() => navigate('/kupci')}>Kupci</Nav.Link>
-                        <Nav.Link onClick={() => navigate('/proizvodi')}>Proizvodi</Nav.Link>
-                        <Nav.Link onClick={() => navigate('/racuni')}>Računi</Nav.Link>
-                        <Nav.Link onClick={() => navigate('/stavke')}>Stavke</Nav.Link>
-                        <Nav.Link onClick={() => navigate('/swagger')}>Swagger</Nav.Link>
-                        <Nav.Link onClick={() => navigate('/')}>Home</Nav.Link>
+                    <Nav className="mx-auto">
+                        <Dropdown>
+                            <Dropdown.Toggle variant="success" id="dropdown-basic">
+                                Izaberite opciju
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={() => navigate('/kupci')}>Kupci</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate('/proizvodi')}>Proizvodi</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate('/racuni')}>Računi</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate('/stavke')}>Stavke</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate('/swagger')}>Swagger</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate('/')}>Home</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>

@@ -1,4 +1,4 @@
-﻿﻿SELECT name, collation_name FROM sys.databases;
+﻿SELECT name, collation_name FROM sys.databases;
 GO
 ALTER DATABASE db_ab2d4b_webkupovinaigrica SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 GO

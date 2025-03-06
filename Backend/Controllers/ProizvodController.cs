@@ -73,13 +73,13 @@ namespace Backend.Controllers
                 var proizvodReadDTO = _mapper.Map<ProizvodDTORead>(proizvod);
                 return StatusCode(StatusCodes.Status201Created, proizvodReadDTO);
             }
-            catch (DbUpdateException dbEx)
+            catch (DbUpdateException) 
             {
                 return BadRequest("Greška pri upisu u bazu podataka.");
             }
-            catch (Exception ex)
+            catch (Exception e) 
             {
-                return BadRequest("Opća greška.");
+                return BadRequest(e.Message);
             }
         }
 

@@ -1,10 +1,11 @@
 ﻿namespace Backend.Models.DTO
 {
-    public record StavkaDTORead(
-        int Sifra,
-        int Racun,
-        int Proizvod,
-        int Kolicina,
-        decimal Cijena
-    );
+    public class StavkaDTORead
+    {
+        public int Sifra { get; set; }
+        public int Racun { get; set; }
+        public int Proizvod { get; set; }
+        public int Kolicina { get; set; }
+        public decimal Cijena { get; set; }
+    }
 }

@@ -8,17 +8,17 @@ namespace Backend.Mapping
     {
         public BackendProfile()
         {
-            // Mapiranja za Kupac
+            // map za Kupac
             CreateMap<Kupac, KupacDTORead>();
             CreateMap<KupacDTOInsertUpdate, Kupac>();
             CreateMap<Kupac, KupacDTOInsertUpdate>();
 
-            // Mapiranja za Proizvod
+            // map Proizvod
             CreateMap<Proizvod, ProizvodDTORead>();
             CreateMap<ProizvodDTOInsertUpdate, Proizvod>();
             CreateMap<Proizvod, ProizvodDTOInsertUpdate>();
 
-            // Mapiranja za Racun
+            // map za Racun
             CreateMap<Racun, RacunDTORead>().ConstructUsing(entitet =>
                 new RacunDTORead(
                     entitet.Sifra,
@@ -28,12 +28,17 @@ namespace Backend.Mapping
             CreateMap<RacunDTOInsertUpdate, Racun>();
             CreateMap<Racun, RacunDTOInsertUpdate>();
 
-            // Mapiranja za Stavka
+            // map Stavka
             CreateMap<Stavka, StavkaDTORead>()
                 .ForMember(dest => dest.Racun, opt => opt.MapFrom(src => src.Racun.Sifra))
                 .ForMember(dest => dest.Proizvod, opt => opt.MapFrom(src => src.Proizvod.Sifra));
             CreateMap<StavkaDTOInsertUpdate, Stavka>();
             CreateMap<Stavka, StavkaDTOInsertUpdate>();
+
+            //  PUT metoda
+            CreateMap<StavkaDTOInsertUpdate, Stavka>()
+                .ForMember(dest => dest.Racun, opt => opt.MapFrom(src => new Racun { Sifra = src.Racun, Kupac = new Kupac { Sifra = 2 } })) 
+                .ForMember(dest => dest.Proizvod, opt => opt.MapFrom(src => new Proizvod { Sifra = src.Proizvod }));
         }
     }
 }
