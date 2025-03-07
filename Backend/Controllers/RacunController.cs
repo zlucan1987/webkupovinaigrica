@@ -166,5 +166,14 @@ namespace Backend.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
+        //dodaj novu stavku na račun
+
+        // izmijeni stavku na računu
+
+        // obrisi stavku
+
+
     }
 }
