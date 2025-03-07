@@ -68,16 +68,25 @@ namespace Backend.Controllers
             try
             {
                 var racun = _mapper.Map<Racun>(racunDTO);
+
+                // Dohvatite Kupac iz baze podataka
+                var kupac = _context.Kupci.Find(racunDTO.KupacSifra);
+                if (kupac == null)
+                {
+                    return NotFound(new { poruka = $"Kupac s šifrom {racunDTO.KupacSifra} ne postoji" });
+                }
+                racun.Kupac = kupac; // Postavite Kupac na Racun entitet
+
                 _context.Racuni.Add(racun);
                 _context.SaveChanges();
                 var racunReadDTO = _mapper.Map<RacunDTORead>(racun);
                 return StatusCode(StatusCodes.Status201Created, racunReadDTO);
             }
-            catch (DbUpdateException) 
+            catch (DbUpdateException)
             {
                 return BadRequest("Greška pri upisu u bazu podataka.");
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -168,11 +177,108 @@ namespace Backend.Controllers
         }
 
 
-        //dodaj novu stavku na račun
+        [HttpPost("{sifraRacuna:int}/stavke")]
+        public IActionResult DodajStavku(int sifraRacuna, [FromBody] StavkaDTOInsert stavkaDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        // izmijeni stavku na računu
+            try
+            {
+                var racun = _context.Racuni.Find(sifraRacuna);
+                if (racun == null)
+                {
+                    return NotFound(new { poruka = $"Račun s šifrom {sifraRacuna} ne postoji" });
+                }
 
-        // obrisi stavku
+                var proizvod = _context.Proizvodi.Find(stavkaDTO.ProizvodSifra);
+                if (proizvod == null)
+                {
+                    return NotFound(new { poruka = $"Proizvod s šifrom {stavkaDTO.ProizvodSifra} ne postoji" });
+                }
+
+                var stavka = _mapper.Map<Stavka>(stavkaDTO);
+                stavka.Racun = racun;
+                stavka.Proizvod = proizvod;
+
+                _context.Stavke.Add(stavka);
+                _context.SaveChanges();
+
+                var stavkaReadDTO = _mapper.Map<StavkaDTORead>(stavka);
+                return StatusCode(StatusCodes.Status201Created, stavkaReadDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{sifraRacuna:int}/stavke/{sifraStavke:int}")]
+        public IActionResult IzmijeniStavku(int sifraRacuna, int sifraStavke, [FromBody] StavkaDTOUpdate stavkaDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var racun = _context.Racuni.Find(sifraRacuna);
+                if (racun == null)
+                {
+                    return NotFound(new { poruka = $"Račun s šifrom {sifraRacuna} ne postoji" });
+                }
+
+                var stavkaBaza = _context.Stavke.FirstOrDefault(s => s.Racun.Sifra == sifraRacuna && s.Sifra == sifraStavke);
+                if (stavkaBaza == null)
+                {
+                    return NotFound(new { poruka = $"Stavka s šifrom {sifraStavke} na računu {sifraRacuna} ne postoji" });
+                }
+
+                var proizvod = _context.Proizvodi.Find(stavkaDTO.ProizvodSifra);
+                if (proizvod == null)
+                {
+                    return NotFound(new { poruka = $"Proizvod s šifrom {stavkaDTO.ProizvodSifra} ne postoji" });
+                }
+
+                _mapper.Map(stavkaDTO, stavkaBaza);
+                stavkaBaza.Proizvod = proizvod;
+
+                _context.Stavke.Update(stavkaBaza);
+                _context.SaveChanges();
+
+                var stavkaReadDTO = _mapper.Map<StavkaDTORead>(stavkaBaza);
+                return Ok(stavkaReadDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{sifraRacuna:int}/stavke/{sifraStavke:int}")]
+        public IActionResult ObrisiStavku(int sifraRacuna, int sifraStavke)
+        {
+            try
+            {
+                var stavka = _context.Stavke.FirstOrDefault(s => s.Racun.Sifra == sifraRacuna && s.Sifra == sifraStavke);
+                if (stavka == null)
+                {
+                    return NotFound(new { poruka = $"Stavka s šifrom {sifraStavke} na računu {sifraRacuna} ne postoji" });
+                }
+
+                _context.Stavke.Remove(stavka);
+                _context.SaveChanges();
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
 
     }
