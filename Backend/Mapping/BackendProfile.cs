@@ -33,13 +33,13 @@ namespace Backend.Mapping
                    "ProizvodNaziv",
                    opt => opt.MapFrom(src => src.Proizvod.NazivIgre)
                );
-            CreateMap<StavkaDTOInsertUpdate, Stavka>();
-            CreateMap<Stavka, StavkaDTOInsertUpdate>()
+            CreateMap<StavkaDTOInsert, Stavka>();
+            CreateMap<Stavka, StavkaDTOInsert>()
                 .ForMember(dest => dest.RacunSifra, opt => opt.MapFrom(src => src.Racun.Sifra))
                 .ForMember(dest => dest.ProizvodSifra, opt => opt.MapFrom(src => src.Proizvod.Sifra));
 
             //  PUT metoda
-            CreateMap<StavkaDTOInsertUpdate, Stavka>();
+            CreateMap<StavkaDTOInsert, Stavka>();
         }
     }
 }
