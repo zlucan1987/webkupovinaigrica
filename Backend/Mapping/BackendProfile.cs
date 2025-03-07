@@ -29,16 +29,17 @@ namespace Backend.Mapping
             CreateMap<Racun, RacunDTOInsertUpdate>();
 
             // map Stavka
-            CreateMap<Stavka, StavkaDTORead>()
-                .ForMember(dest => dest.Racun, opt => opt.MapFrom(src => src.Racun.Sifra))
-                .ForMember(dest => dest.Proizvod, opt => opt.MapFrom(src => src.Proizvod.Sifra));
+            CreateMap<Stavka, StavkaDTORead>().ForCtorParam(
+                   "ProizvodNaziv",
+                   opt => opt.MapFrom(src => src.Proizvod.NazivIgre)
+               );
             CreateMap<StavkaDTOInsertUpdate, Stavka>();
-            CreateMap<Stavka, StavkaDTOInsertUpdate>();
+            CreateMap<Stavka, StavkaDTOInsertUpdate>()
+                .ForMember(dest => dest.RacunSifra, opt => opt.MapFrom(src => src.Racun.Sifra))
+                .ForMember(dest => dest.ProizvodSifra, opt => opt.MapFrom(src => src.Proizvod.Sifra));
 
             //  PUT metoda
-            CreateMap<StavkaDTOInsertUpdate, Stavka>()
-                .ForMember(dest => dest.Racun, opt => opt.MapFrom(src => new Racun { Sifra = src.Racun, Kupac = new Kupac { Sifra = 2 } })) 
-                .ForMember(dest => dest.Proizvod, opt => opt.MapFrom(src => new Proizvod { Sifra = src.Proizvod }));
+            CreateMap<StavkaDTOInsertUpdate, Stavka>();
         }
     }
 }

@@ -141,5 +141,30 @@ namespace Backend.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
+
+        [HttpGet]
+        [Route("{sifraRacuna:int}/stavke")]
+        public ActionResult<List<StavkaDTORead>> GetStavkeRacuna(int sifraRacuna)
+        {
+            try
+            {
+                var lista = _context.Stavke
+                            .Include(s => s.Proizvod)
+                            .Include(s => s.Racun)
+                            .Where(s => s.Racun.Sifra == sifraRacuna).ToList();
+             
+                    return Ok(
+                        _mapper.Map<List<StavkaDTORead>>(
+                            lista
+                        )
+                    );
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
