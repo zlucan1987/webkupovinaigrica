@@ -30,16 +30,17 @@ namespace Backend.Mapping
 
             // map Stavka
             CreateMap<Stavka, StavkaDTORead>().ForCtorParam(
-                   "ProizvodNaziv",
-                   opt => opt.MapFrom(src => src.Proizvod.NazivIgre)
-               );
+                "ProizvodNaziv",
+                opt => opt.MapFrom(src => src.Proizvod.NazivIgre)
+            );
             CreateMap<StavkaDTOInsert, Stavka>();
             CreateMap<Stavka, StavkaDTOInsert>()
                 .ForMember(dest => dest.RacunSifra, opt => opt.MapFrom(src => src.Racun.Sifra))
                 .ForMember(dest => dest.ProizvodSifra, opt => opt.MapFrom(src => src.Proizvod.Sifra));
 
-            //  PUT metoda
-            CreateMap<StavkaDTOInsert, Stavka>();
+            CreateMap<StavkaDTOUpdate, Stavka>()
+            .ForMember(dest => dest.Proizvod, opt => opt.MapFrom(src => new Proizvod { Sifra = src.ProizvodSifra }))
+            .ForMember(dest => dest.Racun, opt => opt.Ignore());
         }
     }
 }

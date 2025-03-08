@@ -243,8 +243,17 @@ namespace Backend.Controllers
                     return NotFound(new { poruka = $"Proizvod s šifrom {stavkaDTO.ProizvodSifra} ne postoji" });
                 }
 
+                // Dohvati Racun
+                var racunStavka = _context.Racuni.Find(sifraRacuna); // Promijenjeno na sifraRacuna
+                if (racunStavka == null)
+                {
+                    return NotFound(new { poruka = $"Račun s šifrom {sifraRacuna} ne postoji" }); // Promijenjena poruka
+                }
+
                 _mapper.Map(stavkaDTO, stavkaBaza);
                 stavkaBaza.Proizvod = proizvod;
+                stavkaBaza.Racun = racunStavka;
+                stavkaBaza.Sifra = sifraStavke;
 
                 _context.Stavke.Update(stavkaBaza);
                 _context.SaveChanges();
