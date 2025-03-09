@@ -9,14 +9,14 @@ namespace Backend.Controllers
     {
 
         // dependecy injection
-        // 1. definiraš privatno svojstvo
+        // 1. definira privatno svojstvo
         protected readonly BackendContext _context;
 
         protected readonly IMapper _mapper;
 
 
         // dependecy injection
-        // 2. proslijediš instancu kroz konstruktor
+        // 2. proslijedi instancu kroz konstruktor
         public BackendController(BackendContext context, IMapper mapper)
         {
             _context = context;

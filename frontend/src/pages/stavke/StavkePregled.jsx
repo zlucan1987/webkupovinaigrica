@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import StavkaService from '../../services/StavkaService.js';
 import { useNavigate, Link } from 'react-router-dom';
 import { RouteNames } from '../../constants';
@@ -13,6 +13,7 @@ export default function StavkePregled() {
     async function dohvatiStavke() {
       try {
         const odgovor = await StavkaService.get();
+        console.log("Odgovor od API-ja za stavke:", odgovor);
         setStavke(odgovor);
       } catch (error) {
         console.error('Greška pri dohvaćanju stavki:', error);
@@ -48,7 +49,6 @@ export default function StavkePregled() {
       <Table striped bordered hover responsive>
         <thead>
           <tr>
-            <th>Račun</th>
             <th>Proizvod</th>
             <th>Količina</th>
             <th>Cijena</th>
@@ -58,8 +58,7 @@ export default function StavkePregled() {
         <tbody>
           {stavke && Array.isArray(stavke) && stavke.map((stavka) => (
             <tr key={stavka.sifra}>
-              <td>{stavka.racun}</td>
-              <td>{stavka.proizvod}</td>
+              <td>{stavka.proizvodNaziv}</td>
               <td>{stavka.kolicina}</td>
               <td>{stavka.cijena}</td>
               <td>

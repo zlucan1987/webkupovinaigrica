@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import RacunService from "../../services/RacunService";
 import { Button, Table } from "react-bootstrap";
 import moment from "moment";
@@ -19,10 +19,10 @@ export default function RacuniPregled() {
     }, []);
 
     function formatirajDatum(datum) {
-        if (datum == null) {
+        if (datum == null || datum === "") {
             return "Nije definirano";
         }
-        return moment.utc(datum).format("DD. MM.YYYY");
+        return moment.utc(datum).format("DD. MM. YYYY.");
     }
 
     function obrisi(sifra) {
@@ -50,7 +50,7 @@ export default function RacuniPregled() {
                 <thead>
                     <tr>
                         <th>Datum izdavanja</th>
-                        <th>Šifra kupca</th>
+                        <th>Kupac</th>
                         <th>Akcija</th>
                     </tr>
                 </thead>
@@ -58,8 +58,8 @@ export default function RacuniPregled() {
                     {racuni &&
                         racuni.map((racun, index) => (
                             <tr key={index}>
-                                <td>{formatirajDatum(racun.Datum)}</td>
-                                <td>{racun.Kupac}</td>
+                                <td>{formatirajDatum(racun.datum)}</td>
+                                <td>{racun.kupacImePrezime}</td>
                                 <td>
                                     <Button onClick={() => {
                                         console.log("Racun sifra on click:", racun.sifra);

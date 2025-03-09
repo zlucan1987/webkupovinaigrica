@@ -5,29 +5,23 @@ using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Dodavanje servisa u kontejner.
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
-// dodati swagger
 builder.Services.AddSwaggerGen();
-
-// dodavanje db contexta
 builder.Services.AddDbContext<BackendContext>(o =>
 {
     o.UseSqlServer(builder.Configuration.GetConnectionString("BackendContext"));
 });
 
-// Konfiguracija CORS-a
+// Konfiguracija CORS-a (ograničeno na tvoju domenu)
 builder.Services.AddCors(o =>
 {
     o.AddPolicy("CorsPolicy", b =>
     {
-        b.WithOrigins("https://www.brutallucko.online")
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        b.WithOrigins("https://www.brutallucko.online") // Promijeni na svoju domenu
+            .WithMethods("GET", "POST", "PUT", "DELETE")
+            .WithHeaders("Content-Type", "Authorization");
     });
 });
 
@@ -36,15 +30,12 @@ builder.Services.AddAutoMapper(typeof(Backend.Mapping.BackendProfile));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
+// Konfiguracija HTTP request pipeline-a.
 app.MapOpenApi();
-
-app.UseHttpsRedirection();
-
+app.UseHttpsRedirection(); 
 app.UseAuthorization();
 
-// swagger sucelje
+// Swagger (javan, ali razmotri autentifikaciju)
 app.UseSwagger();
 app.UseSwaggerUI(o =>
 {
@@ -52,14 +43,17 @@ app.UseSwaggerUI(o =>
     o.ConfigObject.AdditionalItems.Add("requestSnippetsEnabled", true);
 });
 
-app.MapControllers();
-// konfiguracija za frontend
-app.UseDefaultFiles(); // Omogućuje posluživanje default datoteka (index.html)
-app.UseStaticFiles(); // Omogućuje posluživanje statičkih datoteka
-
-app.MapFallbackToFile("index.html");
-
 // UseCors mora biti pozvan nakon UseRouting i prije UseEndpoints
+app.UseRouting();
 app.UseCors("CorsPolicy");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
+// Konfiguracija za frontend
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.MapFallbackToFile("index.html");
 
 app.Run();

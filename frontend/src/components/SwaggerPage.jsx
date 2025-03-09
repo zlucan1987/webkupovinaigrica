@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
 function SwaggerPage() {
     const iframeRef = useRef(null);
@@ -9,7 +9,7 @@ function SwaggerPage() {
             const setIframeHeight = () => {
                 try {
                     iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
-                } catch (e) {
+                } catch {
                     iframe.style.height = window.innerHeight + 'px';
                 }
             };
@@ -34,7 +34,7 @@ function SwaggerPage() {
             </h1>
             <iframe
                 ref={iframeRef}
-                src="https://lucko1987vk-001-site1.ktempurl.com/swagger"
+                src="https://www.brutallucko.online/swagger"
                 title="Swagger UI"
                 width="100%" 
                 style={{ border: 'none', pointerEvents: 'auto' }}

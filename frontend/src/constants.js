@@ -9,9 +9,10 @@ export const RouteNames = {
   RACUN_PREGLED: '/racuni',
   RACUN_NOVI: '/racuni/dodaj',
   RACUN_PROMJENA: '/racuni/:sifra',
-  STAVKA_PREGLED: '/stavke', 
-  STAVKA_NOVA: '/stavke/dodaj', 
-  STAVKA_PROMJENA: '/stavke/promjena/:sifra', 
+  STAVKA_PREGLED: '/stavke',
+  STAVKA_NOVA: '/stavke/dodaj',
+  STAVKA_PROMJENA: '/stavke/promjena/:sifra',
 };
 
-export const PRODUKCIJA = 'https://brutallucko.online';
+
+export const PRODUKCIJA = 'https://www.brutallucko.online/api/v1';

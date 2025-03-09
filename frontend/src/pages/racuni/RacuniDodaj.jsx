@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
@@ -23,20 +22,25 @@ export default function RacuniDodaj() {
         let podaci = new FormData(e.target);
 
         dodaj({
-            Datum: podaci.get("Datum"),
-            Kupac: podaci.get("Kupac"),
+            datum: podaci.get("Datum"),
+            kupacSifra: parseInt(podaci.get("Kupac")),
         });
     }
 
     return (
-        <div className="racuni-komponenta">
+        <div className="racuni-komponenta bijeli-tekst">
             Dodavanje računa
             <Form onSubmit={odradiSubmit}>
                 <Row className="gx-0">
                     <Col md={9} className="pe-0">
                         <Form.Group controlId="Datum">
                             <Form.Label>Datum izdavanja</Form.Label>
-                            <Form.Control type="date" name="Datum" className="input-manja-sirina" />
+                            <Form.Control 
+                                type="date" 
+                                name="Datum" 
+                                className="input-manja-sirina"
+                                defaultValue={new Date().toISOString().split('T')[0]}
+                            />
                         </Form.Group>
 
                         <Form.Group controlId="Kupac">

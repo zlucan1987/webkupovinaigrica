@@ -28,7 +28,7 @@ export default function ProizvodiDodaj() {
   }
 
   return (
-    <div className="proizvodi-komponenta">
+    <div className="proizvodi-komponenta bijeli-tekst">
       Dodavanje proizvoda
       <Form onSubmit={odradiSubmit}>
         <Row className="gx-0">

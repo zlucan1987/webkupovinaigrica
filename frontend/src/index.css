@@ -36,3 +36,37 @@ body {
     color: rgb(15, 15, 15) !important;
 }
 
+.bijeli-tekst {
+    color: white !important;
+}
+
+/* DIY xD datuma dd/mm/yyyy */
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    color: white;
+}
+
+/* v2 datum */
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    display: flex;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field {
+    order: 1;
+    padding: 0 2px;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field {
+    order: 2;
+    padding: 0 2px;
+}
+
+input[type="date"]::-webkit-datetime-edit-year-field {
+    order: 3;
+    padding: 0 2px;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+    order: 4;
+}

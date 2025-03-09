@@ -3,7 +3,7 @@
 namespace Backend.Models.DTO
 {
     public record StavkaDTOUpdate(
-        [Required(ErrorMessage = "Šifra stavke je obavezn.")]
+        [Required(ErrorMessage = "Šifra stavke je obavezna.")]
         int Sifra,
 
         [Required(ErrorMessage = "Šifra proizvoda je obavezna.")] 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import RacunService from "../../services/RacunService";
 import ProizvodService from "../../services/ProizvodService";
 import StavkaService from "../../services/StavkaService";
@@ -43,15 +43,15 @@ export default function StavkeDodaj() {
         let podaci = new FormData(e.target);
 
         dodaj({
-            racun: podaci.get("racun"),
-            proizvod: podaci.get("proizvod"),
+            racunSifra: parseInt(podaci.get("racun")),
+            proizvodSifra: parseInt(podaci.get("proizvod")),
             kolicina: podaci.get("kolicina"),
             cijena: podaci.get("cijena"),
         });
     }
 
     return (
-        <div className="stavke-komponenta">
+        <div className="stavke-komponenta bijeli-tekst">
             Dodavanje stavke
             {poruka && <p>{poruka}</p>}
             <Form onSubmit={odradiSubmit}>
@@ -75,7 +75,7 @@ export default function StavkeDodaj() {
                                 <option value="">Odaberi proizvod</option>
                                 {proizvodi.map((proizvod) => (
                                     <option key={proizvod.sifra} value={proizvod.sifra}>
-                                        {proizvod.nazivigre}
+                                        {proizvod.nazivIgre}
                                     </option>
                                 ))}
                             </Form.Select>

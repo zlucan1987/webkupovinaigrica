@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { RouteNames } from "../../constants";
@@ -14,6 +14,7 @@ export default function RacuniPromjena() {
 
     async function dohvatiRacun() {
         const odgovor = await RacunService.getBySifra(routeParams.sifra);
+        console.log("Odgovor od API-ja za racun:", odgovor);
         setRacun(odgovor);
     }
 
@@ -38,13 +39,13 @@ export default function RacuniPromjena() {
         let podaci = new FormData(e.target);
 
         promjena({
-            Datum: podaci.get("Datum"),
-            Kupac: podaci.get("Kupac"),
+            datum: podaci.get("Datum"),
+            kupacSifra: parseInt(podaci.get("Kupac")),
         });
     }
 
     return (
-        <div className="racuni-komponenta">
+        <div className="racuni-komponenta bijeli-tekst">
             Promjena računa
             <Form onSubmit={odradiSubmit}>
                 <Row className="gx-0">
@@ -54,8 +55,9 @@ export default function RacuniPromjena() {
                             <Form.Control
                                 type="date"
                                 name="Datum"
-                                defaultValue={racun.Datum}
+                                defaultValue={racun.datum ? racun.datum.split('T')[0] : ''}
                                 className="input-manja-sirina"
+                                // yyyy-mm-dd format za datum smo napravili custom u css-u
                             />
                         </Form.Group>
 
@@ -64,7 +66,7 @@ export default function RacuniPromjena() {
                             <Form.Control
                                 type="number"
                                 name="Kupac"
-                                defaultValue={racun.Kupac}
+                                defaultValue={racun.kupacSifra}
                                 className="input-manja-sirina"
                             />
                         </Form.Group>

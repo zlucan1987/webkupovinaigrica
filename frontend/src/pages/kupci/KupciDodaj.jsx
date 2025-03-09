@@ -30,7 +30,7 @@ export default function KupciDodaj() {
   }
 
   return (
-    <div className="kupci-komponenta">
+    <div className="kupci-komponenta bijeli-tekst">
       Dodavanje kupca
       <Form onSubmit={odradiSubmit}>
         <Row className="gx-0">

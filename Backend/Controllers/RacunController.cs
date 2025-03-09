@@ -69,13 +69,13 @@ namespace Backend.Controllers
             {
                 var racun = _mapper.Map<Racun>(racunDTO);
 
-                // Dohvatite Kupac iz baze podataka
+                // Dohvati Kupac iz baze podataka
                 var kupac = _context.Kupci.Find(racunDTO.KupacSifra);
                 if (kupac == null)
                 {
                     return NotFound(new { poruka = $"Kupac s šifrom {racunDTO.KupacSifra} ne postoji" });
                 }
-                racun.Kupac = kupac; // Postavite Kupac na Racun entitet
+                racun.Kupac = kupac; // Postavi Kupac na Racun entitet
 
                 _context.Racuni.Add(racun);
                 _context.SaveChanges();

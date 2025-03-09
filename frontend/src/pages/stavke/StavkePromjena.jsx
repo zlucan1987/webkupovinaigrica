@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import StavkaService from '../../services/StavkaService.js';
 import RacunService from "../../services/RacunService";
@@ -26,7 +26,7 @@ export default function StavkePromjena() {
 
         const proizvodiData = await ProizvodService.get();
         setProizvodi(proizvodiData);
-      } catch (error) {
+      } catch {
         setPoruka('Greška pri učitavanju podataka.');
       }
     }
@@ -48,8 +48,8 @@ export default function StavkePromjena() {
     let podaci = new FormData(e.target);
 
     promjeni(sifra, {
-      racun: podaci.get("racun"),
-      proizvod: podaci.get("proizvod"),
+      racunSifra: parseInt(podaci.get("racun")),
+      proizvodSifra: parseInt(podaci.get("proizvod")),
       kolicina: podaci.get("kolicina"),
       cijena: podaci.get("cijena"),
     });
@@ -60,7 +60,7 @@ export default function StavkePromjena() {
   }
 
   return (
-    <div className="stavke-komponenta">
+    <div className="stavke-komponenta bijeli-tekst">
       <h2>Izmjena stavke</h2>
       {poruka && <p>{poruka}</p>}
       <Form onSubmit={odradiSubmit}>
@@ -68,7 +68,7 @@ export default function StavkePromjena() {
           <Col md={9} className="pe-0">
             <Form.Group controlId="racun">
               <Form.Label>Račun:</Form.Label>
-              <Form.Select name="racun" defaultValue={stavka.racun} className="input-manja-sirina">
+              <Form.Select name="racun" defaultValue={stavka.racunSifra} className="input-manja-sirina">
                 <option value="">Odaberi račun</option>
                 {racuni.map((racun) => (
                   <option key={racun.sifra} value={racun.sifra}>
@@ -80,11 +80,11 @@ export default function StavkePromjena() {
 
             <Form.Group controlId="proizvod">
               <Form.Label>Proizvod:</Form.Label>
-              <Form.Select name="proizvod" defaultValue={stavka.proizvod} className="input-manja-sirina">
+              <Form.Select name="proizvod" defaultValue={stavka.proizvodSifra} className="input-manja-sirina">
                 <option value="">Odaberi proizvod</option>
                 {proizvodi.map((proizvod) => (
                   <option key={proizvod.sifra} value={proizvod.sifra}>
-                    {proizvod.nazivigre}
+                    {proizvod.nazivIgre}
                   </option>
                 ))}
               </Form.Select>

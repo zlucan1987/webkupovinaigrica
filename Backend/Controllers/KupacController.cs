@@ -73,11 +73,11 @@ namespace Backend.Controllers
                 var kupacReadDTO = _mapper.Map<KupacDTORead>(kupac);
                 return StatusCode(StatusCodes.Status201Created, kupacReadDTO);
             }
-            catch (DbUpdateException) // Uklonjena varijabla dbEx
+            catch (DbUpdateException) 
             {
                 return BadRequest("Greška pri upisu u bazu podataka.");
             }
-            catch (Exception e) // Uklonjena varijabla ex i varijabla e dodana u catch
+            catch (Exception e) 
             {
                 return BadRequest(e.Message);
             }
