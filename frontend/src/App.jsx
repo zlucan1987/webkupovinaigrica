@@ -22,6 +22,8 @@ import SwaggerPage from './components/SwaggerPage.jsx';
 import EraDiagram from './components/EraDiagram.jsx';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Button from 'react-bootstrap/Button';
 
 function App() {
     const navigate = useNavigate();
@@ -44,13 +46,35 @@ function App() {
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mx-auto">
-                            <Nav.Link onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Nav.Link>
-                            <Nav.Link onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Nav.Link>
-                            <Nav.Link onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Nav.Link>
-                            <Nav.Link onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Nav.Link>
-                            <Nav.Link onClick={() => navigate(RouteNames.ERA_DIAGRAM)}>ERA Dijagram</Nav.Link>
-                            <Nav.Link onClick={() => navigate(RouteNames.SWAGGER)}>Swagger</Nav.Link>
+                        <Nav className="mx-auto d-flex align-items-center">
+                            <Dropdown className="me-3">
+                                <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                                    Izaberite opciju
+                                </Dropdown.Toggle>
+
+                                <Dropdown.Menu>
+                                    <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => navigate(RouteNames.HOME)}>Home</Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                            
+                            <Button 
+                                variant="secondary" 
+                                className="me-3"
+                                onClick={() => navigate(RouteNames.ERA_DIAGRAM)}
+                            >
+                                ERA Dijagram
+                            </Button>
+                            
+                            <Button 
+                                variant="secondary"
+                                onClick={() => navigate(RouteNames.SWAGGER)}
+                            >
+                                Swagger
+                            </Button>
                         </Nav>
                     </Navbar.Collapse>
                 </Navbar>

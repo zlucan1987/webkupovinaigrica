@@ -46,10 +46,22 @@ export default function StavkePromjena() {
     e.preventDefault();
 
     let podaci = new FormData(e.target);
+    
+    const racunSifra = podaci.get("racun");
+    if (!racunSifra) {
+      setPoruka("Greška prilikom promjene stavke: Morate odabrati račun");
+      return;
+    }
+    
+    const proizvodSifra = podaci.get("proizvod");
+    if (!proizvodSifra) {
+      setPoruka("Greška prilikom promjene stavke: Morate odabrati proizvod");
+      return;
+    }
 
     promjeni(sifra, {
-      racunSifra: parseInt(podaci.get("racun")),
-      proizvodSifra: parseInt(podaci.get("proizvod")),
+      racunSifra: parseInt(racunSifra),
+      proizvodSifra: parseInt(proizvodSifra),
       kolicina: podaci.get("kolicina"),
       cijena: podaci.get("cijena"),
     });

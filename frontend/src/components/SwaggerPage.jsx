@@ -34,7 +34,7 @@ function SwaggerPage() {
             </h1>
             <iframe
                 ref={iframeRef}
-                src="https://www.brutallucko.online/swagger"
+                src="https://www.brutallucko.online/swagger/index.html"
                 title="Swagger UI"
                 width="100%" 
                 style={{ border: 'none', pointerEvents: 'auto' }}
