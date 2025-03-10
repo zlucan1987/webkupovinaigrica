@@ -1,0 +1,16 @@
+.search-form {
+    width: 300px;
+    margin: 0 15px;
+}
+
+.search-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+@media (max-width: 768px) {
+    .search-form {
+        width: 100%;
+        margin: 10px 0;
+    }
+}

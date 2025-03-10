@@ -1,6 +1,4 @@
-// eslint-disable-next-line no-unused-vars
-import React from 'react';
-import { Route, Routes, useNavigate, useLocation, Link } from 'react-router-dom';
+import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import { RouteNames } from './constants';
 import KupciPregled from './pages/kupci/KupciPregled.jsx';
 import KupciDodaj from './pages/kupci/KupciDodaj.jsx';
@@ -18,6 +16,8 @@ import Webkupovinaigrica from './components/NavBarWebkupovinaigrica.jsx';
 import './App.css';
 import './pages.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import Footer from './components/Footer';
 import EntryPage from './components/EntryPage.jsx';
 import SwaggerPage from './components/SwaggerPage.jsx';
 import EraDiagram from './components/EraDiagram.jsx';
@@ -25,17 +25,15 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
+import { CartProvider } from './context/CartContext';
 
 function App() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const handleBack = () => {
-        navigate(-1);
-    };
-
     return (
-        <div className="app-container">
+        <CartProvider>
+            <div className="app-container">
             {location.pathname === '/' ? (
                 <Webkupovinaigrica />
             ) : (
@@ -48,6 +46,14 @@ function App() {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mx-auto d-flex align-items-center">
+                            <Button 
+                                variant="primary" 
+                                className="me-3"
+                                onClick={() => navigate(RouteNames.HOME)}
+                            >
+                                Home
+                            </Button>
+
                             <Dropdown className="me-3">
                                 <Dropdown.Toggle variant="secondary" id="dropdown-basic">
                                     Izaberite opciju
@@ -58,7 +64,6 @@ function App() {
                                     <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Dropdown.Item>
                                     <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Dropdown.Item>
                                     <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => navigate(RouteNames.HOME)}>Home</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
                             
@@ -98,21 +103,9 @@ function App() {
                 <Route path={RouteNames.SWAGGER} element={<SwaggerPage />} />
                 <Route path={RouteNames.ERA_DIAGRAM} element={<EraDiagram />} />
             </Routes>
-            <hr />
-            {location.pathname !== '/' && (
-                <div className="footer-navigation">
-                    <Link to="/" className="copyright">
-                        FrontPage
-                    </Link>
-                    <button onClick={handleBack} className="copyright">
-                        Back
-                    </button>
-                </div>
-            )}
-            <div className="app-copyright">
-                © Web kupovina igrica 2025
+            <Footer />
             </div>
-        </div>
+        </CartProvider>
     );
 }
 

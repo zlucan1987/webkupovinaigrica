@@ -1,0 +1,105 @@
+/* Footer.css - Stilovi za podnožje web stranice */
+
+.footer {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.footer-divider {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  margin-bottom: 0;
+}
+
+.footer-container {
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 0 2rem;
+}
+
+.footer h5 {
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  display: inline-block;
+  padding-bottom: 0.3rem;
+}
+
+.footer h6 {
+  font-weight: 600;
+  color: #333;
+}
+
+.footer-link {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-link:hover {
+  color: #007bff;
+}
+
+.social-icons {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.social-icons i {
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.social-icons i:hover {
+  color: #007bff;
+}
+
+.faq-section {
+  background-color: #e8e8e8;
+  border-radius: 5px;
+  margin: 0 -15px;
+  padding: 15px;
+}
+
+.faq-item {
+  background-color: #f8f8f8;
+  padding: 15px;
+  border-radius: 5px;
+  height: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.security-badges {
+  font-size: 1.5rem;
+}
+
+.security-badges i {
+  color: #28a745;
+}
+
+.copyright-section {
+  border-top: 1px solid #ddd;
+}
+
+/* Responzivnost za mobilne uređaje */
+@media (max-width: 768px) {
+  .footer-container {
+    padding: 0 1rem;
+  }
+  
+  .social-icons, .security-badges {
+    font-size: 1.2rem;
+  }
+  
+  .copyright-section .text-md-end {
+    text-align: center !important;
+    margin-top: 1rem;
+  }
+  
+  .security-badges {
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+}

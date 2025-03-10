@@ -1,30 +1,32 @@
 import { useEffect, useState } from "react";
 import KupacService from "../../services/KupacService";
-import { Button, Table } from "react-bootstrap";
-import moment from "moment";
+import { Button, Table, Image } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
+import { getRandomProfilePicture } from "../../utils/imageUtils";
+import "./KupciPregled.css"; // Uvoz CSS-a za stiliziranje
 
 export default function KupciPregled() {
-    const [kupci, setKupci] = useState([]);
+    const [kupciSProfilnima, setKupciSProfilnima] = useState([]);
     const navigate = useNavigate();
 
     async function dohvatiKupce() {
         const odgovor = await KupacService.get();
         console.log(odgovor);
-        setKupci(odgovor);
+        
+        // Dodaj profilne slike kupcima
+        if (Array.isArray(odgovor)) {
+            const kupciSaSlikom = odgovor.map(kupac => ({
+                ...kupac,
+                profilnaSlika: getRandomProfilePicture()
+            }));
+            setKupciSProfilnima(kupciSaSlikom);
+        }
     }
 
     useEffect(() => {
         dohvatiKupce();
     }, []);
-
-    function formatirajDatum(datum) {
-        if (datum == null) {
-            return "Nije definirano";
-        }
-        return moment.utc(datum).format("DD. MM. YYYY.");
-    }
 
     function obrisi(sifra) {
         if (!confirm("Sigurno obrisati?")) {
@@ -50,6 +52,7 @@ export default function KupciPregled() {
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
+                        <th>Profilna slika</th>
                         <th>Ime</th>
                         <th>Prezime</th>
                         <th>Ulica</th>
@@ -58,10 +61,19 @@ export default function KupciPregled() {
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.isArray(kupci) &&
-                        kupci.map((kupac, index) => (
+                    {Array.isArray(kupciSProfilnima) &&
+                        kupciSProfilnima.map((kupac, index) => (
                             kupac && (
                                 <tr key={index}>
+                                    <td>
+                                        <Image 
+                                            src={kupac.profilnaSlika} 
+                                            roundedCircle 
+                                            width={50} 
+                                            height={50} 
+                                            className="profile-image"
+                                        />
+                                    </td>
                                     <td>{kupac.ime}</td>
                                     <td>{kupac.prezime}</td>
                                     <td>{kupac.ulica}</td>
@@ -80,7 +92,6 @@ export default function KupciPregled() {
                         ))}
                 </tbody>
             </Table>
-            {console.log(kupci)}
         </div>
     );
 }

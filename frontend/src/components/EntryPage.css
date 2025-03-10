@@ -1,70 +1,36 @@
 .entry-page {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    width: 100vw;
-    color: white;
-    text-align: center;
-}
-
-.entry-content {
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.welcome-messages {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.entry-buttons {
-    margin-top: 30px;
-}
-
-.entry-button {
-    display: inline-flex;
-    align-items: center;
-    background-color: #3498db;
-    color: white;
-    padding: 15px 30px;
-    margin: 10px;
-    border: none;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 1.2em;
-    transition: background-color 0.3s ease;
-}
-
-.entry-button:hover {
-    background-color: #2980b9;
-}
-
-.entry-icon {
-    margin-right: 10px;
-}
-
-.welcome-top {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 100%;
-    height: 100vh;
-    background-color: #282c34;
-    color: white !important;
-    padding: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    white-space: normal;
-    animation: none;
-    text-transform: none;
-    letter-spacing: normal;
-    font-weight: normal;
+    color: white;
     text-align: center;
+}
+
+.welcome-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    width: 100%;
+    background-color: #282c34;
+    background-image: url('/gamingbackground.jpg');
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+    padding: 40px 20px;
+    position: relative;
+}
+
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1;
 }
 
 .logo-container {
@@ -72,6 +38,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 2;
 }
 
 .logo-image {
@@ -81,12 +49,68 @@
 }
 
 .welcome-text {
-    font-size: 1.8em;
+    font-size: 2.5em;
     color: white;
     text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
 }
 
-.welcome-top:hover {
-    transform: none;
+.welcome-description {
+    font-size: 1.2em;
+    max-width: 800px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+    position: relative;
+    z-index: 2;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.action-button {
+    padding: 10px 25px;
+    font-size: 1.1em;
+}
+
+.scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background-color: #3498db;
     color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s;
+    z-index: 1000;
+}
+
+.scroll-to-top:hover {
+    background-color: #2980b9;
+}
+
+@media (max-width: 768px) {
+    .welcome-text {
+        font-size: 1.8em;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .logo-image {
+        width: 150px;
+    }
 }

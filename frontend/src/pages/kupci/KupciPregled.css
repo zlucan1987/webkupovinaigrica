@@ -1,0 +1,36 @@
+/* KupciPregled.css - Stilovi za pregled kupaca */
+
+/* Osigurava da sve profilne slike budu iste veličine */
+.profile-image {
+  width: 50px !important;
+  height: 50px !important;
+  object-fit: cover; /* Zadržava omjer slike, ali reže ako je potrebno */
+  border-radius: 50%; /* Kružni oblik */
+  border: 2px solid #007bff; /* Plavi obrub */
+}
+
+/* Stiliziranje tablice kupaca */
+.kupci-komponenta table {
+  margin-top: 20px;
+}
+
+/* Poravnanje slika u ćelijama tablice */
+.kupci-komponenta td:first-child {
+  text-align: left;
+  vertical-align: middle;
+  padding-left: 8px; /* Manji padding s lijeve strane */
+}
+
+/* Poravnanje zaglavlja tablice */
+.kupci-komponenta th:first-child {
+  text-align: left;
+  padding-left: 8px; /* Isti padding kao i ćelije */
+}
+
+/* Responzivnost za mobilne uređaje */
+@media (max-width: 768px) {
+  .profile-image {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
