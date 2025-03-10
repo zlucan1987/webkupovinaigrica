@@ -1,7 +1,8 @@
 import axios from "axios";
+import { PRODUKCIJA } from "../constants";
 
 // environment varijablu za produkciju
-const baseURL = import.meta.env.VITE_PRODUKCIJA;
+const baseURL = import.meta.env.PROD ? '/api/v1' : PRODUKCIJA;
 
 export const HttpService = axios.create({
     baseURL: baseURL,

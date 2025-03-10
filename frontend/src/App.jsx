@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React from 'react';
 import { Route, Routes, useNavigate, useLocation, Link } from 'react-router-dom';
 import { RouteNames } from './constants';
@@ -18,6 +19,7 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import EntryPage from './components/EntryPage.jsx';
 import SwaggerPage from './components/SwaggerPage.jsx';
+import EraDiagram from './components/EraDiagram.jsx';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 
@@ -43,31 +45,33 @@ function App() {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mx-auto">
-                            <Nav.Link onClick={() => navigate('/kupci')}>Kupci</Nav.Link>
-                            <Nav.Link onClick={() => navigate('/proizvodi')}>Proizvodi</Nav.Link>
-                            <Nav.Link onClick={() => navigate('/racuni')}>Računi</Nav.Link>
-                            <Nav.Link onClick={() => navigate('/stavke')}>Stavke</Nav.Link>
-                            <Nav.Link onClick={() => navigate('/swagger')}>Swagger</Nav.Link>
+                            <Nav.Link onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Nav.Link>
+                            <Nav.Link onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Nav.Link>
+                            <Nav.Link onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Nav.Link>
+                            <Nav.Link onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Nav.Link>
+                            <Nav.Link onClick={() => navigate(RouteNames.ERA_DIAGRAM)}>ERA Dijagram</Nav.Link>
+                            <Nav.Link onClick={() => navigate(RouteNames.SWAGGER)}>Swagger</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Navbar>
             )}
 
             <Routes>
-                <Route path="/" element={<EntryPage />} />
-                <Route path="/kupci" element={<KupciPregled />} />
+                <Route path={RouteNames.HOME} element={<EntryPage />} />
+                <Route path={RouteNames.KUPAC_PREGLED} element={<KupciPregled />} />
                 <Route path={RouteNames.KUPAC_NOVI} element={<KupciDodaj />} />
                 <Route path={RouteNames.KUPAC_PROMJENA} element={<KupciPromjena />} />
-                <Route path="/proizvodi" element={<ProizvodiPregled />} />
+                <Route path={RouteNames.PROIZVOD_PREGLED} element={<ProizvodiPregled />} />
                 <Route path={RouteNames.PROIZVOD_NOVI} element={<ProizvodiDodaj />} />
                 <Route path={RouteNames.PROIZVOD_PROMJENA} element={<ProizvodiPromjena />} />
-                <Route path="/racuni" element={<RacuniPregled />} />
+                <Route path={RouteNames.RACUN_PREGLED} element={<RacuniPregled />} />
                 <Route path={RouteNames.RACUN_NOVI} element={<RacuniDodaj />} />
                 <Route path={RouteNames.RACUN_PROMJENA} element={<RacuniPromjena />} />
-                <Route path="/stavke" element={<StavkePregled />} />
-                <Route path="/stavke/dodaj" element={<StavkeDodaj />} />
-                <Route path="/stavke/promjena/:sifra" element={<StavkePromjena />} />
-                <Route path="/swagger" element={<SwaggerPage />} />
+                <Route path={RouteNames.STAVKA_PREGLED} element={<StavkePregled />} />
+                <Route path={RouteNames.STAVKA_NOVA} element={<StavkeDodaj />} />
+                <Route path={RouteNames.STAVKA_PROMJENA} element={<StavkePromjena />} />
+                <Route path={RouteNames.SWAGGER} element={<SwaggerPage />} />
+                <Route path={RouteNames.ERA_DIAGRAM} element={<EraDiagram />} />
             </Routes>
             <hr />
             {location.pathname !== '/' && (

@@ -51,6 +51,7 @@ export default function RacuniPregled() {
                     <tr>
                         <th>Datum izdavanja</th>
                         <th>Kupac</th>
+                        <th>Šifra kupca</th>
                         <th>Akcija</th>
                     </tr>
                 </thead>
@@ -60,6 +61,7 @@ export default function RacuniPregled() {
                             <tr key={index}>
                                 <td>{formatirajDatum(racun.datum)}</td>
                                 <td>{racun.kupacImePrezime}</td>
+                                <td>{racun.kupacSifra}</td>
                                 <td>
                                     <Button onClick={() => {
                                         console.log("Racun sifra on click:", racun.sifra);

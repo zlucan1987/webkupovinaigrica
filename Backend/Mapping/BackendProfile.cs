@@ -23,16 +23,18 @@ namespace Backend.Mapping
                 new RacunDTORead(
                     entitet.Sifra,
                     entitet.Datum,
-                    entitet.Kupac.Ime + " " + entitet.Kupac.Prezime
+                    entitet.Kupac.Ime + " " + entitet.Kupac.Prezime,
+                    entitet.Kupac.Sifra // Dodano: uključivanje šifre kupca
                 ));
             CreateMap<RacunDTOInsertUpdate, Racun>();
             CreateMap<Racun, RacunDTOInsertUpdate>();
 
             // map Stavka
-            CreateMap<Stavka, StavkaDTORead>().ForCtorParam(
-                "ProizvodNaziv",
-                opt => opt.MapFrom(src => src.Proizvod.NazivIgre)
-            );
+            CreateMap<Stavka, StavkaDTORead>()
+                .ForCtorParam("ProizvodNaziv", opt => opt.MapFrom(src => src.Proizvod.NazivIgre))
+                .ForCtorParam("RacunSifra", opt => opt.MapFrom(src => src.Racun.Sifra)) // Dodano
+                .ForCtorParam("ProizvodSifra", opt => opt.MapFrom(src => src.Proizvod.Sifra)); // Dodano
+
             CreateMap<StavkaDTOInsert, Stavka>();
             CreateMap<Stavka, StavkaDTOInsert>()
                 .ForMember(dest => dest.RacunSifra, opt => opt.MapFrom(src => src.Racun.Sifra))

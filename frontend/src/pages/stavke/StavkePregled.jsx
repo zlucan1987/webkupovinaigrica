@@ -49,7 +49,9 @@ export default function StavkePregled() {
       <Table striped bordered hover responsive>
         <thead>
           <tr>
+            <th>Račun</th>
             <th>Proizvod</th>
+            <th>Šifra proizvoda</th>
             <th>Količina</th>
             <th>Cijena</th>
             <th>Akcije</th>
@@ -58,7 +60,9 @@ export default function StavkePregled() {
         <tbody>
           {stavke && Array.isArray(stavke) && stavke.map((stavka) => (
             <tr key={stavka.sifra}>
+              <td>{stavka.racunSifra}</td>
               <td>{stavka.proizvodNaziv}</td>
+              <td>{stavka.proizvodSifra}</td>
               <td>{stavka.kolicina}</td>
               <td>{stavka.cijena}</td>
               <td>

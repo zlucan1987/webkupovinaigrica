@@ -12,6 +12,8 @@ export const RouteNames = {
   STAVKA_PREGLED: '/stavke',
   STAVKA_NOVA: '/stavke/dodaj',
   STAVKA_PROMJENA: '/stavke/promjena/:sifra',
+  ERA_DIAGRAM: '/era-diagram',
+  SWAGGER: '/swagger',
 };
 
 

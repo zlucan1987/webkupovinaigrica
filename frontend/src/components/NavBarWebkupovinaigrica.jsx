@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -30,12 +31,13 @@ export default function Webkupovinaigrica() {
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={() => navigate('/kupci')}>Kupci</Dropdown.Item>
-                                <Dropdown.Item onClick={() => navigate('/proizvodi')}>Proizvodi</Dropdown.Item>
-                                <Dropdown.Item onClick={() => navigate('/racuni')}>Računi</Dropdown.Item>
-                                <Dropdown.Item onClick={() => navigate('/stavke')}>Stavke</Dropdown.Item>
-                                <Dropdown.Item onClick={() => navigate('/swagger')}>Swagger</Dropdown.Item>
-                                <Dropdown.Item onClick={() => navigate('/')}>Home</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate(RouteNames.ERA_DIAGRAM)}>ERA Dijagram</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate(RouteNames.SWAGGER)}>Swagger</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate(RouteNames.HOME)}>Home</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
                     </Nav>

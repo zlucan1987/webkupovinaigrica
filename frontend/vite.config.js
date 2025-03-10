@@ -26,6 +26,6 @@ export default defineConfig({
         cors: true
     },
     define: {
-        'import.meta.env.VITE_PRODUKCIJA': JSON.stringify('https://www.brutallucko.online/api/v1'), 
+        'import.meta.env.VITE_PRODUKCIJA': JSON.stringify('https://www.brutallucko.online/api/v1'),
     },
 });

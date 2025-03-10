@@ -1,0 +1,5 @@
+Please replace this file with the ERA diagram image provided in your message.
+
+1. Save the image as "era-diagram.jpg" in this folder (public/)
+2. Make sure the image is in JPG format
+3. The image will be displayed in the ERA Diagram page
