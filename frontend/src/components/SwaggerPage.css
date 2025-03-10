@@ -1,0 +1,87 @@
+/* SwaggerPage.css - Responsive styles for Swagger UI component */
+
+.swagger-container {
+  text-align: center;
+  padding: 0;
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+.swagger-title {
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+  margin: 20px 0;
+  font-size: 3em;
+}
+
+.swagger-iframe-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.swagger-iframe {
+  border: none;
+  pointer-events: auto;
+  min-height: 700px;
+  width: 100%;
+}
+
+/* Mobitel style */
+@media (max-width: 575.98px) {
+  .swagger-container.mobile {
+    padding: 10px 0;
+  }
+  
+  .swagger-container.mobile .swagger-title {
+    font-size: 1.8em;
+    margin: 10px 0;
+  }
+  
+  /* iframe za mobilni */
+  .swagger-container.mobile .swagger-iframe {
+    min-height: 400px;
+  }
+}
+
+/* Tablet stil */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .swagger-container.tablet {
+    padding: 15px 0;
+  }
+  
+  .swagger-container.tablet .swagger-title {
+    font-size: 2.5em;
+    margin: 15px 0;
+  }
+  
+  /* Adjust iframe for tablet */
+  .swagger-container.tablet .swagger-iframe {
+    min-height: 500px;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 992px) {
+  .swagger-container.desktop {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .swagger-container.desktop .swagger-iframe {
+    min-height: 800px;
+  }
+}
+
+/* Additional touch-friendly adjustments for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .swagger-iframe {
+    -webkit-overflow-scrolling: touch;
+  }
+}

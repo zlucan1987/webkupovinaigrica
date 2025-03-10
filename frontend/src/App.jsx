@@ -16,6 +16,7 @@ import StavkeDodaj from './pages/stavke/StavkeDodaj.jsx';
 import StavkePromjena from './pages/stavke/StavkePromjena.jsx';
 import Webkupovinaigrica from './components/NavBarWebkupovinaigrica.jsx';
 import './App.css';
+import './pages.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import EntryPage from './components/EntryPage.jsx';
 import SwaggerPage from './components/SwaggerPage.jsx';

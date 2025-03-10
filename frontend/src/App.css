@@ -1,24 +1,29 @@
-/* app.css */
+/* app.css - Responsive styles for the entire application */
 #root {
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .app-container {
   position: relative;
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: stretch; /* Vraćanje na stretch */
+  align-items: stretch;
   padding: 0;
+  overflow-x: hidden;
 }
 
 .navbar-lightgray {
-  width: 100vw;
-  height: 8vh;
+  width: 100%;
+  height: auto;
+  min-height: 60px;
   margin: 0;
-  padding: 0;
+  padding: 0.5rem 1rem;
 }
 
 /* Uvjetno stiliziranje */
@@ -36,13 +41,79 @@
   border-radius: 10px;
   position: relative;
   z-index: 1000;
+  margin: 0 10px;
 }
 
 .app-copyright {
-  position: absolute;
-  bottom: 0;
+  position: relative;
   width: 100%;
   text-align: center;
   color: white;
   padding: 10px 0;
+  margin-top: auto;
+}
+
+/* Responsive styles for different screen sizes */
+
+/* Mobile styles */
+@media (max-width: 575.98px) {
+  .navbar-lightgray {
+    padding: 0.3rem 0.5rem;
+  }
+  
+  .footer-navigation {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* Adjust button sizes for mobile */
+  .btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Ensure tables are responsive */
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .navbar-lightgray {
+    padding: 0.4rem 0.8rem;
+  }
+  
+  /* Adjust spacing for tablet */
+  .me-3 {
+    margin-right: 0.5rem !important;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 992px) {
+  .app-container {
+    max-width: 100%;
+  }
+}
+
+/* Fix for any horizontal overflow issues */
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Ensure all images are responsive */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Make form elements responsive */
+input, select, textarea {
+  max-width: 100%;
 }

@@ -1,0 +1,105 @@
+/* pages.css - Responsive styles for page components */
+
+/* Common styles for all page components */
+.bijeli-tekst {
+  color: white;
+}
+
+/* Responsive form styles */
+.input-manja-sirina {
+  max-width: 100%;
+  width: 300px;
+}
+
+.manji-gumb {
+  width: auto;
+  min-width: 120px;
+}
+
+.siroko {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 1rem;
+}
+
+/* Responsive table styles */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive styles for different screen sizes */
+
+/* Mobile styles */
+@media (max-width: 575.98px) {
+  .input-manja-sirina {
+    width: 100%;
+  }
+  
+  .manji-gumb {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Stack buttons on mobile */
+  td .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Hide non-essential table columns on very small screens */
+  @media (max-width: 400px) {
+    .table-responsive th:nth-child(3),
+    .table-responsive td:nth-child(3) {
+      display: none;
+    }
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .input-manja-sirina {
+    width: 250px;
+  }
+  
+  /* Adjust button spacing */
+  td .btn + .btn {
+    margin-left: 0.5rem;
+  }
+}
+
+/* Component-specific styles */
+
+/* Racuni komponenta */
+.racuni-komponenta {
+  padding: 1rem;
+}
+
+/* Kupci komponenta */
+.kupci-komponenta {
+  padding: 1rem;
+}
+
+/* Proizvodi komponenta */
+.proizvodi-komponenta {
+  padding: 1rem;
+}
+
+/* Stavke komponenta */
+.stavke-komponenta {
+  padding: 1rem;
+}
+
+/* Form layout adjustments for mobile */
+@media (max-width: 767.98px) {
+  .row .col-md-3.d-flex {
+    margin-top: 1rem;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+  }
+  
+  .row .col-md-3.d-flex .btn {
+    margin: 0 0.25rem;
+  }
+}
