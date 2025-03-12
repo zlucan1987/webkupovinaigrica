@@ -5,10 +5,15 @@
   color: white;
 }
 
-/* Responsive form styles */
+/* Stilovi za forme */
 .input-manja-sirina {
   max-width: 100%;
-  width: 300px;
+  width: 120px; /* Smanjeno za 60% od originalne širine */
+  white-space: normal; /* Omogućava prelazak teksta u novi red */
+  overflow-wrap: break-word; /* Prelama riječi da se izbjegne preljev */
+  word-wrap: break-word; /* Za starije preglednike */
+  height: auto; /* Omogućava da se visina prilagodi sadržaju */
+  min-height: calc(1.5em + 0.75rem + 2px); /* Minimalna visina */
 }
 
 .manji-gumb {

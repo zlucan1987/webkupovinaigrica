@@ -50,6 +50,9 @@ const getRandomGameImage = () => {
     return gameImages[randomIndex];
 };
 
+// Putanja do placeholder slike kada nema odgovarajuće slike za igricu
+const noImagePlaceholder = '/GamesPictures/no-image.svg';
+
 // Dohvaća odgovarajuću sliku za igricu prema nazivu
 const getGameImage = (gameName) => {
     // Prvo traži točno podudaranje
@@ -73,8 +76,8 @@ const getGameImage = (gameName) => {
         return partialMatch;
     }
     
-    // Ako nema podudaranja, vraća nasumičnu sliku
-    return getRandomGameImage();
+    // Ako nema podudaranja, vraća placeholder sliku "nema slike"
+    return noImagePlaceholder;
 };
 
 // Generira nasumičnu ocjenu za igricu (1-5)

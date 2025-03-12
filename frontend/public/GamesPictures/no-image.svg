@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <rect width="300" height="300" fill="#f0f0f0"/>
+  <g transform="translate(75, 75) scale(1.5)">
+    <path d="M77.6,75.4l-8.3-8.3L54.1,90l-8.3-8.3L31.7,95.8l-8.3-8.3L9.2,101.7l-8.3-8.3L-13.3,107.5l-8.3-8.3L-35.8,113.3l-8.3-8.3L-58.3,119.2l-8.3-8.3L-80.8,125l-8.3-8.3L-100,127.5" 
+          stroke="#ff0000" stroke-width="5" fill="none"/>
+    <path d="M80,40 L80,80 L40,80 L40,40 L80,40 Z M73,47 L47,47 L47,73 L73,73 L73,47 Z M67,53 L53,53 L53,67 L67,67 L67,53 Z" 
+          fill="#666666"/>
+    <path d="M40,40 L80,80" stroke="#ff0000" stroke-width="5"/>
+    <path d="M80,40 L40,80" stroke="#ff0000" stroke-width="5"/>
+  </g>
+  <text x="150" y="220" font-family="Arial" font-size="24" text-anchor="middle" fill="#666666">Nema slike</text>
+</svg>
