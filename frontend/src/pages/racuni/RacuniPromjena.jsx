@@ -207,11 +207,23 @@ export default function RacuniPromjena() {
                             <ListGroup.Item 
                                 key={proizvod.sifra}
                                 className="d-flex align-items-center"
-                                style={{ justifyContent: 'flex-start' }}
+                                style={{ justifyContent: 'flex-start', cursor: 'pointer' }}
+                                onClick={() => dodajStavkuNaRacun(proizvod)}
                             >
                                 <div>
                                     <strong>{proizvod.nazivIgre}</strong> - Šifra: {proizvod.sifra}, Cijena: {proizvod.cijena} €
                                 </div>
+                                <Button 
+                                    variant="outline-primary" 
+                                    size="sm"
+                                    className="ms-auto"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        dodajStavkuNaRacun(proizvod);
+                                    }}
+                                >
+                                    <FaPlus />
+                                </Button>
                             </ListGroup.Item>
                         ))}
                     </ListGroup>

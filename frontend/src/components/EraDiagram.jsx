@@ -5,7 +5,7 @@ import { Container, Image, Card } from 'react-bootstrap';
 export default function EraDiagram() {
   return (
     <Container className="mt-4">
-      <h2 className="text-center mb-4">ERA Dijagram</h2>
+      <h2 className="text-center mb-4" style={{ color: 'white' }}>ERA Dijagram</h2>
       <div className="mt-4 text-center">
         <Image 
           src="/era-diagram.jpg" 
