@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
 import AuthService from '../services/AuthService';
 import { RouteNames } from '../constants';
@@ -33,6 +34,11 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   
   // User is authenticated and has the required role (if any), render the protected component
   return children;
+};
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+  requiredRoles: PropTypes.arrayOf(PropTypes.string)
 };
 
 export default ProtectedRoute;

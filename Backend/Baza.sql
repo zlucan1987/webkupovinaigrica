@@ -9,6 +9,32 @@ GO
 SELECT name, collation_name FROM sys.databases;
 GO
 
+-- Kreiranje tablice Operateri
+CREATE TABLE Operateri (
+    Sifra INT IDENTITY(1,1) PRIMARY KEY,
+    KorisnickoIme NVARCHAR(255) NOT NULL,
+    Lozinka NVARCHAR(255) NOT NULL,
+    Ime NVARCHAR(255) NULL,
+    Prezime NVARCHAR(255) NULL,
+    Aktivan BIT NOT NULL DEFAULT 1
+);
+
+-- Kreiranje tablice OperaterUloge
+CREATE TABLE OperaterUloge (
+    Sifra INT IDENTITY(1,1) PRIMARY KEY,
+    Naziv NVARCHAR(50) NOT NULL,
+    Opis NVARCHAR(255) NULL
+);
+
+-- Kreiranje tablice OperaterOperaterUloge
+CREATE TABLE OperaterOperaterUloge (
+    Sifra INT IDENTITY(1,1) PRIMARY KEY,
+    OperaterId INT NOT NULL,
+    OperaterUlogaId INT NOT NULL
+);
+
+
+
 create table proizvodi(
 sifra int not null primary key identity(1,1), 
 nazivigre varchar(100) not null, 

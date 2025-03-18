@@ -73,7 +73,15 @@ class AuthService {
     // Login method
     async login(email, password) {
         try {
-            const response = await HttpService.post('/Autentifikacija/Login', { email, password });
+            console.log('Login attempt with:', { KorisnickoIme: email, Password: password });
+            
+            const response = await HttpService.post('/Autentifikacija/Login', { 
+                KorisnickoIme: email, 
+                Password: password 
+            });
+            
+            console.log('Login response:', response);
+            
             const token = response.data;
             
             // Store the token with Bearer prefix
@@ -85,6 +93,17 @@ class AuthService {
             return true;
         } catch (error) {
             console.error('Login error:', error);
+            console.error('Error details:', {
+                message: error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                config: {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    data: error.config?.data
+                }
+            });
             throw error;
         }
     }
@@ -92,10 +111,34 @@ class AuthService {
     // Register method
     async register(userData) {
         try {
-            const response = await HttpService.post('/Autentifikacija/Register', userData);
+            // Ensure proper field names for backend
+            const formattedUserData = {
+                KorisnickoIme: userData.KorisnickoIme || userData.email,
+                Lozinka: userData.Lozinka || userData.lozinka || userData.password,
+                Ime: userData.Ime || userData.ime,
+                Prezime: userData.Prezime || userData.prezime
+            };
+            
+            console.log('Register attempt with:', formattedUserData);
+            
+            const response = await HttpService.post('/Autentifikacija/Register', formattedUserData);
+            
+            console.log('Register response:', response);
+            
             return response.data;
         } catch (error) {
             console.error('Registration error:', error);
+            console.error('Error details:', {
+                message: error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                config: {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    data: error.config?.data
+                }
+            });
             throw error;
         }
     }

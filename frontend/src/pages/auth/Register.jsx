@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
-import { HttpService } from '../../services/HttpService';
+import AuthService from '../../services/AuthService';
 import './Login.css';
 
 const Register = () => {
@@ -41,14 +41,14 @@ const Register = () => {
         try {
             // Prepare data for API
             const userData = {
-                ime: formData.ime,
-                prezime: formData.prezime,
-                email: formData.email,
-                lozinka: formData.password
+                Ime: formData.ime,
+                Prezime: formData.prezime,
+                KorisnickoIme: formData.email,
+                Lozinka: formData.password
             };
 
             // Send registration request
-            await HttpService.post('/Autentifikacija/Register', userData);
+            await AuthService.register(userData);
             
             setSuccess('Registracija uspješna! Možete se prijaviti.');
             

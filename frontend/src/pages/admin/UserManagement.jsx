@@ -37,7 +37,7 @@ const UserManagement = () => {
 
     const handleEditRoles = (user) => {
         setSelectedUser(user);
-        setSelectedRoles(user.roles || []);
+        setSelectedRoles(user.Uloge || []);
         setShowModal(true);
     };
 
@@ -55,14 +55,14 @@ const UserManagement = () => {
             setUpdateError(null);
             
             await HttpService.put(`/Autentifikacija/Users/${selectedUser.id}/Roles`, {
-                userId: selectedUser.id,
-                roles: selectedRoles
+                OperaterId: selectedUser.id,
+                Uloge: selectedRoles
             });
             
             // Update local state
             setUsers(users.map(user => 
                 user.id === selectedUser.id 
-                    ? { ...user, roles: selectedRoles } 
+                    ? { ...user, Uloge: selectedRoles } 
                     : user
             ));
             
@@ -140,12 +140,12 @@ const UserManagement = () => {
                         {users.map(user => (
                             <tr key={user.id}>
                                 <td>{user.id}</td>
-                                <td>{user.ime}</td>
-                                <td>{user.prezime}</td>
-                                <td>{user.email}</td>
+                                <td>{user.Ime}</td>
+                                <td>{user.Prezime}</td>
+                                <td>{user.KorisnickoIme}</td>
                                 <td>
-                                    {user.roles && user.roles.length > 0 
-                                        ? user.roles.join(', ') 
+                                    {user.Uloge && user.Uloge.length > 0 
+                                        ? user.Uloge.join(', ') 
                                         : 'Nema uloga'}
                                 </td>
                                 <td>
@@ -184,7 +184,7 @@ const UserManagement = () => {
                     {selectedUser && (
                         <div>
                             <p>
-                                <strong>Korisnik:</strong> {selectedUser.ime} {selectedUser.prezime} ({selectedUser.email})
+                                <strong>Korisnik:</strong> {selectedUser.Ime} {selectedUser.Prezime} ({selectedUser.KorisnickoIme})
                             </p>
                             
                             <Form>
