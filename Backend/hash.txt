@@ -1,0 +1,2 @@
+-- Ovo je validan BCrypt hash za lozinku "edunova"
+$2a$11$7OKmydnUwKGgQVlGmyhxLOQyiQXgaJeK7k5zXEPQFHQvMpAzLZVFu

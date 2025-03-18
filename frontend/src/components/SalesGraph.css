@@ -1,0 +1,29 @@
+.bar-chart-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.chart-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chart-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  text-align: center;
+  color: #666;
+}
+
+/* Make the tooltip more readable */
+.recharts-tooltip-wrapper {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Improve the appearance of the bars */
+.recharts-bar-rectangle:hover {
+  opacity: 0.8;
+}

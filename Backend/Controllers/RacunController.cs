@@ -2,6 +2,7 @@
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,6 +19,10 @@ namespace Backend.Controllers
         {
         }
 
+        /// <summary>
+        /// Dohvaća sve račune.
+        /// </summary>
+        /// <returns>Lista računa.</returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<RacunDTORead>), 200)]
         public IActionResult Get()
@@ -34,6 +39,11 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Dohvaća račun prema šifri.
+        /// </summary>
+        /// <param name="sifra">Šifra računa.</param>
+        /// <returns>Račun s traženom šifrom.</returns>
         [HttpGet("{sifra:int}")]
         [ProducesResponseType(typeof(RacunDTORead), 200)]
         public IActionResult Get(int sifra)
@@ -58,6 +68,11 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Dodaje novi račun.
+        /// </summary>
+        /// <param name="racunDTO">Podaci o računu.</param>
+        /// <returns>Dodani račun.</returns>
         [HttpPost]
         public IActionResult Post([FromBody] RacunDTOInsertUpdate racunDTO)
         {
@@ -92,6 +107,12 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Ažurira postojeći račun.
+        /// </summary>
+        /// <param name="sifra">Šifra računa.</param>
+        /// <param name="racunDTO">Podaci o računu.</param>
+        /// <returns>Ažurirani račun.</returns>
         [HttpPut("{sifra:int}")]
         public IActionResult Put(int sifra, RacunDTOInsertUpdate racunDTO)
         {
@@ -127,6 +148,11 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Briše račun.
+        /// </summary>
+        /// <param name="sifra">Šifra računa.</param>
+        /// <returns>Status brisanja.</returns>
         [HttpDelete("{sifra:int}")]
         public IActionResult Delete(int sifra)
         {
@@ -151,8 +177,11 @@ namespace Backend.Controllers
             }
         }
 
-
-
+        /// <summary>
+        /// Dohvaća stavke računa.
+        /// </summary>
+        /// <param name="sifraRacuna">Šifra računa.</param>
+        /// <returns>Lista stavki računa.</returns>
         [HttpGet]
         [Route("{sifraRacuna:int}/stavke")]
         public ActionResult<List<StavkaDTORead>> GetStavkeRacuna(int sifraRacuna)
@@ -164,11 +193,11 @@ namespace Backend.Controllers
                             .Include(s => s.Racun)
                             .Where(s => s.Racun.Sifra == sifraRacuna).ToList();
              
-                    return Ok(
-                        _mapper.Map<List<StavkaDTORead>>(
-                            lista
-                        )
-                    );
+                return Ok(
+                    _mapper.Map<List<StavkaDTORead>>(
+                        lista
+                    )
+                );
             }
             catch (Exception e)
             {
@@ -176,7 +205,12 @@ namespace Backend.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Dodaje stavku na račun.
+        /// </summary>
+        /// <param name="sifraRacuna">Šifra računa.</param>
+        /// <param name="stavkaDTO">Podaci o stavci.</param>
+        /// <returns>Dodana stavka.</returns>
         [HttpPost("{sifraRacuna:int}/stavke")]
         public IActionResult DodajStavku(int sifraRacuna, [FromBody] StavkaDTOInsert stavkaDTO)
         {
@@ -215,6 +249,13 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Ažurira stavku na računu.
+        /// </summary>
+        /// <param name="sifraRacuna">Šifra računa.</param>
+        /// <param name="sifraStavke">Šifra stavke.</param>
+        /// <param name="stavkaDTO">Podaci o stavci.</param>
+        /// <returns>Ažurirana stavka.</returns>
         [HttpPut("{sifraRacuna:int}/stavke/{sifraStavke:int}")]
         public IActionResult IzmijeniStavku(int sifraRacuna, int sifraStavke, [FromBody] StavkaDTOUpdate stavkaDTO)
         {
@@ -244,10 +285,10 @@ namespace Backend.Controllers
                 }
 
                 // Dohvati Racun
-                var racunStavka = _context.Racuni.Find(sifraRacuna); // Promijenjeno na sifraRacuna
+                var racunStavka = _context.Racuni.Find(sifraRacuna);
                 if (racunStavka == null)
                 {
-                    return NotFound(new { poruka = $"Račun s šifrom {sifraRacuna} ne postoji" }); // Promijenjena poruka
+                    return NotFound(new { poruka = $"Račun s šifrom {sifraRacuna} ne postoji" });
                 }
 
                 _mapper.Map(stavkaDTO, stavkaBaza);
@@ -267,6 +308,12 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Briše stavku s računa.
+        /// </summary>
+        /// <param name="sifraRacuna">Šifra računa.</param>
+        /// <param name="sifraStavke">Šifra stavke.</param>
+        /// <returns>Status brisanja.</returns>
         [HttpDelete("{sifraRacuna:int}/stavke/{sifraStavke:int}")]
         public IActionResult ObrisiStavku(int sifraRacuna, int sifraStavke)
         {
@@ -288,7 +335,5 @@ namespace Backend.Controllers
                 return BadRequest(e.Message);
             }
         }
-
-
     }
 }

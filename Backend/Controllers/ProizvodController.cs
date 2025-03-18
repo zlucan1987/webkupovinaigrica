@@ -2,6 +2,7 @@
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,6 +19,10 @@ namespace Backend.Controllers
         {
         }
 
+        /// <summary>
+        /// Dohvaća sve proizvode.
+        /// </summary>
+        /// <returns>Lista proizvoda.</returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<ProizvodDTORead>), 200)]
         public IActionResult Get()
@@ -34,6 +39,11 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Dohvaća proizvod prema šifri.
+        /// </summary>
+        /// <param name="sifra">Šifra proizvoda.</param>
+        /// <returns>Proizvod s traženom šifrom.</returns>
         [HttpGet("{sifra:int}")]
         [ProducesResponseType(typeof(ProizvodDTORead), 200)]
         public IActionResult Get(int sifra)
@@ -58,6 +68,11 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Dodaje novi proizvod.
+        /// </summary>
+        /// <param name="proizvodDTO">Podaci o proizvodu.</param>
+        /// <returns>Dodani proizvod.</returns>
         [HttpPost]
         public IActionResult Post([FromBody] ProizvodDTOInsertUpdate proizvodDTO)
         {
@@ -73,16 +88,22 @@ namespace Backend.Controllers
                 var proizvodReadDTO = _mapper.Map<ProizvodDTORead>(proizvod);
                 return StatusCode(StatusCodes.Status201Created, proizvodReadDTO);
             }
-            catch (DbUpdateException) 
+            catch (DbUpdateException)
             {
                 return BadRequest("Greška pri upisu u bazu podataka.");
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
 
+        /// <summary>
+        /// Ažurira postojeći proizvod.
+        /// </summary>
+        /// <param name="sifra">Šifra proizvoda.</param>
+        /// <param name="proizvodDTO">Podaci o proizvodu.</param>
+        /// <returns>Ažurirani proizvod.</returns>
         [HttpPut("{sifra:int}")]
         public IActionResult Put(int sifra, ProizvodDTOInsertUpdate proizvodDTO)
         {
@@ -111,6 +132,11 @@ namespace Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Briše proizvod.
+        /// </summary>
+        /// <param name="sifra">Šifra proizvoda.</param>
+        /// <returns>Status brisanja.</returns>
         [HttpDelete("{sifra:int}")]
         public IActionResult Delete(int sifra)
         {
@@ -128,6 +154,81 @@ namespace Backend.Controllers
                 _context.Proizvodi.Remove(proizvod);
                 _context.SaveChanges();
                 return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Dohvaća podatke za graf - broj kupaca po proizvodu.
+        /// </summary>
+        /// <returns>Podaci za graf.</returns>
+        [HttpGet]
+        [Route("graf")]
+        public IActionResult DohvatiPodatkeZaGraf()
+        {
+            try
+            {
+                var podaci = _context.Proizvodi
+                    .Select(p => new
+                    {
+                        p.Sifra,
+                        p.NazivIgre,
+                        BrojKupaca = _context.Stavke
+                            .Where(s => s.ProizvodId == p.Sifra)
+                            .Select(s => s.Racun.KupacId)
+                            .Distinct()
+                            .Count()
+                    })
+                    .ToList();
+
+                var rezultat = podaci.Select(p => new GrafProizvodDTO(p.NazivIgre, p.BrojKupaca)).ToList();
+                return Ok(rezultat);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Postavlja sliku za proizvod.
+        /// </summary>
+        /// <param name="sifra">Šifra proizvoda.</param>
+        /// <param name="slika">Podaci o slici.</param>
+        /// <returns>Status postavljanja slike.</returns>
+        [HttpPut]
+        [Route("postaviSliku/{sifra:int}")]
+        public IActionResult PostaviSliku(int sifra, SlikaDTO slika)
+        {
+            if (sifra <= 0)
+            {
+                return BadRequest("Šifra mora biti veća od nula (0)");
+            }
+            if (slika.Base64 == null || slika.Base64?.Length == 0)
+            {
+                return BadRequest("Slika nije postavljena");
+            }
+            var p = _context.Proizvodi.Find(sifra);
+            if (p == null)
+            {
+                return BadRequest("Ne postoji proizvod s šifrom " + sifra + ".");
+            }
+            try
+            {
+                var ds = Path.DirectorySeparatorChar;
+                string dir = Path.Combine(Directory.GetCurrentDirectory()
+                    + ds + "wwwroot" + ds + "slike" + ds + "proizvodi");
+
+                if (!System.IO.Directory.Exists(dir))
+                {
+                    System.IO.Directory.CreateDirectory(dir);
+                }
+                var putanja = Path.Combine(dir + ds + sifra + ".png");
+                System.IO.File.WriteAllBytes(putanja, Convert.FromBase64String(slika.Base64!));
+                return Ok("Uspješno pohranjena slika");
             }
             catch (Exception e)
             {

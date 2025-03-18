@@ -12,6 +12,5 @@ namespace Backend.Models
         public string Ulica { get; set; } = "";
 
         public string Mjesto { get; set; } = "";
-
     }
 }

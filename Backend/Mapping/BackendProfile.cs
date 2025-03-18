@@ -24,25 +24,29 @@ namespace Backend.Mapping
                     entitet.Sifra,
                     entitet.Datum,
                     entitet.Kupac.Ime + " " + entitet.Kupac.Prezime,
-                    entitet.Kupac.Sifra // Dodano: uključivanje šifre kupca
+                    entitet.Kupac.Sifra // uključivanje šifre kupca
                 ));
-            CreateMap<RacunDTOInsertUpdate, Racun>();
-            CreateMap<Racun, RacunDTOInsertUpdate>();
+            CreateMap<RacunDTOInsertUpdate, Racun>()
+                .ForMember(dest => dest.KupacId, opt => opt.MapFrom(src => src.KupacSifra));
+            CreateMap<Racun, RacunDTOInsertUpdate>()
+                .ForMember(dest => dest.KupacSifra, opt => opt.MapFrom(src => src.KupacId));
 
             // map Stavka
             CreateMap<Stavka, StavkaDTORead>()
                 .ForCtorParam("ProizvodNaziv", opt => opt.MapFrom(src => src.Proizvod.NazivIgre))
-                .ForCtorParam("RacunSifra", opt => opt.MapFrom(src => src.Racun.Sifra)) // Dodano
-                .ForCtorParam("ProizvodSifra", opt => opt.MapFrom(src => src.Proizvod.Sifra)); // Dodano
+                .ForCtorParam("RacunSifra", opt => opt.MapFrom(src => src.Racun.Sifra))
+                .ForCtorParam("ProizvodSifra", opt => opt.MapFrom(src => src.Proizvod.Sifra));
 
-            CreateMap<StavkaDTOInsert, Stavka>();
+            CreateMap<StavkaDTOInsert, Stavka>()
+                .ForMember(dest => dest.RacunId, opt => opt.MapFrom(src => src.RacunSifra))
+                .ForMember(dest => dest.ProizvodId, opt => opt.MapFrom(src => src.ProizvodSifra));
+
             CreateMap<Stavka, StavkaDTOInsert>()
-                .ForMember(dest => dest.RacunSifra, opt => opt.MapFrom(src => src.Racun.Sifra))
-                .ForMember(dest => dest.ProizvodSifra, opt => opt.MapFrom(src => src.Proizvod.Sifra));
+                .ForMember(dest => dest.RacunSifra, opt => opt.MapFrom(src => src.RacunId))
+                .ForMember(dest => dest.ProizvodSifra, opt => opt.MapFrom(src => src.ProizvodId));
 
             CreateMap<StavkaDTOUpdate, Stavka>()
-            .ForMember(dest => dest.Proizvod, opt => opt.MapFrom(src => new Proizvod { Sifra = src.ProizvodSifra }))
-            .ForMember(dest => dest.Racun, opt => opt.Ignore());
+                .ForMember(dest => dest.ProizvodId, opt => opt.MapFrom(src => src.ProizvodSifra));
         }
     }
 }

@@ -1,41 +1,52 @@
-﻿using Backend.Data;
+﻿﻿using Backend.Data;
 using Backend.Mapping;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
+using Backend.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Dodavanje servisa u kontejner.
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
+builder.Services.AddBackendSwaggerGen(); // Koristim ekstenziju umjesto AddSwaggerGen
+builder.Services.AddBackendCORS();          // Koristim ekstenziju umjesto AddCors
 builder.Services.AddDbContext<BackendContext>(o =>
 {
     o.UseSqlServer(builder.Configuration.GetConnectionString("BackendContext"));
 });
 
-// Konfiguracija CORS-a (ograničeno na tvoju domenu)
+// Konfiguracija CORS-a
 builder.Services.AddCors(o =>
 {
     o.AddPolicy("CorsPolicy", b =>
     {
-        b.WithOrigins("https://www.brutallucko.online") // Promijeni na svoju domenu
-            .WithMethods("GET", "POST", "PUT", "DELETE")
-            .WithHeaders("Content-Type", "Authorization");
+        b.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
 // Registracija AutoMapper-a
 builder.Services.AddAutoMapper(typeof(Backend.Mapping.BackendProfile));
 
+// SECURITY
+builder.Services.AddBackendSecurity();
+builder.Services.AddAuthorization();
+// END SECURITY
+
 var app = builder.Build();
 
 // Konfiguracija HTTP request pipeline-a.
-app.MapOpenApi();
-app.UseHttpsRedirection(); 
-app.UseAuthorization();
+if (app.Environment.IsDevelopment() || true) // Privremeno uključite za produkciju
+{
+    app.UseDeveloperExceptionPage();
+}
 
-// Swagger (javan, ali razmotri autentifikaciju)
+app.UseHttpsRedirection();
+
+// Swagger
 app.UseSwagger();
 app.UseSwaggerUI(o =>
 {
@@ -46,10 +57,12 @@ app.UseSwaggerUI(o =>
 // UseCors mora biti pozvan nakon UseRouting i prije UseEndpoints
 app.UseRouting();
 app.UseCors("CorsPolicy");
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+
+// Autentifikacija i autorizacija
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
 
 // Konfiguracija za frontend
 app.UseDefaultFiles();
