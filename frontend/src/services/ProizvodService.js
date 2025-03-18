@@ -82,10 +82,39 @@ async function obrisi(sifra) {
     }
 }
 
+async function postaviSliku(sifra, base64Slika) {
+    try {
+        console.log("ProizvodService.postaviSliku: Postavljam sliku za proizvod", sifra);
+        await HttpService.put(`/Proizvod/postaviSliku/${sifra}`, { 
+            Base64: base64Slika 
+        });
+        return { greska: false, poruka: 'Slika uspješno postavljena' };
+    } catch (e) {
+        console.error("Greška prilikom postavljanja slike:", e);
+        return { 
+            greska: true, 
+            poruka: e.response?.data?.message || 'Problem kod postavljanja slike' 
+        };
+    }
+}
+
+async function getGrafPodaci() {
+    try {
+        console.log("ProizvodService.getGrafPodaci: Dohvaćam podatke za graf s API-ja");
+        const response = await HttpService.get('/Proizvod/graf');
+        return response.data;
+    } catch (e) {
+        console.error("Greška prilikom dohvaćanja podataka za graf:", e);
+        return [];
+    }
+}
+
 export default {
     get,
     getBySifra,
     dodaj,
     promjena,
-    obrisi
+    obrisi,
+    postaviSliku,
+    getGrafPodaci
 };

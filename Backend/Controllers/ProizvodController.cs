@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTO;
@@ -13,6 +13,7 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
+    [Authorize]
     public class ProizvodController : BackendController
     {
         public ProizvodController(BackendContext context, IMapper mapper) : base(context, mapper)
@@ -74,6 +75,7 @@ namespace Backend.Controllers
         /// <param name="proizvodDTO">Podaci o proizvodu.</param>
         /// <returns>Dodani proizvod.</returns>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult Post([FromBody] ProizvodDTOInsertUpdate proizvodDTO)
         {
             if (!ModelState.IsValid)
@@ -105,6 +107,7 @@ namespace Backend.Controllers
         /// <param name="proizvodDTO">Podaci o proizvodu.</param>
         /// <returns>Ažurirani proizvod.</returns>
         [HttpPut("{sifra:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Put(int sifra, ProizvodDTOInsertUpdate proizvodDTO)
         {
             if (!ModelState.IsValid)
@@ -138,6 +141,7 @@ namespace Backend.Controllers
         /// <param name="sifra">Šifra proizvoda.</param>
         /// <returns>Status brisanja.</returns>
         [HttpDelete("{sifra:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int sifra)
         {
             if (sifra <= 0)
@@ -201,6 +205,7 @@ namespace Backend.Controllers
         /// <returns>Status postavljanja slike.</returns>
         [HttpPut]
         [Route("postaviSliku/{sifra:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult PostaviSliku(int sifra, SlikaDTO slika)
         {
             if (sifra <= 0)

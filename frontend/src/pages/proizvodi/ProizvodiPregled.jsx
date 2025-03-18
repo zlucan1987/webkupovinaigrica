@@ -5,6 +5,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import { getGameImage, getRandomRating, hasDiscount, getDiscountPercentage } from "../../utils/imageUtils";
 import { useCart } from "../../context/CartContext";
+import AuthService from "../../services/AuthService";
 import "./ProizvodiPregled.css";
 
 export default function ProizvodiPregled() {
@@ -13,9 +14,15 @@ export default function ProizvodiPregled() {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortOption, setSortOption] = useState("nazivAsc");
     const [viewMode, setViewMode] = useState("grid"); // "grid" or "table"
+    const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const { addToCart } = useCart();
+    
+    // Check if user is admin
+    useEffect(() => {
+        setIsAdmin(AuthService.hasRole('Admin'));
+    }, []);
     
     // Dohvati search parametar iz URL-a ako postoji
     useEffect(() => {
@@ -26,25 +33,34 @@ export default function ProizvodiPregled() {
         }
     }, [location]);
 
-    async function dohvatiProizvode() {
-        const odgovor = await ProizvodService.get();
-        console.log(odgovor);
-        
-        // Dodaj dodatne informacije proizvodima (slike, ocjene, popuste)
-        if (Array.isArray(odgovor)) {
-            const enhancedProizvodi = odgovor.map(proizvod => ({
-                ...proizvod,
-                imageUrl: getGameImage(proizvod.nazivIgre), // Dohvaća odgovarajuću sliku prema nazivu igrice
-                rating: getRandomRating(),
-                discount: hasDiscount() ? getDiscountPercentage() : null
-            }));
-            setProizvodi(enhancedProizvodi);
-            setFilteredProizvodi(enhancedProizvodi);
-        }
-    }
-
     useEffect(() => {
-        dohvatiProizvode();
+        // Define a function to fetch products
+        const fetchProducts = async () => {
+            const odgovor = await ProizvodService.get();
+            console.log(odgovor);
+            
+            // Dodaj dodatne informacije proizvodima (slike, ocjene, popuste)
+            if (Array.isArray(odgovor)) {
+                const enhancedProizvodi = odgovor.map(proizvod => {
+                    // Prvo pokušamo dohvatiti sliku prema ID-u
+                    const serverImageUrl = `/slike/proizvodi/${proizvod.sifra}.png?t=${new Date().getTime()}`;
+                    
+                    return {
+                        ...proizvod,
+                        // Koristimo serversku sliku, a ako ne postoji, koristimo getGameImage
+                        imageUrl: serverImageUrl,
+                        fallbackImageUrl: getGameImage(proizvod.nazivIgre),
+                        rating: getRandomRating(),
+                        discount: hasDiscount() ? getDiscountPercentage() : null
+                    };
+                });
+                setProizvodi(enhancedProizvodi);
+                setFilteredProizvodi(enhancedProizvodi);
+            }
+        };
+        
+        // Call the function
+        fetchProducts();
     }, []);
     
     // Filtriraj i sortiraj proizvode kad se promijeni pojam za pretragu ili opcija sortiranja
@@ -95,7 +111,29 @@ export default function ProizvodiPregled() {
             alert(odgovor.poruka);
             return;
         }
-        dohvatiProizvode();
+        
+        // Fetch products again after deletion
+        const fetchProducts = async () => {
+            const odgovor = await ProizvodService.get();
+            
+            if (Array.isArray(odgovor)) {
+                const enhancedProizvodi = odgovor.map(proizvod => {
+                    const serverImageUrl = `/slike/proizvodi/${proizvod.sifra}.png?t=${new Date().getTime()}`;
+                    
+                    return {
+                        ...proizvod,
+                        imageUrl: serverImageUrl,
+                        fallbackImageUrl: getGameImage(proizvod.nazivIgre),
+                        rating: getRandomRating(),
+                        discount: hasDiscount() ? getDiscountPercentage() : null
+                    };
+                });
+                setProizvodi(enhancedProizvodi);
+                setFilteredProizvodi(enhancedProizvodi);
+            }
+        };
+        
+        fetchProducts();
     }
 
     const handleAddToCart = (proizvod) => {
@@ -117,9 +155,11 @@ export default function ProizvodiPregled() {
     return (
         <div className="proizvodi-komponenta">
             <div className="proizvodi-header">
-                <Link to={RouteNames.PROIZVOD_NOVI} className="btn btn-success siroko">
-                    Dodaj novi proizvod
-                </Link>
+                {isAdmin && (
+                    <Link to={RouteNames.PROIZVOD_NOVI} className="btn btn-success siroko">
+                        Dodaj novi proizvod
+                    </Link>
+                )}
                 
                 <div className="filter-sort-container">
                     <Row className="align-items-center">
@@ -182,6 +222,10 @@ export default function ProizvodiPregled() {
                                             src={proizvod.imageUrl} 
                                             alt={proizvod.nazivIgre}
                                             onClick={() => navigate(`/proizvodi/${proizvod.sifra}`)}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = proizvod.fallbackImageUrl;
+                                            }}
                                         />
                                         <div className="rating">
                                             {renderRatingStars(proizvod.rating)}
@@ -217,22 +261,24 @@ export default function ProizvodiPregled() {
                                             >
                                                 Dodaj u košaricu
                                             </Button>
-                                            <div className="admin-actions">
-                                                <Button 
-                                                    variant="outline-secondary" 
-                                                    size="sm"
-                                                    onClick={() => navigate(`/proizvodi/${proizvod.sifra}`)}
-                                                >
-                                                    <i className="bi bi-pencil"></i>
-                                                </Button>
-                                                <Button 
-                                                    variant="outline-danger" 
-                                                    size="sm"
-                                                    onClick={() => obrisi(proizvod.sifra)}
-                                                >
-                                                    <i className="bi bi-trash"></i>
-                                                </Button>
-                                            </div>
+                                            {isAdmin && (
+                                                <div className="admin-actions">
+                                                    <Button 
+                                                        variant="outline-secondary" 
+                                                        size="sm"
+                                                        onClick={() => navigate(`/proizvodi/${proizvod.sifra}`)}
+                                                    >
+                                                        <i className="bi bi-pencil"></i>
+                                                    </Button>
+                                                    <Button 
+                                                        variant="outline-danger" 
+                                                        size="sm"
+                                                        onClick={() => obrisi(proizvod.sifra)}
+                                                    >
+                                                        <i className="bi bi-trash"></i>
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                     </Card.Body>
                                 </Card>
@@ -259,6 +305,10 @@ export default function ProizvodiPregled() {
                                         src={proizvod.imageUrl} 
                                         alt={proizvod.nazivIgre} 
                                         className="table-image"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = proizvod.fallbackImageUrl;
+                                        }}
                                     />
                                 </td>
                                 <td>{proizvod.nazivIgre}</td>
@@ -286,21 +336,25 @@ export default function ProizvodiPregled() {
                                     >
                                         Dodaj u košaricu
                                     </Button>
-                                    <Button 
-                                        variant="outline-secondary" 
-                                        size="sm" 
-                                        className="me-2"
-                                        onClick={() => navigate(`/proizvodi/${proizvod.sifra}`)}
-                                    >
-                                        Promjena
-                                    </Button>
-                                    <Button 
-                                        variant="outline-danger" 
-                                        size="sm"
-                                        onClick={() => obrisi(proizvod.sifra)}
-                                    >
-                                        Obriši
-                                    </Button>
+                                    {isAdmin && (
+                                        <>
+                                            <Button 
+                                                variant="outline-secondary" 
+                                                size="sm" 
+                                                className="me-2"
+                                                onClick={() => navigate(`/proizvodi/${proizvod.sifra}`)}
+                                            >
+                                                Promjena
+                                            </Button>
+                                            <Button 
+                                                variant="outline-danger" 
+                                                size="sm"
+                                                onClick={() => obrisi(proizvod.sifra)}
+                                            >
+                                                Obriši
+                                            </Button>
+                                        </>
+                                    )}
                                 </td>
                             </tr>
                         ))}

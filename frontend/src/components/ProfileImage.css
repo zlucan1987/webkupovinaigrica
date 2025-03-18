@@ -1,0 +1,24 @@
+/* ProfileImage.css - Stilovi za profilne slike */
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover; /* Ključno svojstvo - zadržava omjer i reže višak */
+  border-radius: 50%; /* Kružni oblik */
+}
+
+/* Varijanta za manje profilne slike (npr. u navigaciji ili listama) */
+.profile-image-sm {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Varijanta za veće profilne slike */
+.profile-image-lg {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+}

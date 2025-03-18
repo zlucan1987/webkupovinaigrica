@@ -2,6 +2,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Dropdown from 'react-bootstrap/Dropdown'; 
 import Button from 'react-bootstrap/Button';
+import Image from 'react-bootstrap/Image';
 import { useNavigate } from 'react-router-dom';
 import { RouteNames } from '../constants';
 import { useLocation } from 'react-router-dom';
@@ -11,12 +12,15 @@ import AuthService from '../services/AuthService';
 import { useState, useEffect } from 'react';
 import './ShoppingCart.css';
 import './SearchBar.css';
+import './ProfileImage.css';
 
 export default function Webkupovinaigrica() {
     const navigate = useNavigate();
     const location = useLocation();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [userProfilePicture, setUserProfilePicture] = useState('');
+    const [userName, setUserName] = useState('');
 
     useEffect(() => {
         // Check login status and admin role on component mount and when location changes
@@ -25,8 +29,12 @@ export default function Webkupovinaigrica() {
         
         if (loggedIn) {
             setIsAdmin(AuthService.hasRole('Admin'));
+            setUserProfilePicture(AuthService.getUserProfilePicture());
+            setUserName(AuthService.getUserName());
         } else {
             setIsAdmin(false);
+            setUserProfilePicture('');
+            setUserName('');
         }
     }, [location]);
 
@@ -71,21 +79,39 @@ export default function Webkupovinaigrica() {
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Dropdown.Item>
-                                <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Dropdown.Item>
-                                <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Dropdown.Item>
-                                <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Dropdown.Item>
-                                <Dropdown.Divider />
-                                <Dropdown.Item onClick={() => navigate(RouteNames.SALES_GRAPH)}>Graf prodaje igrica</Dropdown.Item>
+                                {isLoggedIn && (
+                                    <>
+                                        {/* Svi korisnici vide Proizvode i Graf prodaje */}
+                                        <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Dropdown.Item>
+                                        <Dropdown.Item onClick={() => navigate(RouteNames.SALES_GRAPH)}>Graf prodaje igrica</Dropdown.Item>
+                                        
+                                        {/* Samo admin vidi Kupce, Račune i Stavke */}
+                                        {isAdmin && (
+                                            <>
+                                                <Dropdown.Divider />
+                                                <Dropdown.Header>Admin opcije</Dropdown.Header>
+                                                <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Dropdown.Item>
+                                                <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Dropdown.Item>
+                                                <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Dropdown.Item>
+                                            </>
+                                        )}
+                                    </>
+                                )}
                                 
                                 {isAdmin && (
                                     <>
-                                        <Dropdown.Divider />
-                                        <Dropdown.Header>Admin opcije</Dropdown.Header>
                                         <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_NOVI)}>Dodaj kupca</Dropdown.Item>
                                         <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_NOVI)}>Dodaj proizvod</Dropdown.Item>
-                                        <Dropdown.Item onClick={() => navigate(RouteNames.USER_MANAGEMENT)}>Upravljanje korisnicima</Dropdown.Item>
+                                        <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_NOVI)}>Dodaj račun</Dropdown.Item>
+                                        <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_NOVA)}>Dodaj stavku</Dropdown.Item>
+                                                <Dropdown.Item onClick={() => navigate(RouteNames.USER_MANAGEMENT)}>Upravljanje korisnicima</Dropdown.Item>
+                                                <Dropdown.Item onClick={() => navigate(RouteNames.PRODUCT_IMAGE_MANAGEMENT)}>Upravljanje slikama proizvoda</Dropdown.Item>
+                                                <Dropdown.Item onClick={() => navigate(RouteNames.ADMIN_ROLE_TEST)}>Test admin uloge</Dropdown.Item>
                                     </>
+                                )}
+                                
+                                {!isLoggedIn && (
+                                    <Dropdown.Item>Prijavite se za pristup opcijama</Dropdown.Item>
                                 )}
                             </Dropdown.Menu>
                         </Dropdown>
@@ -109,13 +135,28 @@ export default function Webkupovinaigrica() {
                         <ShoppingCart />
                         
                         {isLoggedIn ? (
-                            <Button 
-                                variant="outline-danger"
-                                className="ms-3"
-                                onClick={handleLogout}
-                            >
-                                Logout
-                            </Button>
+                            <div className="d-flex align-items-center ms-3">
+                                <Dropdown>
+                                    <Dropdown.Toggle 
+                                        as="div" 
+                                        id="dropdown-user-profile"
+                                        className="d-flex align-items-center"
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <Image 
+                                            src={userProfilePicture} 
+                                            className="profile-image-sm border border-light"
+                                        />
+                                        <span className="ms-2">{userName}</span>
+                                    </Dropdown.Toggle>
+
+                                    <Dropdown.Menu align="end">
+                                        <Dropdown.Item onClick={() => navigate('/profile')}>Moj profil</Dropdown.Item>
+                                        <Dropdown.Divider />
+                                        <Dropdown.Item onClick={handleLogout}>Odjava</Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </div>
                         ) : (
                             <>
                                 <Button 

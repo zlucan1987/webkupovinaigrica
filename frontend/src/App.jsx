@@ -5,8 +5,11 @@ import AuthService from './services/AuthService';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ManualTokenLogin from './pages/auth/ManualTokenLogin';
+import UserProfile from './pages/auth/UserProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserManagement from './pages/admin/UserManagement';
+import ProductImageManagement from './pages/admin/ProductImageManagement';
+import AdminRoleTest from './components/AdminRoleTest';
 import KupciPregled from './pages/kupci/KupciPregled.jsx';
 import KupciDodaj from './pages/kupci/KupciDodaj.jsx';
 import KupciPromjena from './pages/kupci/KupciPromjena.jsx';
@@ -80,12 +83,36 @@ function App() {
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu>
-                                    <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Dropdown.Item>
-                                    <Dropdown.Divider />
-                                    <Dropdown.Item onClick={() => navigate(RouteNames.SALES_GRAPH)}>Graf prodaje igrica</Dropdown.Item>
+                                    {isLoggedIn && (
+                                        <>
+                                            {/* Svi korisnici vide Proizvode i Graf prodaje */}
+                                            <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Dropdown.Item>
+                                            <Dropdown.Item onClick={() => navigate(RouteNames.SALES_GRAPH)}>Graf prodaje igrica</Dropdown.Item>
+                                            
+                                            {/* Samo admin vidi Kupce, Račune i Stavke */}
+                                            {AuthService.hasRole('Admin') && (
+                                                <>
+                                                    <Dropdown.Divider />
+                                                    <Dropdown.Header>Admin opcije</Dropdown.Header>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Dropdown.Item>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Dropdown.Item>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Dropdown.Item>
+                                                    
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_NOVI)}>Dodaj kupca</Dropdown.Item>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_NOVI)}>Dodaj proizvod</Dropdown.Item>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_NOVI)}>Dodaj račun</Dropdown.Item>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_NOVA)}>Dodaj stavku</Dropdown.Item>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.USER_MANAGEMENT)}>Upravljanje korisnicima</Dropdown.Item>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.PRODUCT_IMAGE_MANAGEMENT)}>Upravljanje slikama proizvoda</Dropdown.Item>
+                                                    <Dropdown.Item onClick={() => navigate(RouteNames.ADMIN_ROLE_TEST)}>Test admin uloge</Dropdown.Item>
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+                                    
+                                    {!isLoggedIn && (
+                                        <Dropdown.Item>Prijavite se za pristup opcijama</Dropdown.Item>
+                                    )}
                                 </Dropdown.Menu>
                             </Dropdown>
                             
@@ -146,8 +173,13 @@ function App() {
                 <Route path={RouteNames.LOGIN} element={<Login />} />
                 <Route path={RouteNames.REGISTER} element={<Register />} />
                 <Route path={RouteNames.MANUAL_TOKEN} element={<ManualTokenLogin />} />
-                <Route path={RouteNames.KUPAC_PREGLED} element={
+                <Route path={RouteNames.USER_PROFILE} element={
                     <ProtectedRoute>
+                        <UserProfile />
+                    </ProtectedRoute>
+                } />
+                <Route path={RouteNames.KUPAC_PREGLED} element={
+                    <ProtectedRoute requiredRoles={['Admin']}>
                         <KupciPregled />
                     </ProtectedRoute>
                 } />
@@ -177,12 +209,12 @@ function App() {
                     </ProtectedRoute>
                 } />
                 <Route path={RouteNames.RACUN_PREGLED} element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRoles={['Admin']}>
                         <RacuniPregled />
                     </ProtectedRoute>
                 } />
                 <Route path={RouteNames.RACUN_NOVI} element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRoles={['Admin']}>
                         <RacuniDodaj />
                     </ProtectedRoute>
                 } />
@@ -192,12 +224,12 @@ function App() {
                     </ProtectedRoute>
                 } />
                 <Route path={RouteNames.STAVKA_PREGLED} element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRoles={['Admin']}>
                         <StavkePregled />
                     </ProtectedRoute>
                 } />
                 <Route path={RouteNames.STAVKA_NOVA} element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRoles={['Admin']}>
                         <StavkeDodaj />
                     </ProtectedRoute>
                 } />
@@ -206,7 +238,11 @@ function App() {
                         <StavkePromjena />
                     </ProtectedRoute>
                 } />
-                <Route path={RouteNames.SWAGGER} element={<SwaggerPage />} />
+                <Route path={RouteNames.SWAGGER} element={
+                    <ProtectedRoute>
+                        <SwaggerPage />
+                    </ProtectedRoute>
+                } />
                 <Route path={RouteNames.ERA_DIAGRAM} element={<EraDiagram />} />
                 <Route path={RouteNames.SALES_GRAPH} element={
                     <ProtectedRoute>
@@ -216,6 +252,16 @@ function App() {
                 <Route path={RouteNames.USER_MANAGEMENT} element={
                     <ProtectedRoute requiredRoles={['Admin']}>
                         <UserManagement />
+                    </ProtectedRoute>
+                } />
+                <Route path={RouteNames.ADMIN_ROLE_TEST} element={
+                    <ProtectedRoute>
+                        <AdminRoleTest />
+                    </ProtectedRoute>
+                } />
+                <Route path={RouteNames.PRODUCT_IMAGE_MANAGEMENT} element={
+                    <ProtectedRoute requiredRoles={['Admin']}>
+                        <ProductImageManagement />
                     </ProtectedRoute>
                 } />
             </Routes>

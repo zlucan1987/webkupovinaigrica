@@ -14,7 +14,6 @@ import { RouteNames } from '../constants';
  */
 const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   const isLoggedIn = AuthService.isLoggedIn();
-  const userInfo = AuthService.getUserInfo();
   
   // If not logged in, redirect to login
   if (!isLoggedIn) {
@@ -23,11 +22,15 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   
   // If roles are required, check if user has the required role
   if (requiredRoles.length > 0) {
-    const userRoles = userInfo?.roles || [];
-    const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role));
+    console.log('Required roles:', requiredRoles);
+    
+    // Use AuthService.hasAnyRole to check if user has any of the required roles
+    const hasRequiredRole = AuthService.hasAnyRole(requiredRoles);
+    console.log('Has required role:', hasRequiredRole);
     
     if (!hasRequiredRole) {
       // User doesn't have the required role, redirect to home
+      console.log('User does not have required role, redirecting to home');
       return <Navigate to={RouteNames.HOME} replace />;
     }
   }

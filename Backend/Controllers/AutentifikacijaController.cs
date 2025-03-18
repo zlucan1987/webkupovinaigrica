@@ -188,6 +188,80 @@ namespace Backend.Controllers
         }
 
         /// <summary>
+        /// Resetira lozinku admin korisnika ili kreira novog admin korisnika ako ne postoji.
+        /// </summary>
+        /// <returns>Rezultat resetiranja lozinke ili kreiranja admin korisnika.</returns>
+        [HttpPost("ResetAdminPassword")]
+        public async Task<IActionResult> ResetAdminPassword()
+        {
+            try
+            {
+                // Dohvati admin korisnika
+                var admin = await _context.Operateri
+                    .FirstOrDefaultAsync(o => o.KorisnickoIme == "admin@admin.com");
+
+                if (admin == null)
+                {
+                    // Admin korisnik ne postoji, kreiraj ga
+                    admin = new Operater
+                    {
+                        KorisnickoIme = "admin@admin.com",
+                        Lozinka = "$2a$12$evbGgCZYJaC9QikdcBs8Te5G8XJJw4AhBuLmCxsOI80PeeFiQt2B6", // admin123
+                        Ime = "Admin",
+                        Prezime = "Admin",
+                        Aktivan = true
+                    };
+
+                    // Dodaj admin korisnika u bazu
+                    await _context.Operateri.AddAsync(admin);
+                    await _context.SaveChangesAsync();
+
+                    // Dohvati ili kreiraj Admin ulogu
+                    var adminUloga = await _context.OperaterUloge
+                        .FirstOrDefaultAsync(ou => ou.Naziv == "Admin");
+
+                    if (adminUloga == null)
+                    {
+                        adminUloga = new OperaterUloga
+                        {
+                            Naziv = "Admin",
+                            Opis = "Administratorska uloga s punim pravima"
+                        };
+                        await _context.OperaterUloge.AddAsync(adminUloga);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    // Dodaj vezu između admin korisnika i Admin uloge
+                    var operaterUloga = new OperaterOperaterUloga
+                    {
+                        OperaterId = admin.Sifra,
+                        OperaterUlogaId = adminUloga.Sifra
+                    };
+
+                    await _context.OperaterOperaterUloge.AddAsync(operaterUloga);
+                    await _context.SaveChangesAsync();
+
+                    return Ok(new { message = "Admin korisnik uspješno kreiran s lozinkom 'admin123'" });
+                }
+                else
+                {
+                    // Admin korisnik postoji, resetiraj lozinku
+                    admin.Lozinka = "$2a$12$evbGgCZYJaC9QikdcBs8Te5G8XJJw4AhBuLmCxsOI80PeeFiQt2B6"; // admin123
+
+                    // Spremi promjene
+                    await _context.SaveChangesAsync();
+
+                    return Ok(new { message = "Admin lozinka uspješno resetirana na 'admin123'" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška prilikom resetiranja admin lozinke ili kreiranja admin korisnika");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Greška prilikom resetiranja admin lozinke ili kreiranja admin korisnika");
+            }
+        }
+
+        /// <summary>
         /// Ažurira uloge korisnika.
         /// </summary>
         /// <param name="id">ID korisnika.</param>

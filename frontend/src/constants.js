@@ -3,6 +3,7 @@ export const RouteNames = {
   LOGIN: '/login',
   REGISTER: '/register',
   MANUAL_TOKEN: '/manual-token',
+  USER_PROFILE: '/profile',
   KUPAC_PREGLED: '/kupci',
   KUPAC_NOVI: '/kupci/dodaj',
   KUPAC_PROMJENA: '/kupci/:sifra',
@@ -19,6 +20,8 @@ export const RouteNames = {
   SWAGGER: '/swagger',
   SALES_GRAPH: '/sales-graph',
   USER_MANAGEMENT: '/admin/users',
+  ADMIN_ROLE_TEST: '/admin/role-test',
+  PRODUCT_IMAGE_MANAGEMENT: '/admin/product-images',
 };
 
 

@@ -9,6 +9,7 @@
   - [GetUsers()](#M-Backend-Controllers-AutentifikacijaController-GetUsers 'Backend.Controllers.AutentifikacijaController.GetUsers')
   - [Login(operaterDTO)](#M-Backend-Controllers-AutentifikacijaController-Login-Backend-Models-DTO-OperaterDTO- 'Backend.Controllers.AutentifikacijaController.Login(Backend.Models.DTO.OperaterDTO)')
   - [Register(registerDTO)](#M-Backend-Controllers-AutentifikacijaController-Register-Backend-Models-DTO-OperaterRegisterDTO- 'Backend.Controllers.AutentifikacijaController.Register(Backend.Models.DTO.OperaterRegisterDTO)')
+  - [ResetAdminPassword()](#M-Backend-Controllers-AutentifikacijaController-ResetAdminPassword 'Backend.Controllers.AutentifikacijaController.ResetAdminPassword')
   - [UpdateUserRoles(id,updateRolesDTO)](#M-Backend-Controllers-AutentifikacijaController-UpdateUserRoles-System-Int32,Backend-Models-DTO-OperaterUpdateRolesDTO- 'Backend.Controllers.AutentifikacijaController.UpdateUserRoles(System.Int32,Backend.Models.DTO.OperaterUpdateRolesDTO)')
 - [AutorizacijaController](#T-Backend-Controllers-AutorizacijaController 'Backend.Controllers.AutorizacijaController')
   - [#ctor(context)](#M-Backend-Controllers-AutorizacijaController-#ctor-Backend-Data-BackendContext- 'Backend.Controllers.AutorizacijaController.#ctor(Backend.Data.BackendContext)')
@@ -173,6 +174,21 @@ Rezultat registracije.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | registerDTO | [Backend.Models.DTO.OperaterRegisterDTO](#T-Backend-Models-DTO-OperaterRegisterDTO 'Backend.Models.DTO.OperaterRegisterDTO') | Podaci za registraciju. |
+
+<a name='M-Backend-Controllers-AutentifikacijaController-ResetAdminPassword'></a>
+### ResetAdminPassword() `method`
+
+##### Summary
+
+Resetira lozinku admin korisnika ili kreira novog admin korisnika ako ne postoji.
+
+##### Returns
+
+Rezultat resetiranja lozinke ili kreiranja admin korisnika.
+
+##### Parameters
+
+This method has no parameters.
 
 <a name='M-Backend-Controllers-AutentifikacijaController-UpdateUserRoles-System-Int32,Backend-Models-DTO-OperaterUpdateRolesDTO-'></a>
 ### UpdateUserRoles(id,updateRolesDTO) `method`

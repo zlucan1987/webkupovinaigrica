@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Alert, Image } from 'react-bootstrap';
 import AuthService from '../../services/AuthService';
+import { profilePictures, setUserProfilePicture } from '../../utils/imageUtils';
 import './Login.css';
 
 const Register = () => {
@@ -12,6 +13,7 @@ const Register = () => {
         password: '',
         confirmPassword: '',
     });
+    const [selectedProfilePicture, setSelectedProfilePicture] = useState(profilePictures[0]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
@@ -48,7 +50,12 @@ const Register = () => {
             };
 
             // Send registration request
-            await AuthService.register(userData);
+            const response = await AuthService.register(userData);
+            
+            // Save the selected profile picture
+            if (response && response.id) {
+                setUserProfilePicture(response.id, selectedProfilePicture);
+            }
             
             setSuccess('Registracija uspješna! Možete se prijaviti.');
             
@@ -144,6 +151,28 @@ const Register = () => {
                                 required
                                 minLength={6}
                             />
+                        </Form.Group>
+
+                        <Form.Group className="mb-4">
+                            <Form.Label>Odaberite profilnu sliku</Form.Label>
+                            <div className="d-flex flex-wrap justify-content-center">
+                                {profilePictures.map((picture, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="m-2" 
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => setSelectedProfilePicture(picture)}
+                                    >
+                                        <Image 
+                                            src={picture} 
+                                            roundedCircle 
+                                            width={60} 
+                                            height={60} 
+                                            className={selectedProfilePicture === picture ? 'border border-primary border-3' : ''}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </Form.Group>
 
                         <div className="d-grid gap-2">

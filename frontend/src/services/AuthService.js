@@ -1,4 +1,6 @@
 import { HttpService } from './HttpService';
+import { getUserProfilePicture, setUserProfilePicture } from '../utils/imageUtils';
+import KupacService from './KupacService';
 
 class AuthService {
     // Store the token in localStorage
@@ -49,17 +51,45 @@ class AuthService {
         const userInfo = this.getUserInfo();
         if (!userInfo) return false;
         
-        const userRoles = userInfo.roles || [];
-        return userRoles.includes(role);
+        console.log('Checking role:', role);
+        console.log('User info:', userInfo);
+        
+        // Check for role claim in different formats
+        // 1. Check for 'role' claim (string or array)
+        if (userInfo.role) {
+            console.log('Found role claim:', userInfo.role);
+            if (Array.isArray(userInfo.role)) {
+                return userInfo.role.includes(role);
+            } else if (typeof userInfo.role === 'string') {
+                return userInfo.role === role;
+            }
+        }
+        
+        // 2. Check for 'roles' claim (array)
+        if (userInfo.roles && Array.isArray(userInfo.roles)) {
+            console.log('Found roles claim:', userInfo.roles);
+            return userInfo.roles.includes(role);
+        }
+        
+        // 3. Check for 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' claim
+        const msRoleClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+        if (userInfo[msRoleClaim]) {
+            console.log('Found MS role claim:', userInfo[msRoleClaim]);
+            if (Array.isArray(userInfo[msRoleClaim])) {
+                return userInfo[msRoleClaim].includes(role);
+            } else if (typeof userInfo[msRoleClaim] === 'string') {
+                return userInfo[msRoleClaim] === role;
+            }
+        }
+        
+        console.log('No matching role claims found');
+        return false;
     }
 
     // Check if user has any of the specified roles
     hasAnyRole(roles) {
-        const userInfo = this.getUserInfo();
-        if (!userInfo) return false;
-        
-        const userRoles = userInfo.roles || [];
-        return roles.some(role => userRoles.includes(role));
+        if (!Array.isArray(roles) || roles.length === 0) return false;
+        return roles.some(role => this.hasRole(role));
     }
 
     // Get user's name
@@ -68,6 +98,48 @@ class AuthService {
         if (!userInfo) return '';
         
         return userInfo.name || userInfo.sub || '';
+    }
+    
+    // Get user's ID
+    getUserId() {
+        const userInfo = this.getUserInfo();
+        if (!userInfo) return null;
+        
+        return userInfo.nameid || userInfo.sub || null;
+    }
+    
+    // Get user's profile picture
+    getUserProfilePicture() {
+        const userId = this.getUserId();
+        return getUserProfilePicture(userId);
+    }
+    
+    // Update user's profile picture
+    updateUserProfilePicture(picturePath) {
+        const userId = this.getUserId();
+        if (!userId) return false;
+        
+        setUserProfilePicture(userId, picturePath);
+        return true;
+    }
+    
+    // Upload user's profile picture
+    async uploadProfilePicture(base64Image) {
+        const userId = this.getUserId();
+        if (!userId) return { success: false, error: 'Korisnik nije prijavljen' };
+        
+        // Koristimo KupacService za upload slike
+        const result = await KupacService.postaviSliku(userId, base64Image);
+        
+        if (!result.greska) {
+            // Ako je upload uspješan, ažuriramo lokalnu sliku
+            // Koristimo apsolutnu putanju do slike na serveru
+            const imageUrl = `https://www.brutallucko.online/slike/kupci/${userId}.png?t=${new Date().getTime()}`; // Dodajemo timestamp za izbjegavanje cache-a
+            setUserProfilePicture(userId, imageUrl);
+            return { success: true };
+        } else {
+            return { success: false, error: result.poruka };
+        }
     }
 
     // Login method

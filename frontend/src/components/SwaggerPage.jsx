@@ -1,10 +1,11 @@
 import { useRef, useEffect, useState } from 'react';
 import './SwaggerPage.css';
+import AuthService from '../services/AuthService';
 
 function SwaggerPage() {
     const iframeRef = useRef(null);
     const [deviceType, setDeviceType] = useState('desktop');
-
+    
     // Detect device type based on screen width
     useEffect(() => {
         const handleResize = () => {
@@ -41,6 +42,46 @@ function SwaggerPage() {
                     iframe.style.height = '600px';
                 } else {
                     iframe.style.height = '400px';
+                }
+                
+                // Add JWT token to Swagger UI
+                try {
+                    const token = AuthService.getToken();
+                    if (token && iframe.contentWindow) {
+                        // Wait for Swagger UI to load
+                        setTimeout(() => {
+                            // Try to set the token in the Swagger UI authorize dialog
+                            const authBtn = iframe.contentWindow.document.querySelector('.authorize');
+                            if (authBtn) {
+                                authBtn.click();
+                                
+                                // Wait for the dialog to open
+                                setTimeout(() => {
+                                    // Find the input field and set the token
+                                    const tokenInput = iframe.contentWindow.document.querySelector('input[type="text"]');
+                                    if (tokenInput) {
+                                        tokenInput.value = `Bearer ${token}`;
+                                        
+                                        // Find and click the Authorize button
+                                        const authorizeBtn = iframe.contentWindow.document.querySelector('.auth-btn-wrapper button.authorize');
+                                        if (authorizeBtn) {
+                                            authorizeBtn.click();
+                                            
+                                            // Close the dialog
+                                            setTimeout(() => {
+                                                const closeBtn = iframe.contentWindow.document.querySelector('.auth-btn-wrapper button.btn-done');
+                                                if (closeBtn) {
+                                                    closeBtn.click();
+                                                }
+                                            }, 500);
+                                        }
+                                    }
+                                }, 500);
+                            }
+                        }, 1000);
+                    }
+                } catch (error) {
+                    console.error('Error setting token in Swagger UI:', error);
                 }
             };
         }

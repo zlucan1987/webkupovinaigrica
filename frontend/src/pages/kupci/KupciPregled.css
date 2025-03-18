@@ -1,17 +1,13 @@
 /* KupciPregled.css - Stilovi za pregled kupaca */
 
-/* Osigurava da sve profilne slike budu iste veličine */
-.profile-image {
-  width: 50px !important;
-  height: 50px !important;
-  object-fit: cover; /* Zadržava omjer slike, ali reže ako je potrebno */
-  border-radius: 50%; /* Kružni oblik */
-  border: 2px solid #007bff; /* Plavi obrub */
-}
-
 /* Stiliziranje tablice kupaca */
 .kupci-komponenta table {
   margin-top: 20px;
+}
+
+/* Dodajemo plavi obrub za profilne slike u tablici */
+.kupci-komponenta .profile-image-sm {
+  border: 2px solid #007bff; /* Plavi obrub */
 }
 
 /* Poravnanje slika u ćelijama tablice */
@@ -27,10 +23,48 @@
   padding-left: 8px; /* Isti padding kao i ćelije */
 }
 
+/* Stil za redak sa stavkama */
+.stavke-row {
+  background-color: #f8f9fa;
+}
+
+/* Stil za popup kontejner */
+.stavke-popup {
+  position: relative;
+  margin: 10px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Strelica koja pokazuje na kupca */
+.stavke-popup::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50px; /* Pozicionirati ispod imena kupca */
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
+}
+
+/* Animacija za pojavljivanje */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Responzivnost za mobilne uređaje */
 @media (max-width: 768px) {
   .profile-image {
     width: 40px !important;
     height: 40px !important;
+  }
+  
+  .stavke-popup {
+    margin: 5px;
+    padding: 10px;
   }
 }

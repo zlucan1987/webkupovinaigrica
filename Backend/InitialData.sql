@@ -20,7 +20,7 @@ BEGIN
     -- Dodaj admin korisnika (lozinka: admin123)
     -- Lozinka je hashirana pomoću BCrypt
     INSERT INTO Operateri (KorisnickoIme, Lozinka, Ime, Prezime, Aktivan)
-    VALUES ('admin@admin.com', '$2a$11$O7hd3FrKFZxNG6Zj5wgROu.ZTXS5D.Ux.ZGBDUfOlPbHJLv4o.Lvy', 'Admin', 'Admin', 1);
+    VALUES ('admin@admin.com', '$2a$12$evbGgCZYJaC9QikdcBs8Te5G8XJJw4AhBuLmCxsOI80PeeFiQt2B6', 'Admin', 'Admin', 1);
     
     -- Dohvati ID admin korisnika
     DECLARE @AdminId INT;

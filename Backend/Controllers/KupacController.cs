@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTO;
@@ -13,6 +13,7 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
+    [Authorize]
     public class KupacController : BackendController
     {
         public KupacController(BackendContext context, IMapper mapper) : base(context, mapper)
@@ -74,6 +75,7 @@ namespace Backend.Controllers
         /// <param name="kupacDTO">Podaci o kupcu.</param>
         /// <returns>Dodani kupac.</returns>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult Post([FromBody] KupacDTOInsertUpdate kupacDTO)
         {
             if (!ModelState.IsValid)
@@ -105,6 +107,7 @@ namespace Backend.Controllers
         /// <param name="kupacDTO">Podaci o kupcu.</param>
         /// <returns>Ažurirani kupac.</returns>
         [HttpPut("{sifra:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Put(int sifra, KupacDTOInsertUpdate kupacDTO)
         {
             if (!ModelState.IsValid)
@@ -138,6 +141,7 @@ namespace Backend.Controllers
         /// <param name="sifra">Šifra kupca.</param>
         /// <returns>Status brisanja.</returns>
         [HttpDelete("{sifra:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int sifra)
         {
             if (sifra <= 0)
@@ -168,6 +172,7 @@ namespace Backend.Controllers
         /// <returns>Status generiranja.</returns>
         [HttpGet]
         [Route("Generiraj/{broj:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Generiraj(int broj)
         {
             try
@@ -256,6 +261,7 @@ namespace Backend.Controllers
         }
         [HttpPut]
         [Route("postaviSliku/{sifra:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult PostaviSliku(int sifra, SlikaDTO slika)
         {
             if (sifra <= 0)

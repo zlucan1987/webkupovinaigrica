@@ -74,10 +74,27 @@ async function obrisi(sifra) {
     }
 }
 
+async function postaviSliku(sifra, base64Slika) {
+    try {
+        console.log("KupacService.postaviSliku: Postavljam sliku za kupca", sifra);
+        await HttpService.put(`/Kupac/postaviSliku/${sifra}`, { 
+            Base64: base64Slika 
+        });
+        return { greska: false, poruka: 'Slika uspješno postavljena' };
+    } catch (e) {
+        console.error("Greška prilikom postavljanja slike:", e);
+        return { 
+            greska: true, 
+            poruka: e.response?.data?.message || 'Problem kod postavljanja slike' 
+        };
+    }
+}
+
 export default {
     get,
     getBySifra,
     dodaj,
     promjena,
-    obrisi
+    obrisi,
+    postaviSliku
 };

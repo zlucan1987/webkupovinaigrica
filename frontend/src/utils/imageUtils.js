@@ -17,6 +17,56 @@ const profilePictures = [
     '/ProfilePictures/preview14.webp'
 ];
 
+// Ključ za localStorage
+const USER_PROFILE_PICTURES_KEY = 'user_profile_pictures';
+const KUPAC_PROFILE_PICTURES_KEY = 'kupac_profile_pictures';
+
+// Dohvaća mapu profilnih slika korisnika iz localStorage
+const getUserProfilePicturesMap = () => {
+    const storedPictures = localStorage.getItem(USER_PROFILE_PICTURES_KEY);
+    return storedPictures ? JSON.parse(storedPictures) : {};
+};
+
+// Dohvaća mapu profilnih slika kupaca iz localStorage
+const getKupacProfilePicturesMap = () => {
+    const storedPictures = localStorage.getItem(KUPAC_PROFILE_PICTURES_KEY);
+    return storedPictures ? JSON.parse(storedPictures) : {};
+};
+
+// Dohvaća profilnu sliku za korisnika
+const getUserProfilePicture = (userId) => {
+    if (!userId) return profilePictures[0];
+    
+    const picturesMap = getUserProfilePicturesMap();
+    return picturesMap[userId] || profilePictures[0];
+};
+
+// Postavlja profilnu sliku za korisnika
+const setUserProfilePicture = (userId, picturePath) => {
+    if (!userId) return;
+    
+    const picturesMap = getUserProfilePicturesMap();
+    picturesMap[userId] = picturePath;
+    localStorage.setItem(USER_PROFILE_PICTURES_KEY, JSON.stringify(picturesMap));
+};
+
+// Dohvaća profilnu sliku za kupca
+const getKupacProfilePicture = (kupacSifra) => {
+    if (!kupacSifra) return getRandomProfilePicture();
+    
+    const picturesMap = getKupacProfilePicturesMap();
+    return picturesMap[kupacSifra] || getRandomProfilePicture();
+};
+
+// Postavlja profilnu sliku za kupca
+const setKupacProfilePicture = (kupacSifra, picturePath) => {
+    if (!kupacSifra) return;
+    
+    const picturesMap = getKupacProfilePicturesMap();
+    picturesMap[kupacSifra] = picturePath;
+    localStorage.setItem(KUPAC_PROFILE_PICTURES_KEY, JSON.stringify(picturesMap));
+};
+
 // Putanje do slika igrica
 const gameImages = [
     '/GamesPictures/Apex Legends.jpg',
@@ -95,6 +145,28 @@ const getDiscountPercentage = () => {
     return Math.floor(Math.random() * 50) + 10;
 };
 
+// Konvertira File objekt u Base64 string
+const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            // Uklanjamo prefix "data:image/png;base64," iz Base64 stringa
+            const base64String = reader.result.split(',')[1];
+            resolve(base64String);
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+    });
+};
+
+// Dohvaća sliku proizvoda prema ID-u
+const getProductImageById = (productId) => {
+    // Vraćamo URL do slike na serveru s timestampom za izbjegavanje cache-a
+    return `/slike/proizvodi/${productId}.png?t=${new Date().getTime()}`;
+};
+
 export {
     profilePictures,
     gameImages,
@@ -103,5 +175,11 @@ export {
     getGameImage,
     getRandomRating,
     hasDiscount,
-    getDiscountPercentage
+    getDiscountPercentage,
+    getUserProfilePicture,
+    setUserProfilePicture,
+    getKupacProfilePicture,
+    setKupacProfilePicture,
+    convertToBase64,
+    getProductImageById
 };

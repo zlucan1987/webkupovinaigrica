@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import KupacService from "../../services/KupacService";
 import RacunService from "../../services/RacunService";
 import StavkaService from "../../services/StavkaService";
-import { Button, Table, Image, Card, ListGroup, Accordion } from "react-bootstrap";
+import { Button, Table, Image, ListGroup, Accordion, Spinner } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import { getRandomProfilePicture } from "../../utils/imageUtils";
+import { getKupacProfilePicture } from "../../utils/imageUtils";
 import "./KupciPregled.css"; // Uvoz CSS-a za stiliziranje
+import "../../components/ProfileImage.css"; // Uvoz CSS-a za profilne slike
 
 export default function KupciPregled() {
     const [kupciSProfilnima, setKupciSProfilnima] = useState([]);
@@ -14,6 +15,7 @@ export default function KupciPregled() {
     const [stavkeKupca, setStavkeKupca] = useState([]);
     const [racuniKupca, setRacuniKupca] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [expandedKupacSifra, setExpandedKupacSifra] = useState(null);
     const navigate = useNavigate();
 
     async function dohvatiKupce() {
@@ -24,7 +26,7 @@ export default function KupciPregled() {
         if (Array.isArray(odgovor)) {
             const kupciSaSlikom = odgovor.map(kupac => ({
                 ...kupac,
-                profilnaSlika: getRandomProfilePicture()
+                profilnaSlika: getKupacProfilePicture(kupac.sifra)
             }));
             setKupciSProfilnima(kupciSaSlikom);
         }
@@ -32,8 +34,16 @@ export default function KupciPregled() {
 
     // Funkcija za dohvaćanje računa i stavki za odabranog kupca
     async function dohvatiStavkeZaKupca(kupac) {
+        // Ako je kupac već otvoren, zatvoriti ga
+        if (expandedKupacSifra === kupac.sifra) {
+            setExpandedKupacSifra(null);
+            setOdabraniKupac(null);
+            return;
+        }
+        
         setIsLoading(true);
         setOdabraniKupac(kupac);
+        setExpandedKupacSifra(kupac.sifra);
         setStavkeKupca([]);
         setRacuniKupca([]);
         
@@ -136,128 +146,130 @@ export default function KupciPregled() {
                 </thead>
                 <tbody>
                     {Array.isArray(kupciSProfilnima) &&
-                        kupciSProfilnima.map((kupac, index) => (
+                        kupciSProfilnima.map((kupac) => (
                             kupac && (
-                                <tr key={index}>
-                                    <td>
-                                        <Image 
-                                            src={kupac.profilnaSlika} 
-                                            roundedCircle 
-                                            width={50} 
-                                            height={50} 
-                                            className="profile-image"
-                                        />
-                                    </td>
-                                    <td>
-                                        <Button 
-                                            variant="link" 
-                                            className="p-0 text-decoration-none" 
-                                            onClick={() => dohvatiStavkeZaKupca(kupac)}
-                                        >
-                                            {kupac.ime}
-                                        </Button>
-                                    </td>
-                                    <td>
-                                        <Button 
-                                            variant="link" 
-                                            className="p-0 text-decoration-none" 
-                                            onClick={() => dohvatiStavkeZaKupca(kupac)}
-                                        >
-                                            {kupac.prezime}
-                                        </Button>
-                                    </td>
-                                    <td>{kupac.ulica}</td>
-                                    <td>{kupac.mjesto}</td>
-                                    <td>
-                                        <Button onClick={() => navigate(`/kupci/${kupac.sifra}`)}>
-                                            Promjena
-                                        </Button>
-                                        &nbsp;&nbsp;&nbsp;
-                                        <Button variant="danger" onClick={() => obrisi(kupac.sifra)}>
-                                            Obriši
-                                        </Button>
-                                    </td>
-                                </tr>
+                                <>
+                                    <tr key={`kupac-${kupac.sifra}`}>
+                                        <td>
+                                            <Image 
+                                                src={kupac.profilnaSlika} 
+                                                className="profile-image-sm"
+                                            />
+                                        </td>
+                                        <td>
+                                            <Button 
+                                                variant="link" 
+                                                className="p-0 text-decoration-none" 
+                                                onClick={() => dohvatiStavkeZaKupca(kupac)}
+                                            >
+                                                {kupac.ime}
+                                            </Button>
+                                        </td>
+                                        <td>
+                                            <Button 
+                                                variant="link" 
+                                                className="p-0 text-decoration-none" 
+                                                onClick={() => dohvatiStavkeZaKupca(kupac)}
+                                            >
+                                                {kupac.prezime}
+                                            </Button>
+                                        </td>
+                                        <td>{kupac.ulica}</td>
+                                        <td>{kupac.mjesto}</td>
+                                        <td>
+                                            <Button onClick={() => navigate(`/kupci/${kupac.sifra}`)}>
+                                                Promjena
+                                            </Button>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <Button variant="danger" onClick={() => obrisi(kupac.sifra)}>
+                                                Obriši
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                    {expandedKupacSifra === kupac.sifra && (
+                                        <tr key={`stavke-${kupac.sifra}`} className="stavke-row">
+                                            <td colSpan="6">
+                                                <div className="stavke-popup">
+                                                    {isLoading ? (
+                                                        <div className="text-center p-4">
+                                                            <Spinner animation="border" role="status">
+                                                                <span className="visually-hidden">Učitavanje...</span>
+                                                            </Spinner>
+                                                            <p className="mt-2">Učitavanje stavki...</p>
+                                                        </div>
+                                                    ) : stavkeKupca.length > 0 ? (
+                                                        <Accordion defaultActiveKey="0">
+                                                            {racuniKupca.map((racun, racunIndex) => {
+                                                                const stavkeRacuna = stavkeKupca.filter(
+                                                                    stavka => stavka.racunSifra === racun.sifra
+                                                                );
+                                                                
+                                                                if (stavkeRacuna.length === 0) return null;
+                                                                
+                                                                return (
+                                                                    <Accordion.Item key={racun.sifra} eventKey={racunIndex.toString()}>
+                                                                        <Accordion.Header>
+                                                                            Račun #{racun.sifra} - Datum: {new Date(racun.datum).toLocaleDateString()}
+                                                                            {stavkeRacuna.length > 1 && (
+                                                                                <span className="ms-2">
+                                                                                    - Ukupna cijena: {stavkeRacuna.reduce((total, stavka) => total + (stavka.kolicina * stavka.cijena), 0).toFixed(2)} €
+                                                                                </span>
+                                                                            )}
+                                                                        </Accordion.Header>
+                                                                        <Accordion.Body>
+                                                                            <ListGroup>
+                                                                                {stavkeRacuna.map(stavka => (
+                                                                                    <ListGroup.Item 
+                                                                                        key={stavka.sifra}
+                                                                                        className="d-flex justify-content-between align-items-center"
+                                                                                    >
+                                                                                        <div className="d-flex flex-column">
+                                                                                            <div>
+                                                                                                <strong>{stavka.proizvodNaziv}</strong>
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                Količina: {stavka.kolicina}, 
+                                                                                                Cijena: {stavka.cijena.toFixed(2)} €
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <Button 
+                                                                                                variant="outline-primary" 
+                                                                                                size="sm"
+                                                                                                className="me-2"
+                                                                                                onClick={() => navigate(`/stavke/${stavka.sifra}`)}
+                                                                                            >
+                                                                                                Promijeni
+                                                                                            </Button>
+                                                                                            <Button 
+                                                                                                variant="outline-danger" 
+                                                                                                size="sm"
+                                                                                                onClick={() => obrisiStavku(stavka.sifra)}
+                                                                                            >
+                                                                                                Obriši
+                                                                                            </Button>
+                                                                                        </div>
+                                                                                    </ListGroup.Item>
+                                                                                ))}
+                                                                            </ListGroup>
+                                                                        </Accordion.Body>
+                                                                    </Accordion.Item>
+                                                                );
+                                                            })}
+                                                        </Accordion>
+                                                    ) : (
+                                                        <p>Nema stavki za ovog kupca.</p>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </>
                             )
                         ))}
                 </tbody>
             </Table>
 
-            {/* Prikaz stavki odabranog kupca */}
-            {odabraniKupac && (
-                <Card className="mt-4">
-                    <Card.Header>
-                        <h4>Stavke kupca: {odabraniKupac.ime} {odabraniKupac.prezime} (Šifra: {odabraniKupac.sifra})</h4>
-                    </Card.Header>
-                    <Card.Body>
-                        {isLoading ? (
-                            <p>Učitavanje stavki...</p>
-                        ) : stavkeKupca.length > 0 ? (
-                            <Accordion defaultActiveKey="0">
-                                {racuniKupca.map((racun, racunIndex) => {
-                                    const stavkeRacuna = stavkeKupca.filter(
-                                        stavka => stavka.racunSifra === racun.sifra
-                                    );
-                                    
-                                    if (stavkeRacuna.length === 0) return null;
-                                    
-                                    return (
-                                        <Accordion.Item key={racun.sifra} eventKey={racunIndex.toString()}>
-                                            <Accordion.Header>
-                                                Račun #{racun.sifra} - Datum: {new Date(racun.datum).toLocaleDateString()}
-                                                {stavkeRacuna.length > 1 && (
-                                                    <span className="ms-2">
-                                                        - Ukupna cijena: {stavkeRacuna.reduce((total, stavka) => total + (stavka.kolicina * stavka.cijena), 0).toFixed(2)} €
-                                                    </span>
-                                                )}
-                                            </Accordion.Header>
-                                            <Accordion.Body>
-                                                <ListGroup>
-                                                    {stavkeRacuna.map(stavka => (
-                                                        <ListGroup.Item 
-                                                            key={stavka.sifra}
-                                                            className="d-flex justify-content-between align-items-center"
-                                                        >
-                                                            <div className="d-flex flex-column">
-                                                                <div>
-                                                                    <strong>{stavka.proizvodNaziv}</strong>
-                                                                </div>
-                                                                <div>
-                                                                    Količina: {stavka.kolicina}, 
-                                                                    Cijena: {stavka.cijena.toFixed(2)} €
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <Button 
-                                                                    variant="outline-primary" 
-                                                                    size="sm"
-                                                                    className="me-2"
-                                                                    onClick={() => navigate(`/stavke/${stavka.sifra}`)}
-                                                                >
-                                                                    Promijeni
-                                                                </Button>
-                                                                <Button 
-                                                                    variant="outline-danger" 
-                                                                    size="sm"
-                                                                    onClick={() => obrisiStavku(stavka.sifra)}
-                                                                >
-                                                                    Obriši
-                                                                </Button>
-                                                            </div>
-                                                        </ListGroup.Item>
-                                                    ))}
-                                                </ListGroup>
-                                            </Accordion.Body>
-                                        </Accordion.Item>
-                                    );
-                                })}
-                            </Accordion>
-                        ) : (
-                            <p>Nema stavki za ovog kupca.</p>
-                        )}
-                    </Card.Body>
-                </Card>
-            )}
         </div>
     );
 }

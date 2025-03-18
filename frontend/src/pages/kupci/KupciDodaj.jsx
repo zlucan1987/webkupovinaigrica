@@ -1,11 +1,18 @@
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row, Image, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
 import KupacService from "../../services/KupacService";
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { profilePictures, setKupacProfilePicture } from "../../utils/imageUtils";
+import { useState } from "react";
+import ImageUploader from "../../components/ImageUploader";
 
 export default function KupciDodaj() {
   const navigate = useNavigate();
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState(profilePictures[0]);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
   async function dodaj(kupac) {
     const odgovor = await KupacService.dodaj(kupac);
@@ -13,8 +20,34 @@ export default function KupciDodaj() {
       alert(odgovor.poruka);
       return;
     }
+    
+    // Spremi odabranu profilnu sliku za kupca
+    if (odgovor.data && odgovor.data.sifra) {
+      setKupacProfilePicture(odgovor.data.sifra, selectedProfilePicture);
+    }
+    
     navigate(RouteNames.KUPAC_PREGLED);
   }
+  
+  const handleImageUpload = async (base64Image) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // Prvo moramo dodati kupca da bismo dobili šifru
+      setSuccess('Slika je spremljena i bit će uploadana nakon dodavanja kupca.');
+      
+      // Spremamo base64 sliku privremeno da je možemo uploadati nakon dodavanja kupca
+      localStorage.setItem('tempKupacImage', base64Image);
+      
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      console.error('Error handling image:', error);
+      setError('Došlo je do greške prilikom pripreme slike');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   function odradiSubmit(e) {
     e.preventDefault();
@@ -54,6 +87,49 @@ export default function KupciDodaj() {
             <Form.Group controlId="mjesto">
               <Form.Label>Mjesto</Form.Label>
               <Form.Control type="text" name="mjesto" className="input-manja-sirina" />
+            </Form.Group>
+
+            <Form.Group controlId="profilnaSlika" className="mt-3">
+              <Form.Label>Profilna slika</Form.Label>
+              {error && <Alert variant="danger">{error}</Alert>}
+              {success && <Alert variant="success">{success}</Alert>}
+              
+              {/* Komponenta za upload vlastite slike */}
+              <div className="mb-4">
+                <h6>Upload vlastite slike</h6>
+                <ImageUploader 
+                  onImageUpload={(base64Image) => handleImageUpload(base64Image)} 
+                  aspectRatio={1} 
+                />
+                {loading && (
+                  <div className="text-center mt-2">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Učitavanje...</span>
+                    </div>
+                    <p>Pripremam sliku...</p>
+                  </div>
+                )}
+              </div>
+              
+              <h6>Ili odaberite jednu od predefiniranih slika</h6>
+              <div className="d-flex flex-wrap">
+                {profilePictures.map((picture, index) => (
+                  <div 
+                    key={index} 
+                    className="m-2" 
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSelectedProfilePicture(picture)}
+                  >
+                    <Image 
+                      src={picture} 
+                      roundedCircle 
+                      width={60} 
+                      height={60} 
+                      className={selectedProfilePicture === picture ? 'border border-primary border-3' : ''}
+                    />
+                  </div>
+                ))}
+              </div>
             </Form.Group>
           </Col>
           <Col md={3} className="d-flex flex-column align-items-center justify-content-center">

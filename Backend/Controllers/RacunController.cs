@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTO;
@@ -13,6 +13,7 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
+    [Authorize]
     public class RacunController : BackendController
     {
         public RacunController(BackendContext context, IMapper mapper) : base(context, mapper)
@@ -74,6 +75,7 @@ namespace Backend.Controllers
         /// <param name="racunDTO">Podaci o računu.</param>
         /// <returns>Dodani račun.</returns>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult Post([FromBody] RacunDTOInsertUpdate racunDTO)
         {
             if (!ModelState.IsValid)
@@ -114,6 +116,7 @@ namespace Backend.Controllers
         /// <param name="racunDTO">Podaci o računu.</param>
         /// <returns>Ažurirani račun.</returns>
         [HttpPut("{sifra:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Put(int sifra, RacunDTOInsertUpdate racunDTO)
         {
             if (!ModelState.IsValid)
@@ -154,6 +157,7 @@ namespace Backend.Controllers
         /// <param name="sifra">Šifra računa.</param>
         /// <returns>Status brisanja.</returns>
         [HttpDelete("{sifra:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int sifra)
         {
             if (sifra <= 0)
@@ -212,6 +216,7 @@ namespace Backend.Controllers
         /// <param name="stavkaDTO">Podaci o stavci.</param>
         /// <returns>Dodana stavka.</returns>
         [HttpPost("{sifraRacuna:int}/stavke")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DodajStavku(int sifraRacuna, [FromBody] StavkaDTOInsert stavkaDTO)
         {
             if (!ModelState.IsValid)
@@ -257,6 +262,7 @@ namespace Backend.Controllers
         /// <param name="stavkaDTO">Podaci o stavci.</param>
         /// <returns>Ažurirana stavka.</returns>
         [HttpPut("{sifraRacuna:int}/stavke/{sifraStavke:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult IzmijeniStavku(int sifraRacuna, int sifraStavke, [FromBody] StavkaDTOUpdate stavkaDTO)
         {
             if (!ModelState.IsValid)
@@ -315,6 +321,7 @@ namespace Backend.Controllers
         /// <param name="sifraStavke">Šifra stavke.</param>
         /// <returns>Status brisanja.</returns>
         [HttpDelete("{sifraRacuna:int}/stavke/{sifraStavke:int}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult ObrisiStavku(int sifraRacuna, int sifraStavke)
         {
             try
