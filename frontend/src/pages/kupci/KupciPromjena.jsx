@@ -24,6 +24,23 @@ export default function KupciPromjena() {
             // Dohvati profilnu sliku kupca
             const profilnaSlika = getKupacProfilePicture(routeParams.sifra);
             setSelectedProfilePicture(profilnaSlika);
+            
+            // Force refresh the profile picture by checking if it exists on the server
+            const serverImageUrl = `https://www.brutallucko.online/slike/kupci/${routeParams.sifra}.png?t=${new Date().getTime()}`;
+            
+            // Check if the image exists on the server
+            const img = new window.Image();
+            img.onload = () => {
+                console.log("KupciPromjena: Image loaded successfully from server");
+                // Update the profile picture in the UI
+                setSelectedProfilePicture(serverImageUrl);
+                // Save the URL in localStorage for future use
+                setKupacProfilePicture(routeParams.sifra, serverImageUrl);
+            };
+            img.onerror = () => {
+                console.error("KupciPromjena: Failed to load image from URL", serverImageUrl);
+            };
+            img.src = serverImageUrl;
         }
         
         dohvatiKupca();
@@ -47,17 +64,37 @@ export default function KupciPromjena() {
             setLoading(true);
             setError('');
             
+            console.log("KupciPromjena.handleImageUpload: Uploading image for kupac", routeParams.sifra);
+            
             // Upload the image
             const result = await KupacService.postaviSliku(routeParams.sifra, base64Image);
             
             if (!result.greska) {
-                // Update the profile picture in the UI
-                const imageUrl = `/slike/kupci/${routeParams.sifra}.png?t=${new Date().getTime()}`;
+                // Update the profile picture in the UI using the URL returned from the service
+                // Use absolute URL to ensure consistency
+                const imageUrl = result.imageUrl || `https://www.brutallucko.online/slike/kupci/${routeParams.sifra}.png?t=${new Date().getTime()}`;
+                console.log("KupciPromjena.handleImageUpload: Setting profile picture to", imageUrl);
+                
+                // Update state and localStorage
                 setSelectedProfilePicture(imageUrl);
                 setKupacProfilePicture(routeParams.sifra, imageUrl);
+                
+                // Show success message
                 setSuccess('Slika kupca uspješno promijenjena!');
                 setTimeout(() => setSuccess(''), 3000);
+                
+                // Verify image is loaded - using window.Image to avoid conflict with React Bootstrap Image
+                const img = new window.Image();
+                img.onload = () => {
+                    console.log("KupciPromjena.handleImageUpload: Image loaded successfully");
+                };
+                img.onerror = () => {
+                    console.error("KupciPromjena.handleImageUpload: Failed to load image from URL", imageUrl);
+                    setError('Slika je uploadana, ali ne može se prikazati. Pokušajte osvježiti stranicu.');
+                };
+                img.src = imageUrl;
             } else {
+                console.error("KupciPromjena.handleImageUpload: Error from KupacService", result.poruka);
                 setError(result.poruka || 'Došlo je do greške prilikom uploada slike');
             }
         } catch (error) {
@@ -165,6 +202,11 @@ export default function KupciPromjena() {
                                             width={60} 
                                             height={60} 
                                             className={selectedProfilePicture === picture ? 'border border-primary border-3' : ''}
+                                            onError={(e) => {
+                                                console.error("Failed to load profile image:", picture);
+                                                // Fallback to default image if the profile image fails to load
+                                                e.target.src = profilePictures[0];
+                                            }}
                                         />
                                     </div>
                                 ))}

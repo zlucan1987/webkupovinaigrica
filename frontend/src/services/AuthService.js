@@ -1,6 +1,7 @@
 import { HttpService } from './HttpService';
 import { getUserProfilePicture, setUserProfilePicture } from '../utils/imageUtils';
 import KupacService from './KupacService';
+import logger from '../utils/logger';
 
 class AuthService {
     // Store the token in localStorage
@@ -41,7 +42,7 @@ class AuthService {
             
             return JSON.parse(jsonPayload);
         } catch (error) {
-            console.error('Error parsing token:', error);
+            logger.error('Error parsing token:', error);
             return null;
         }
     }
@@ -51,13 +52,13 @@ class AuthService {
         const userInfo = this.getUserInfo();
         if (!userInfo) return false;
         
-        console.log('Checking role:', role);
-        console.log('User info:', userInfo);
+        logger.debug('Checking role:', role);
+        logger.debug('User info:', userInfo);
         
         // Check for role claim in different formats
         // 1. Check for 'role' claim (string or array)
         if (userInfo.role) {
-            console.log('Found role claim:', userInfo.role);
+            logger.debug('Found role claim:', userInfo.role);
             if (Array.isArray(userInfo.role)) {
                 return userInfo.role.includes(role);
             } else if (typeof userInfo.role === 'string') {
@@ -67,14 +68,14 @@ class AuthService {
         
         // 2. Check for 'roles' claim (array)
         if (userInfo.roles && Array.isArray(userInfo.roles)) {
-            console.log('Found roles claim:', userInfo.roles);
+            logger.debug('Found roles claim:', userInfo.roles);
             return userInfo.roles.includes(role);
         }
         
         // 3. Check for 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' claim
         const msRoleClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
         if (userInfo[msRoleClaim]) {
-            console.log('Found MS role claim:', userInfo[msRoleClaim]);
+            logger.debug('Found MS role claim:', userInfo[msRoleClaim]);
             if (Array.isArray(userInfo[msRoleClaim])) {
                 return userInfo[msRoleClaim].includes(role);
             } else if (typeof userInfo[msRoleClaim] === 'string') {
@@ -82,7 +83,7 @@ class AuthService {
             }
         }
         
-        console.log('No matching role claims found');
+        logger.debug('No matching role claims found');
         return false;
     }
 
@@ -128,31 +129,58 @@ class AuthService {
         const userId = this.getUserId();
         if (!userId) return { success: false, error: 'Korisnik nije prijavljen' };
         
-        // Koristimo KupacService za upload slike
-        const result = await KupacService.postaviSliku(userId, base64Image);
-        
-        if (!result.greska) {
-            // Ako je upload uspješan, ažuriramo lokalnu sliku
-            // Koristimo apsolutnu putanju do slike na serveru
-            const imageUrl = `https://www.brutallucko.online/slike/kupci/${userId}.png?t=${new Date().getTime()}`; // Dodajemo timestamp za izbjegavanje cache-a
-            setUserProfilePicture(userId, imageUrl);
-            return { success: true };
-        } else {
-            return { success: false, error: result.poruka };
+        try {
+            logger.debug("AuthService.uploadProfilePicture: Uploading profile picture for user", userId);
+            
+            // Koristimo KupacService za upload slike
+            const result = await KupacService.postaviSliku(userId, base64Image);
+            
+            if (!result.greska) {
+                // Ako je upload uspješan, ažuriramo lokalnu sliku
+                // Koristimo apsolutnu putanju do slike na serveru s timestampom za izbjegavanje cache-a
+                const imageUrl = `https://www.brutallucko.online/slike/kupci/${userId}.png?t=${new Date().getTime()}`;
+                logger.debug("AuthService.uploadProfilePicture: Setting profile picture URL to", imageUrl);
+                
+                // Spremamo URL u localStorage - ovo će također spremiti i u kupac_profile_pictures
+                setUserProfilePicture(userId, imageUrl);
+                
+                // Provjeravamo je li slika stvarno dostupna - using window.Image to avoid conflict with React Bootstrap Image
+                const img = new window.Image();
+                img.onload = () => {
+                    logger.debug("AuthService.uploadProfilePicture: Image loaded successfully");
+                };
+                img.onerror = () => {
+                    logger.error("AuthService.uploadProfilePicture: Failed to load image from URL", imageUrl);
+                };
+                img.src = imageUrl;
+                
+                // Osvježavamo stranicu nakon 1 sekunde da bi se prikazala nova slika
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+                
+                return { success: true, imageUrl };
+            } else {
+                logger.error("AuthService.uploadProfilePicture: Error from KupacService", result.poruka);
+                return { success: false, error: result.poruka };
+            }
+        } catch (error) {
+            logger.error("AuthService.uploadProfilePicture: Exception", error);
+            return { success: false, error: 'Došlo je do greške prilikom uploada slike' };
         }
     }
 
     // Login method
     async login(email, password) {
         try {
-            console.log('Login attempt with:', { KorisnickoIme: email, Password: password });
+            logger.debug('Login attempt with:', { KorisnickoIme: email, Password: '********' });
             
             const response = await HttpService.post('/Autentifikacija/Login', { 
                 KorisnickoIme: email, 
                 Password: password 
             });
             
-            console.log('Login response:', response);
+            logger.debug('Login response:', response);
             
             const token = response.data;
             
@@ -164,16 +192,16 @@ class AuthService {
             
             return true;
         } catch (error) {
-            console.error('Login error:', error);
-            console.error('Error details:', {
+            logger.error('Login error:', error);
+            logger.error('Error details:', {
                 message: error.message,
                 status: error.response?.status,
                 statusText: error.response?.statusText,
                 data: error.response?.data,
                 config: {
                     url: error.config?.url,
-                    method: error.config?.method,
-                    data: error.config?.data
+                    method: error.config?.method
+                    // Intentionally omit data to avoid logging passwords
                 }
             });
             throw error;
@@ -191,24 +219,30 @@ class AuthService {
                 Prezime: userData.Prezime || userData.prezime
             };
             
-            console.log('Register attempt with:', formattedUserData);
+            // Log without password
+            logger.debug('Register attempt with:', {
+                KorisnickoIme: formattedUserData.KorisnickoIme,
+                Ime: formattedUserData.Ime,
+                Prezime: formattedUserData.Prezime,
+                Lozinka: '********'
+            });
             
             const response = await HttpService.post('/Autentifikacija/Register', formattedUserData);
             
-            console.log('Register response:', response);
+            logger.debug('Register response:', response);
             
             return response.data;
         } catch (error) {
-            console.error('Registration error:', error);
-            console.error('Error details:', {
+            logger.error('Registration error:', error);
+            logger.error('Error details:', {
                 message: error.message,
                 status: error.response?.status,
                 statusText: error.response?.statusText,
                 data: error.response?.data,
                 config: {
                     url: error.config?.url,
-                    method: error.config?.method,
-                    data: error.config?.data
+                    method: error.config?.method
+                    // Intentionally omit data to avoid logging passwords
                 }
             });
             throw error;

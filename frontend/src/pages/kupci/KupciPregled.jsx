@@ -5,7 +5,7 @@ import StavkaService from "../../services/StavkaService";
 import { Button, Table, Image, ListGroup, Accordion, Spinner } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import { getKupacProfilePicture } from "../../utils/imageUtils";
+import { getKupacProfilePicture, setKupacProfilePicture, DEFAULT_PROFILE_PICTURE } from "../../utils/imageUtils";
 import "./KupciPregled.css"; // Uvoz CSS-a za stiliziranje
 import "../../components/ProfileImage.css"; // Uvoz CSS-a za profilne slike
 
@@ -154,6 +154,12 @@ export default function KupciPregled() {
                                             <Image 
                                                 src={kupac.profilnaSlika} 
                                                 className="profile-image-sm"
+                                                onError={(e) => {
+                                                    // Koristi defaultnu sliku iz imageUtils
+                                                    e.target.src = DEFAULT_PROFILE_PICTURE;
+                                                    // Ažuriraj sliku u localStorage
+                                                    setKupacProfilePicture(kupac.sifra, DEFAULT_PROFILE_PICTURE);
+                                                }}
                                             />
                                         </td>
                                         <td>
@@ -237,7 +243,7 @@ export default function KupciPregled() {
                                                                                                 variant="outline-primary" 
                                                                                                 size="sm"
                                                                                                 className="me-2"
-                                                                                                onClick={() => navigate(`/stavke/${stavka.sifra}`)}
+                                                                                                onClick={() => navigate(RouteNames.STAVKA_PROMJENA.replace(':sifra', stavka.sifra))}
                                                                                             >
                                                                                                 Promijeni
                                                                                             </Button>

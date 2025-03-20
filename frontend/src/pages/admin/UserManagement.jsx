@@ -26,7 +26,16 @@ const UserManagement = () => {
             setError(null);
             
             const response = await HttpService.get('/Autentifikacija/Users');
-            setUsers(response.data);
+            console.log('API response data:', response.data);
+            
+            // Log the first user object to see its structure
+            if (Array.isArray(response.data) && response.data.length > 0) {
+                console.log('Prvi korisnik iz niza:', response.data[0]);
+                setUsers(response.data);
+            } else {
+                console.error('Expected array but got:', typeof response.data);
+                setError('Neočekivani format podataka od API-ja.');
+            }
         } catch (err) {
             console.error('Error fetching users:', err);
             setError('Došlo je do greške prilikom dohvaćanja korisnika.');
@@ -37,7 +46,7 @@ const UserManagement = () => {
 
     const handleEditRoles = (user) => {
         setSelectedUser(user);
-        setSelectedRoles(user.Uloge || []);
+        setSelectedRoles(user.uloge || []);
         setShowModal(true);
     };
 
@@ -62,7 +71,7 @@ const UserManagement = () => {
             // Update local state
             setUsers(users.map(user => 
                 user.id === selectedUser.id 
-                    ? { ...user, Uloge: selectedRoles } 
+                    ? { ...user, uloge: selectedRoles } 
                     : user
             ));
             
@@ -140,12 +149,12 @@ const UserManagement = () => {
                         {users.map(user => (
                             <tr key={user.id}>
                                 <td>{user.id}</td>
-                                <td>{user.Ime}</td>
-                                <td>{user.Prezime}</td>
-                                <td>{user.KorisnickoIme}</td>
+                                <td>{user.ime}</td>
+                                <td>{user.prezime}</td>
+                                <td>{user.korisnickoIme}</td>
                                 <td>
-                                    {user.Uloge && user.Uloge.length > 0 
-                                        ? user.Uloge.join(', ') 
+                                    {user.uloge && user.uloge.length > 0 
+                                        ? user.uloge.join(', ') 
                                         : 'Nema uloga'}
                                 </td>
                                 <td>
@@ -184,7 +193,7 @@ const UserManagement = () => {
                     {selectedUser && (
                         <div>
                             <p>
-                                <strong>Korisnik:</strong> {selectedUser.Ime} {selectedUser.Prezime} ({selectedUser.KorisnickoIme})
+                                <strong>Korisnik:</strong> {selectedUser.ime} {selectedUser.prezime} ({selectedUser.korisnickoIme})
                             </p>
                             
                             <Form>

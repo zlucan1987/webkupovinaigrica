@@ -36,6 +36,26 @@ const UserProfile = () => {
             // Get user profile picture
             const profilePicture = AuthService.getUserProfilePicture();
             setSelectedProfilePicture(profilePicture);
+            
+            // Force refresh the profile picture by checking if it exists on the server
+            const userId = AuthService.getUserId();
+            if (userId) {
+                const serverImageUrl = `https://www.brutallucko.online/slike/kupci/${userId}.png?t=${new Date().getTime()}`;
+                
+                // Check if the image exists on the server
+                const img = new window.Image();
+                img.onload = () => {
+                    console.log("UserProfile: Image loaded successfully from server");
+                    // Update the profile picture in the UI
+                    setSelectedProfilePicture(serverImageUrl);
+                    // Save the URL in localStorage for future use
+                    AuthService.updateUserProfilePicture(serverImageUrl);
+                };
+                img.onerror = () => {
+                    console.error("UserProfile: Failed to load image from URL", serverImageUrl);
+                };
+                img.src = serverImageUrl;
+            }
         };
 
         // Call the function
@@ -70,15 +90,32 @@ const UserProfile = () => {
             setLoading(true);
             setError('');
             
+            console.log("UserProfile.handleImageUpload: Uploading profile picture");
+            
             // Upload the image
             const result = await AuthService.uploadProfilePicture(base64Image);
             
             if (result.success) {
                 // Update the profile picture in the UI
-                setSelectedProfilePicture(AuthService.getUserProfilePicture());
+                const newProfilePicture = AuthService.getUserProfilePicture();
+                console.log("UserProfile.handleImageUpload: New profile picture URL:", newProfilePicture);
+                
+                setSelectedProfilePicture(newProfilePicture);
                 setSuccess('Profilna slika uspješno promijenjena!');
                 setTimeout(() => setSuccess(''), 3000);
+                
+                // Verify image is loaded - using window.Image to avoid conflict with React Bootstrap Image
+                const img = new window.Image();
+                img.onload = () => {
+                    console.log("UserProfile.handleImageUpload: Image loaded successfully");
+                };
+                img.onerror = () => {
+                    console.error("UserProfile.handleImageUpload: Failed to load image from URL", newProfilePicture);
+                    setError('Slika je uploadana, ali ne može se prikazati. Pokušajte osvježiti stranicu.');
+                };
+                img.src = newProfilePicture;
             } else {
+                console.error("UserProfile.handleImageUpload: Error from AuthService", result.error);
                 setError(result.error || 'Došlo je do greške prilikom uploada slike');
             }
         } catch (error) {
@@ -141,6 +178,25 @@ const UserProfile = () => {
                                 <Image 
                                     src={selectedProfilePicture} 
                                     className="profile-image border border-primary"
+                                    onError={(e) => {
+                                        console.error("Failed to load profile image:", selectedProfilePicture);
+                                        // Fallback to default image if the profile image fails to load
+                                        e.target.src = profilePictures[0];
+                                        
+                                        // Try to load the image from the server directly
+                                        if (userInfo && userInfo.nameid) {
+                                            const serverImageUrl = `https://www.brutallucko.online/slike/kupci/${userInfo.nameid}.png?t=${new Date().getTime()}`;
+                                            const img = new window.Image();
+                                            img.onload = () => {
+                                                console.log("UserProfile: Image loaded successfully from server");
+                                                // Update the profile picture in the UI
+                                                setSelectedProfilePicture(serverImageUrl);
+                                                // Save the URL in localStorage for future use
+                                                AuthService.updateUserProfilePicture(serverImageUrl);
+                                            };
+                                            img.src = serverImageUrl;
+                                        }
+                                    }}
                                 />
                                 <h4 className="mt-3">{userInfo.name || userInfo.sub}</h4>
                                 <p className="text-muted">

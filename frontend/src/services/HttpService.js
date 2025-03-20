@@ -1,5 +1,6 @@
 import axios from "axios";
 import { PRODUKCIJA } from "../constants";
+import logger from "../utils/logger";
 
 // environment varijablu za produkciju
 // Always use the absolute URL to avoid potential routing issues
@@ -41,37 +42,15 @@ HttpService.interceptors.request.use(
 HttpService.interceptors.response.use(
     response => {
         // Any status code that lie within the range of 2xx cause this function to trigger
-        console.log('Response:', response);
-        return response;
+        return logger.httpResponse(response);
     },
     error => {
         // Any status codes that falls outside the range of 2xx cause this function to trigger
-        console.error('HTTP Error:', error);
-        console.error('Error details:', {
-            message: error.message,
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            data: error.response?.data,
-            config: {
-                url: error.config?.url,
-                method: error.config?.method,
-                data: error.config?.data,
-                baseURL: error.config?.baseURL,
-                headers: error.config?.headers
-            }
-        });
-        return Promise.reject(error);
+        return logger.httpError(error);
     }
 );
 
-// Always log requests in both DEV and PROD for debugging
+// Log requests with environment-specific sanitization
 HttpService.interceptors.request.use(request => {
-    console.log('Starting Request', {
-        url: request.url,
-        method: request.method,
-        data: request.data,
-        baseURL: request.baseURL,
-        headers: request.headers
-    });
-    return request;
+    return logger.httpRequest(request);
 });

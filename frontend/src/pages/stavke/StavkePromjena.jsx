@@ -14,12 +14,16 @@ export default function StavkePromjena() {
   const [proizvodi, setProizvodi] = useState([]);
   const [stavka, setStavka] = useState(null);
   const [poruka, setPoruka] = useState('');
+  // Dodajemo state za praćenje originalnog računa
+  const [originalniRacunSifra, setOriginalniRacunSifra] = useState(null);
 
   useEffect(() => {
     async function dohvatiPodatke() {
       try {
         const stavkaData = await StavkaService.getBySifra(sifra);
         setStavka(stavkaData);
+        // Spremamo originalnu šifru računa
+        setOriginalniRacunSifra(stavkaData.racunSifra);
 
         const racuniData = await RacunService.get();
         setRacuni(racuniData);
@@ -34,7 +38,13 @@ export default function StavkePromjena() {
   }, [sifra]);
 
   async function promjeni(sifra, stavka) {
-    const odgovor = await StavkaService.promjena(sifra, stavka);
+    // Koristimo originalnu šifru računa umjesto one iz forme
+    const stavkaZaSlanje = {
+      ...stavka,
+      racunSifra: originalniRacunSifra
+    };
+    
+    const odgovor = await StavkaService.promjena(sifra, stavkaZaSlanje);
     if (odgovor.greska) {
       setPoruka(odgovor.poruka);
       return;

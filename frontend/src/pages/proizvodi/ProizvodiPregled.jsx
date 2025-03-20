@@ -3,7 +3,7 @@ import ProizvodService from "../../services/ProizvodService";
 import { Button, Table, Form, InputGroup, Row, Col, Card } from "react-bootstrap";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import { getGameImage, getRandomRating, hasDiscount, getDiscountPercentage } from "../../utils/imageUtils";
+import { getGameImage, getRandomRating, hasDiscount, getDiscountPercentage, getProductImageWithFallback } from "../../utils/imageUtils";
 import { useCart } from "../../context/CartContext";
 import AuthService from "../../services/AuthService";
 import "./ProizvodiPregled.css";
@@ -33,34 +33,128 @@ export default function ProizvodiPregled() {
         }
     }, [location]);
 
-    useEffect(() => {
-        // Define a function to fetch products
-        const fetchProducts = async () => {
-            const odgovor = await ProizvodService.get();
-            console.log(odgovor);
+    // Funkcija za provjeru postoji li slika na serveru (koristi se u checkAllImages)
+    const checkImageExists = async (url) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+        });
+    };
+
+    // Funkcija za dohvaćanje proizvoda
+    const fetchProducts = async () => {
+        const odgovor = await ProizvodService.get();
+        console.log("Dohvaćeni proizvodi:", odgovor);
+        
+        // Dodaj dodatne informacije proizvodima (slike, ocjene, popuste)
+        if (Array.isArray(odgovor)) {
+            // Prvo kreiramo osnovne objekte proizvoda
+            const enhancedProizvodi = await Promise.all(odgovor.map(async proizvod => {
+                // Koristimo naprednu funkciju za dohvaćanje slike s fallback mehanizmom
+                const imageUrl = await getProductImageWithFallback(proizvod.sifra, proizvod.nazivIgre);
+                
+                // Dodajemo timestamp za izbjegavanje cache-a
+                const timestamp = new Date().getTime();
+                
+                return {
+                    ...proizvod,
+                    imageUrl: imageUrl,
+                    fallbackImageUrl: getGameImage(proizvod.nazivIgre),
+                    rating: getRandomRating(),
+                    discount: hasDiscount() ? getDiscountPercentage() : null,
+                    timestamp: timestamp // Spremamo timestamp za kasnije osvježavanje
+                };
+            }));
             
-            // Dodaj dodatne informacije proizvodima (slike, ocjene, popuste)
-            if (Array.isArray(odgovor)) {
-                const enhancedProizvodi = odgovor.map(proizvod => {
-                    // Prvo pokušamo dohvatiti sliku prema ID-u
-                    const serverImageUrl = `/slike/proizvodi/${proizvod.sifra}.png?t=${new Date().getTime()}`;
+            setProizvodi(enhancedProizvodi);
+            setFilteredProizvodi(enhancedProizvodi);
+            
+            // Provjeri postoje li slike na serveru i ažuriraj stanje
+            const checkAllImages = async () => {
+                console.log("Provjera postojanja slika na serveru...");
+                
+                // Provjeri postoji li zastavica za nedavno ažuriranu sliku
+                const lastUpdatedProduct = localStorage.getItem('last_updated_product');
+                if (lastUpdatedProduct) {
+                    console.log(`Pronađena nedavno ažurirana slika za proizvod ID: ${lastUpdatedProduct}`);
                     
-                    return {
-                        ...proizvod,
-                        // Koristimo serversku sliku, a ako ne postoji, koristimo getGameImage
-                        imageUrl: serverImageUrl,
-                        fallbackImageUrl: getGameImage(proizvod.nazivIgre),
-                        rating: getRandomRating(),
-                        discount: hasDiscount() ? getDiscountPercentage() : null
-                    };
-                });
-                setProizvodi(enhancedProizvodi);
-                setFilteredProizvodi(enhancedProizvodi);
+                    // Provjeri postoji li slika za ažurirani proizvod
+                    const productId = parseInt(lastUpdatedProduct);
+                    const imageUrl = `/slike/proizvodi/${productId}.png?t=${new Date().getTime()}`;
+                    
+                    // Očisti cache za ovaj proizvod da bi se slika ponovno provjerila
+                    localStorage.removeItem(`img_cache_status_${productId}`);
+                    
+                    const imageExists = await checkImageExists(imageUrl);
+                    console.log(`Slika za proizvod ID ${productId} ${imageExists ? 'postoji' : 'ne postoji'} na serveru`);
+                    
+                    // Ako slika postoji, ažuriraj cache
+                    if (imageExists) {
+                        localStorage.setItem(`img_cache_status_${productId}`, 'exists');
+                    }
+                }
+                
+                // Čistimo localStorage nakon što smo pročitali vrijednosti
+                localStorage.removeItem('product_images_updated');
+                localStorage.removeItem('last_updated_product');
+                localStorage.removeItem('last_update_time');
+            };
+            
+            // Pokreni provjeru slika
+            checkAllImages();
+        }
+    };
+    
+    // Funkcija za ručno osvježavanje slika proizvoda
+    const refreshProductImages = () => {
+        console.log("Osvježavanje slika proizvoda");
+        setProizvodi(prevProizvodi => 
+            prevProizvodi.map(proizvod => ({
+                ...proizvod,
+                imageUrl: `/slike/proizvodi/${proizvod.sifra}.png?t=${new Date().getTime()}`
+            }))
+        );
+    };
+    
+    // Dohvati proizvode pri učitavanju komponente
+    useEffect(() => {
+        fetchProducts();
+        
+        // Dodajemo event listener za osvježavanje slika kada korisnik dođe natrag na stranicu
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                // Provjeri je li bilo promjena slika
+                const imagesUpdated = localStorage.getItem('product_images_updated') === 'true';
+                if (imagesUpdated) {
+                    console.log('Otkrivene promjene slika, osvježavanje...');
+                    fetchProducts(); // Potpuno osvježavanje
+                    localStorage.removeItem('product_images_updated'); // Resetiraj zastavicu
+                } else {
+                    refreshProductImages(); // Samo osvježi URL-ove slika
+                }
             }
         };
         
-        // Call the function
-        fetchProducts();
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        // Provjeri je li bilo promjena slika pri učitavanju komponente
+        const imagesUpdated = localStorage.getItem('product_images_updated') === 'true';
+        if (imagesUpdated) {
+            console.log('Otkrivene promjene slika pri učitavanju, osvježavanje...');
+            // Možemo osvježiti samo sliku proizvoda koji je ažuriran
+            const lastUpdatedProduct = localStorage.getItem('last_updated_product');
+            if (lastUpdatedProduct) {
+                console.log(`Posljednji ažurirani proizvod: ${lastUpdatedProduct}`);
+            }
+            localStorage.removeItem('product_images_updated'); // Resetiraj zastavicu
+        }
+        
+        // Cleanup
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, []);
     
     // Filtriraj i sortiraj proizvode kad se promijeni pojam za pretragu ili opcija sortiranja
@@ -113,26 +207,6 @@ export default function ProizvodiPregled() {
         }
         
         // Fetch products again after deletion
-        const fetchProducts = async () => {
-            const odgovor = await ProizvodService.get();
-            
-            if (Array.isArray(odgovor)) {
-                const enhancedProizvodi = odgovor.map(proizvod => {
-                    const serverImageUrl = `/slike/proizvodi/${proizvod.sifra}.png?t=${new Date().getTime()}`;
-                    
-                    return {
-                        ...proizvod,
-                        imageUrl: serverImageUrl,
-                        fallbackImageUrl: getGameImage(proizvod.nazivIgre),
-                        rating: getRandomRating(),
-                        discount: hasDiscount() ? getDiscountPercentage() : null
-                    };
-                });
-                setProizvodi(enhancedProizvodi);
-                setFilteredProizvodi(enhancedProizvodi);
-            }
-        };
-        
         fetchProducts();
     }
 
@@ -163,7 +237,7 @@ export default function ProizvodiPregled() {
                 
                 <div className="filter-sort-container">
                     <Row className="align-items-center">
-                        <Col md={5}>
+                        <Col md={4}>
                             <InputGroup className="mb-3">
                                 <Form.Control
                                     placeholder="Pretraži igrice..."
@@ -175,7 +249,7 @@ export default function ProizvodiPregled() {
                                 </Button>
                             </InputGroup>
                         </Col>
-                        <Col md={5}>
+                        <Col md={4}>
                             <Form.Group className="mb-3">
                                 <Form.Select 
                                     value={sortOption}
@@ -206,6 +280,16 @@ export default function ProizvodiPregled() {
                                 </Button>
                             </div>
                         </Col>
+                        <Col md={2}>
+                            <Button 
+                                variant="outline-info" 
+                                className="w-100 mb-3"
+                                onClick={() => fetchProducts()}
+                                title="Osvježi slike proizvoda"
+                            >
+                                <i className="bi bi-arrow-clockwise"></i> Osvježi
+                            </Button>
+                        </Col>
                     </Row>
                 </div>
             </div>
@@ -223,9 +307,14 @@ export default function ProizvodiPregled() {
                                             alt={proizvod.nazivIgre}
                                             onClick={() => navigate(`/proizvodi/${proizvod.sifra}`)}
                                             onError={(e) => {
+                                                console.log(`Slika nije pronađena za proizvod: ${proizvod.nazivIgre} (ID: ${proizvod.sifra}), koristi se fallback slika`);
                                                 e.target.onerror = null;
                                                 e.target.src = proizvod.fallbackImageUrl;
+                                                
+                                                // Očisti cache za ovaj proizvod da bi se slika ponovno provjerila pri sljedećem učitavanju
+                                                localStorage.removeItem(`img_cache_status_${proizvod.sifra}`);
                                             }}
+                                            key={`${proizvod.sifra}-${proizvod.timestamp}`} // Dodajemo key za forsiranje ponovnog renderiranja
                                         />
                                         <div className="rating">
                                             {renderRatingStars(proizvod.rating)}
@@ -306,9 +395,14 @@ export default function ProizvodiPregled() {
                                         alt={proizvod.nazivIgre} 
                                         className="table-image"
                                         onError={(e) => {
+                                            console.log(`Slika nije pronađena za proizvod: ${proizvod.nazivIgre} (ID: ${proizvod.sifra}), koristi se fallback slika`);
                                             e.target.onerror = null;
                                             e.target.src = proizvod.fallbackImageUrl;
+                                            
+                                            // Očisti cache za ovaj proizvod da bi se slika ponovno provjerila pri sljedećem učitavanju
+                                            localStorage.removeItem(`img_cache_status_${proizvod.sifra}`);
                                         }}
+                                        key={`${proizvod.sifra}-${proizvod.timestamp}`} // Dodajemo key za forsiranje ponovnog renderiranja
                                     />
                                 </td>
                                 <td>{proizvod.nazivIgre}</td>
