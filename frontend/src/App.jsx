@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import { RouteNames } from './constants';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ResetPassword from './pages/auth/ResetPassword';
 import ManualTokenLogin from './pages/auth/ManualTokenLogin';
 import UserProfile from './pages/auth/UserProfile';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -26,6 +27,7 @@ import './App.css';
 import './pages.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import './GamingTheme.css'; // Import our gaming theme
 import Footer from './components/Footer';
 import EntryPage from './components/EntryPage.jsx';
 import SwaggerPage from './components/SwaggerPage.jsx';
@@ -40,9 +42,10 @@ function App() {
 
             <Routes>
                 <Route path={RouteNames.HOME} element={<EntryPage />} />
-                <Route path={RouteNames.LOGIN} element={<Login />} />
-                <Route path={RouteNames.REGISTER} element={<Register />} />
-                <Route path={RouteNames.MANUAL_TOKEN} element={<ManualTokenLogin />} />
+          <Route path={RouteNames.LOGIN} element={<Login />} />
+          <Route path={RouteNames.REGISTER} element={<Register />} />
+          <Route path={RouteNames.RESET_PASSWORD} element={<ResetPassword />} />
+          <Route path={RouteNames.MANUAL_TOKEN} element={<ManualTokenLogin />} />
                 <Route path={RouteNames.USER_PROFILE} element={
                     <ProtectedRoute>
                         <UserProfile />

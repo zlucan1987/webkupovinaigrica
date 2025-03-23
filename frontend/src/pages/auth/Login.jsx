@@ -91,6 +91,15 @@ const Login = () => {
                                 </a>
                             </p>
                             <p>
+                                Zaboravili ste lozinku?{' '}
+                                <a href="#" onClick={(e) => {
+                                    e.preventDefault();
+                                    navigate('/reset-password');
+                                }}>
+                                    Resetirajte lozinku
+                                </a>
+                            </p>
+                            <p>
                                 Already have a token?{' '}
                                 <a href="#" onClick={(e) => {
                                     e.preventDefault();

@@ -310,10 +310,15 @@ class AuthService {
     }
 
     // Logout method
-    logout() {
+    logout(clearCartCallback = null) {
         this.removeToken();
         // Remove Authorization header
         delete HttpService.defaults.headers.common['Authorization'];
+        
+        // Clear cart if callback is provided
+        if (typeof clearCartCallback === 'function') {
+            clearCartCallback();
+        }
     }
 }
 

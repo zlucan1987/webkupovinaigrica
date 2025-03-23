@@ -118,7 +118,7 @@ export default function ProizvodiPromjena() {
             <Form onSubmit={odradiSubmit}>
                 <Row className="gx-0">
                     <Col md={9} className="pe-0">
-                        <Form.Group controlId="nazivIgre">
+                        <Form.Group controlId="nazivIgre" className="mb-3">
                             <Form.Label>Naziv igre</Form.Label>
                             <Form.Control
                                 type="text"
@@ -126,10 +126,17 @@ export default function ProizvodiPromjena() {
                                 required
                                 defaultValue={proizvod.nazivIgre}
                                 className="input-manja-sirina"
+                                style={{ 
+                                    backgroundColor: '#333',
+                                    borderColor: '#666',
+                                    color: 'white',
+                                    height: '38px',
+                                    maxWidth: '400px'
+                                }}
                             />
                         </Form.Group>
 
-                        <Form.Group controlId="cijena">
+                        <Form.Group controlId="cijena" className="mb-3">
                             <Form.Label>Cijena</Form.Label>
                             <Form.Control
                                 type="number"
@@ -137,6 +144,13 @@ export default function ProizvodiPromjena() {
                                 name="cijena"
                                 defaultValue={proizvod.cijena}
                                 className="input-manja-sirina"
+                                style={{ 
+                                    backgroundColor: '#333',
+                                    borderColor: '#666',
+                                    color: 'white',
+                                    height: '38px',
+                                    maxWidth: '400px'
+                                }}
                             />
                         </Form.Group>
                     </Col>
@@ -151,37 +165,45 @@ export default function ProizvodiPromjena() {
                 </Row>
             </Form>
             
-            <Form.Group controlId="slika" className="mt-4">
-                <h3>Slika proizvoda</h3>
+            <div className="mt-4 mb-5">
+                <h3 className="mb-3">Slika proizvoda</h3>
                 
-                <Row>
+                <Row className="g-4">
                     <Col md={6}>
-                        <div className="current-image mb-4">
-                            <h5>Trenutna slika</h5>
-                            <img 
-                                src={`/slike/proizvodi/${routeParams.sifra}.png?t=${imageTimestamp}`}
-                                alt={proizvod.nazivIgre}
-                                onError={(e) => {
-                                    console.log(`Slika nije pronađena za proizvod: ${proizvod.nazivIgre} (ID: ${routeParams.sifra}), koristi se fallback slika`);
-                                    e.target.onerror = null;
-                                    e.target.src = getGameImage(proizvod.nazivIgre);
-                                }}
-                                style={{ maxWidth: '100%', maxHeight: '300px' }}
-                            />
-                            <Button 
-                                variant="outline-info" 
-                                size="sm" 
-                                className="mt-2"
-                                onClick={() => setImageTimestamp(new Date().getTime())}
-                            >
-                                <i className="bi bi-arrow-clockwise"></i> Osvježi sliku
-                            </Button>
+                        <div className="current-image mb-4 p-3" style={{ backgroundColor: 'rgba(26, 44, 56, 0.5)', borderRadius: '8px' }}>
+                            <h5 className="mb-3">Trenutna slika</h5>
+                            <div className="text-center">
+                                <img 
+                                    src={`/slike/proizvodi/${routeParams.sifra}.png?t=${imageTimestamp}`}
+                                    alt={proizvod.nazivIgre}
+                                    onError={(e) => {
+                                        console.log(`Slika nije pronađena za proizvod: ${proizvod.nazivIgre} (ID: ${routeParams.sifra}), koristi se fallback slika`);
+                                        e.target.onerror = null;
+                                        e.target.src = getGameImage(proizvod.nazivIgre);
+                                    }}
+                                    style={{ 
+                                        maxWidth: '100%', 
+                                        maxHeight: '300px',
+                                        borderRadius: '4px',
+                                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                                    }}
+                                />
+                                <div className="mt-3">
+                                    <Button 
+                                        variant="outline-info" 
+                                        size="sm" 
+                                        onClick={() => setImageTimestamp(new Date().getTime())}
+                                    >
+                                        <i className="bi bi-arrow-clockwise"></i> Osvježi sliku
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </Col>
                     <Col md={6}>
-                        <div className="upload-new-image">
-                            <h5>Uploadaj novu sliku</h5>
-                            <div style={{ maxWidth: '400px' }}>
+                        <div className="upload-new-image p-3" style={{ backgroundColor: 'rgba(26, 44, 56, 0.5)', borderRadius: '8px' }}>
+                            <h5 className="mb-3">Uploadaj novu sliku</h5>
+                            <div style={{ maxWidth: '400px', margin: '0 auto' }}>
                                 <ImageUploader 
                                     onImageUpload={handleImageUpload} 
                                     aspectRatio={16/9}
@@ -189,18 +211,18 @@ export default function ProizvodiPromjena() {
                                     maxHeight={675}
                                 />
                                 {loading && (
-                                    <div className="text-center mt-2">
+                                    <div className="text-center mt-3">
                                         <div className="spinner-border text-primary" role="status">
                                             <span className="visually-hidden">Učitavanje...</span>
                                         </div>
-                                        <p>Uploadam sliku...</p>
+                                        <p className="mt-2">Uploadam sliku...</p>
                                     </div>
                                 )}
                             </div>
                         </div>
                     </Col>
                 </Row>
-            </Form.Group>
+            </div>
         </div>
     );
 }

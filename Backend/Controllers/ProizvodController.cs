@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTO;
@@ -166,7 +166,7 @@ namespace Backend.Controllers
         }
 
         /// <summary>
-        /// Dohvaća podatke za graf - broj kupaca po proizvodu.
+        /// Dohvaća podatke za graf - ukupan broj prodanih primjeraka po proizvodu.
         /// </summary>
         /// <returns>Podaci za graf.</returns>
         [HttpGet]
@@ -180,15 +180,13 @@ namespace Backend.Controllers
                     {
                         p.Sifra,
                         p.NazivIgre,
-                        BrojKupaca = _context.Stavke
+                        BrojProdanihPrimjeraka = _context.Stavke
                             .Where(s => s.ProizvodId == p.Sifra)
-                            .Select(s => s.Racun.KupacId)
-                            .Distinct()
-                            .Count()
+                            .Sum(s => s.Kolicina)
                     })
                     .ToList();
 
-                var rezultat = podaci.Select(p => new GrafProizvodDTO(p.NazivIgre, p.BrojKupaca)).ToList();
+                var rezultat = podaci.Select(p => new GrafProizvodDTO(p.NazivIgre, p.BrojProdanihPrimjeraka)).ToList();
                 return Ok(rezultat);
             }
             catch (Exception e)

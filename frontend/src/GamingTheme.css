@@ -1,0 +1,258 @@
+/* Gaming Theme CSS */
+
+:root {
+  --gaming-dark-blue: #0F1923;
+  --gaming-blue: #1A2C38;
+  --gaming-light-gray: #E6E6E6;
+  --gaming-red: #FF4655;
+  --gaming-teal: #0AC8B9;
+}
+
+/* Import gaming fonts */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;700&display=swap');
+
+/* Global styles */
+body {
+  background-color: #121212;
+  color: var(--gaming-light-gray);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Navbar styling */
+.navbar-lightgray {
+  background-color: rgba(15, 25, 35, 0.85) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-brand {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  color: var(--gaming-light-gray) !important;
+  transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+  color: var(--gaming-red) !important;
+  text-shadow: 0 0 8px rgba(255, 70, 85, 0.5);
+  transform: scale(1.05);
+}
+
+.navbar-logo {
+  filter: drop-shadow(0 0 5px var(--gaming-teal));
+  transition: all 0.3s ease;
+}
+
+.navbar-logo:hover {
+  filter: drop-shadow(0 0 8px var(--gaming-red));
+  transform: scale(1.1);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--gaming-red) !important;
+  border-color: var(--gaming-red) !important;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #e63e4c !important;
+  border-color: #e63e4c !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 70, 85, 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--gaming-blue) !important;
+  border-color: var(--gaming-blue) !important;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #243a4d !important;
+  border-color: #243a4d !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(26, 44, 56, 0.3);
+}
+
+.btn-outline-primary {
+  color: var(--gaming-red) !important;
+  border-color: var(--gaming-red) !important;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--gaming-red) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 70, 85, 0.3);
+}
+
+.btn-outline-secondary {
+  color: var(--gaming-teal) !important;
+  border-color: var(--gaming-teal) !important;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--gaming-teal) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(10, 200, 185, 0.3);
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+  background-color: var(--gaming-blue) !important;
+  border: 1px solid rgba(10, 200, 185, 0.2) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  animation: fadeInDown 0.3s ease;
+}
+
+.dropdown-item {
+  color: var(--gaming-light-gray) !important;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(255, 70, 85, 0.1) !important;
+  color: var(--gaming-red) !important;
+  transform: translateX(5px);
+}
+
+.dropdown-divider {
+  border-top: 1px solid rgba(10, 200, 185, 0.2) !important;
+}
+
+.dropdown-header {
+  color: var(--gaming-teal) !important;
+  font-weight: bold;
+}
+
+/* Form controls */
+.form-control {
+  background-color: #333 !important;
+  border-color: #666 !important;
+  color: white !important;
+  height: 38px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  background-color: #444 !important;
+  border-color: var(--gaming-teal) !important;
+  box-shadow: 0 0 0 0.25rem rgba(10, 200, 185, 0.25) !important;
+}
+
+.form-label {
+  color: var(--gaming-light-gray);
+  font-weight: 500;
+}
+
+/* Cards */
+.card {
+  background-color: var(--gaming-blue) !important;
+  border: 1px solid rgba(10, 200, 185, 0.2) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  background-color: rgba(15, 25, 35, 0.8) !important;
+  border-bottom: 1px solid rgba(10, 200, 185, 0.2) !important;
+}
+
+/* Tables */
+.table {
+  color: var(--gaming-light-gray) !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(26, 44, 56, 0.5) !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(255, 70, 85, 0.1) !important;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(10, 200, 185, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(10, 200, 185, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(10, 200, 185, 0.5);
+  }
+}
+
+/* User nickname in navbar */
+.user-nickname {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  color: white !important;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.user-nickname:hover {
+  color: var(--gaming-red) !important;
+  text-shadow: 0 0 8px rgba(255, 70, 85, 0.5);
+}
+
+/* Component specific styles */
+.bijeli-tekst {
+  color: var(--gaming-light-gray) !important;
+}
+
+.input-manja-sirina {
+  max-width: 400px;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  color: var(--gaming-light-gray);
+}
+
+/* Alert styling */
+.alert-success {
+  background-color: rgba(10, 200, 185, 0.2) !important;
+  border-color: var(--gaming-teal) !important;
+  color: var(--gaming-teal) !important;
+}
+
+.alert-danger {
+  background-color: rgba(255, 70, 85, 0.2) !important;
+  border-color: var(--gaming-red) !important;
+  color: var(--gaming-red) !important;
+}
+
+.alert-warning {
+  background-color: rgba(255, 193, 7, 0.2) !important;
+  border-color: #ffc107 !important;
+  color: #ffc107 !important;
+}
+
+.alert-info {
+  background-color: rgba(13, 202, 240, 0.2) !important;
+  border-color: #0dcaf0 !important;
+  color: #0dcaf0 !important;
+}

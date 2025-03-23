@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { Toast, ToastContainer } from 'react-bootstrap';
 
 const CartContext = createContext();
 
@@ -7,6 +8,7 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
+    const [notification, setNotification] = useState({ show: false, message: '', product: null });
     
     useEffect(() => {
         calculateTotal();
@@ -26,6 +28,18 @@ export const CartProvider = ({ children }) => {
         } else {
             setCartItems([...cartItems, { ...product, quantity: 1 }]);
         }
+        
+        // Show notification
+        setNotification({ 
+            show: true, 
+            message: `${product.nazivIgre} dodana u košaricu`, 
+            product 
+        });
+        
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+            setNotification({ show: false, message: '', product: null });
+        }, 3000);
     };
     
     const removeFromCart = (productId) => {
@@ -72,12 +86,35 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateQuantity,
         clearCart,
-        applyDiscount
+        applyDiscount,
+        notification
     };
     
     return (
         <CartContext.Provider value={value}>
             {children}
+            
+            {/* Notification Toast */}
+            <ToastContainer 
+                position="bottom-end" 
+                className="p-3" 
+                style={{ zIndex: 1070 }}
+            >
+                <Toast 
+                    show={notification.show} 
+                    onClose={() => setNotification({ show: false, message: '', product: null })}
+                    bg="success"
+                    delay={3000}
+                    autohide
+                >
+                    <Toast.Header closeButton={true}>
+                        <strong className="me-auto">Košarica</strong>
+                    </Toast.Header>
+                    <Toast.Body className="text-white">
+                        {notification.message}
+                    </Toast.Body>
+                </Toast>
+            </ToastContainer>
         </CartContext.Provider>
     );
 };

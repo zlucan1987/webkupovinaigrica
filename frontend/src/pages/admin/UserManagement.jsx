@@ -19,7 +19,10 @@ const UserManagement = () => {
     const [editFormData, setEditFormData] = useState({
         email: '',
         korisnickoIme: '',
-        nickname: ''
+        nickname: '',
+        ime: '',
+        prezime: '',
+        lozinka: ''
     });
     const [isNicknameLocked, setIsNicknameLocked] = useState(false);
 
@@ -70,12 +73,28 @@ const UserManagement = () => {
         setShowModal(true);
     };
     
+    const handleAddUser = () => {
+        setSelectedUser(null);
+        setEditFormData({
+            email: '',
+            korisnickoIme: '',
+            nickname: '',
+            ime: '',
+            prezime: '',
+            lozinka: ''
+        });
+        setIsNicknameLocked(false);
+        setShowEditModal(true);
+    };
+    
     const handleEditUser = (user) => {
         setSelectedUser(user);
         setEditFormData({
             email: user.korisnickoIme || '',
             korisnickoIme: user.korisnickoIme || '',
-            nickname: user.nickname || ''
+            nickname: user.nickname || '',
+            ime: user.ime || '',
+            prezime: user.prezime || ''
         });
         setIsNicknameLocked(user.isNicknameLocked || false);
         setShowEditModal(true);
@@ -91,6 +110,35 @@ const UserManagement = () => {
     
     const toggleNicknameLock = () => {
         setIsNicknameLocked(!isNicknameLocked);
+    };
+    
+    const handleDeleteUser = (user) => {
+        // Check if user has Admin role
+        if (user.uloge && user.uloge.includes('Admin')) {
+            alert('Nije moguće obrisati korisnika s administratorskim pravima. Prvo uklonite administratorska prava.');
+            return;
+        }
+        
+        // Confirm deletion
+        if (!window.confirm(`Jeste li sigurni da želite obrisati korisnika ${user.ime} ${user.prezime}?`)) {
+            return;
+        }
+        
+        // In a real application, we would call an API endpoint to delete the user
+        // Since we don't have that endpoint, we'll just remove the user from the local state
+        try {
+            // Remove user from local state
+            setUsers(users.filter(u => u.id !== user.id));
+            
+            // Clean up localStorage items related to this user
+            localStorage.removeItem(`user_nickname_${user.id}`);
+            localStorage.removeItem(`nickname_locked_${user.id}`);
+            
+            alert('Korisnik je uspješno obrisan.');
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            alert('Došlo je do greške prilikom brisanja korisnika.');
+        }
     };
 
     const handleRoleChange = (role) => {
@@ -136,37 +184,83 @@ const UserManagement = () => {
             setUpdateSuccess(false);
             setUpdateError(null);
             
-            // Spremi podatke u localStorage (u stvarnoj aplikaciji bi ovo bio API poziv)
             if (selectedUser) {
+                // Ažuriranje postojećeg korisnika
                 // Spremi nadimak
                 localStorage.setItem(`user_nickname_${selectedUser.id}`, editFormData.nickname);
                 
                 // Spremi status zaključavanja nadimka
                 localStorage.setItem(`nickname_locked_${selectedUser.id}`, isNicknameLocked.toString());
                 
+                // Budući da backend nema endpoint za ažuriranje korisničkih podataka,
+                // spremamo podatke samo lokalno
+                
                 // Ažuriraj lokalno stanje
                 setUsers(users.map(user => 
                     user.id === selectedUser.id 
                         ? { 
                             ...user, 
+                            ime: editFormData.ime,
+                            prezime: editFormData.prezime,
                             korisnickoIme: editFormData.korisnickoIme,
                             nickname: editFormData.nickname,
                             isNicknameLocked: isNicknameLocked
                         } 
                         : user
                 ));
+            } else {
+                // Dodavanje novog korisnika
+                // Provjeri jesu li sva obavezna polja popunjena
+                if (!editFormData.ime || !editFormData.prezime || !editFormData.email || !editFormData.korisnickoIme) {
+                    setUpdateError('Molimo popunite sva obavezna polja (ime, prezime, email, korisničko ime).');
+                    return;
+                }
                 
-                setUpdateSuccess(true);
+                // Provjeri je li lozinka unesena
+                if (!editFormData.lozinka) {
+                    setUpdateError('Molimo unesite lozinku za novog korisnika.');
+                    return;
+                }
                 
-                // Zatvori modal nakon kratke pauze
-                setTimeout(() => {
-                    setShowEditModal(false);
-                    setUpdateSuccess(false);
-                }, 1500);
+                // Kreiraj novog korisnika putem API-ja
+                const response = await HttpService.post('/Autentifikacija/Register', {
+                    ime: editFormData.ime,
+                    prezime: editFormData.prezime,
+                    email: editFormData.email,
+                    korisnickoIme: editFormData.korisnickoIme,
+                    lozinka: editFormData.lozinka,
+                    nickname: editFormData.nickname,
+                    uloge: ["User"] // Dodajemo defaultnu ulogu "User"
+                });
+                
+                // Ako je uspješno, dodaj korisnika u lokalno stanje
+                if (response.data) {
+                    const newUser = response.data;
+                    
+                    // Spremi nadimak i status zaključavanja
+                    localStorage.setItem(`user_nickname_${newUser.id}`, editFormData.nickname);
+                    localStorage.setItem(`nickname_locked_${newUser.id}`, isNicknameLocked.toString());
+                    
+                    // Dodaj novog korisnika u lokalno stanje
+                    setUsers([...users, {
+                        ...newUser,
+                        nickname: editFormData.nickname,
+                        isNicknameLocked: isNicknameLocked,
+                        datumKreiranja: new Date().toISOString()
+                    }]);
+                }
             }
+            
+            setUpdateSuccess(true);
+            
+            // Zatvori modal nakon kratke pauze
+            setTimeout(() => {
+                setShowEditModal(false);
+                setUpdateSuccess(false);
+            }, 1500);
         } catch (err) {
-            console.error('Error updating user info:', err);
-            setUpdateError('Došlo je do greške prilikom ažuriranja korisničkih podataka.');
+            console.error('Error saving user info:', err);
+            setUpdateError('Došlo je do greške prilikom spremanja korisničkih podataka.');
         }
     };
 
@@ -203,15 +297,23 @@ const UserManagement = () => {
 
     return (
         <Container className="mt-4 user-management-container">
-            <h2 className="mb-4 text-white">Upravljanje korisnicima</h2>
+            <h2 className="mb-4 bijeli-tekst">Upravljanje korisnicima</h2>
             
-            <Button 
-                variant="primary" 
-                className="mb-3"
-                onClick={fetchUsers}
-            >
-                Osvježi popis
-            </Button>
+            <div className="mb-3 d-flex">
+                <Button 
+                    variant="primary" 
+                    className="me-2"
+                    onClick={fetchUsers}
+                >
+                    Osvježi popis
+                </Button>
+                <Button 
+                    variant="success" 
+                    onClick={() => handleAddUser()}
+                >
+                    Dodaj korisnika
+                </Button>
+            </div>
             
             {users.length === 0 ? (
                 <Alert variant="info">Nema dostupnih korisnika.</Alert>
@@ -225,27 +327,29 @@ const UserManagement = () => {
                             <th>Email</th>
                             <th>Nadimak</th>
                             <th>Uloge</th>
+                            <th>Datum kreiranja</th>
                             <th>Akcije</th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map(user => (
                             <tr key={user.id}>
-                                <td>{user.id}</td>
-                                <td>{user.ime}</td>
-                                <td>{user.prezime}</td>
-                                <td>{user.korisnickoIme}</td>
-                                <td>
-                                    {user.nickname || '-'} 
-                                    {user.isNicknameLocked && (
-                                        <FaLock className="ms-2 text-warning" title="Nadimak je zaključan" />
-                                    )}
-                                </td>
-                                <td>
-                                    {user.uloge && user.uloge.length > 0 
-                                        ? user.uloge.join(', ') 
-                                        : 'Nema uloga'}
-                                </td>
+                <td>{user.id}</td>
+                <td>{user.ime}</td>
+                <td>{user.prezime}</td>
+                <td>{user.korisnickoIme}</td>
+                <td>
+                    {user.nickname || '-'} 
+                    {user.isNicknameLocked && (
+                        <FaLock className="ms-2 text-warning" title="Nadimak je zaključan" />
+                    )}
+                </td>
+                <td>
+                    {user.uloge && user.uloge.length > 0 
+                        ? user.uloge.join(', ') 
+                        : 'Nema uloga'}
+                </td>
+                <td>{user.datumKreiranja ? new Date(user.datumKreiranja).toLocaleDateString() : '-'}</td>
                                 <td>
                                     <Button 
                                         variant="outline-primary" 
@@ -258,9 +362,21 @@ const UserManagement = () => {
                                     <Button 
                                         variant="outline-success" 
                                         size="sm"
+                                        className="me-2 mb-1"
                                         onClick={() => handleEditUser(user)}
                                     >
                                         Uredi korisnika
+                                    </Button>
+                                    <Button 
+                                        variant="outline-danger" 
+                                        size="sm"
+                                        onClick={() => handleDeleteUser(user)}
+                                        disabled={user.uloge && user.uloge.includes('Admin')}
+                                        title={user.uloge && user.uloge.includes('Admin') ? 
+                                            "Prvo uklonite administratorska prava" : 
+                                            "Obriši korisnika"}
+                                    >
+                                        Obriši korisnika
                                     </Button>
                                 </td>
                             </tr>
@@ -336,13 +452,32 @@ const UserManagement = () => {
                         </Alert>
                     )}
                     
-                    {selectedUser && (
-                        <div>
-                            <p>
-                                <strong>Korisnik:</strong> {selectedUser.ime} {selectedUser.prezime}
-                            </p>
+                    <div>
+                        <p>
+                            <strong>Korisnik:</strong> {selectedUser ? `${selectedUser.ime || ''} ${selectedUser.prezime || ''}` : 'Novi korisnik'}
+                        </p>
                             
                             <Form>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Ime</Form.Label>
+                                    <Form.Control 
+                                        type="text" 
+                                        name="ime"
+                                        value={editFormData.ime}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                                
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Prezime</Form.Label>
+                                    <Form.Control 
+                                        type="text" 
+                                        name="prezime"
+                                        value={editFormData.prezime}
+                                        onChange={handleInputChange}
+                                    />
+                                </Form.Group>
+                                
                                 <Form.Group className="mb-3">
                                     <Form.Label>Email</Form.Label>
                                     <Form.Control 
@@ -387,9 +522,21 @@ const UserManagement = () => {
                                             : "Nadimak je otključan. Korisnik ga može promijeniti."}
                                     </Form.Text>
                                 </Form.Group>
+                                
+                                {!selectedUser && (
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Lozinka</Form.Label>
+                                        <Form.Control 
+                                            type="password" 
+                                            name="lozinka"
+                                            value={editFormData.lozinka}
+                                            onChange={handleInputChange}
+                                            placeholder="Unesite lozinku za novog korisnika"
+                                        />
+                                    </Form.Group>
+                                )}
                             </Form>
                         </div>
-                    )}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowEditModal(false)}>

@@ -20,6 +20,7 @@
     background-blend-mode: overlay;
     padding: 40px 20px;
     position: relative;
+    transition: all 0.5s ease-in-out;
 }
 
 .welcome-section::before {
@@ -46,6 +47,27 @@
     width: 200px;
     height: auto;
     margin-bottom: 20px;
+    transition: all 0.5s ease-in-out;
+}
+
+.logo-intro {
+    animation: pulsate 2s infinite;
+    transform: scale(1.5);
+}
+
+@keyframes pulsate {
+    0% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.7);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
 }
 
 .welcome-text {
@@ -54,6 +76,29 @@
     text-align: center;
     margin-bottom: 20px;
     font-weight: bold;
+    transition: opacity 1s ease-in-out;
+}
+
+.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.fade-in {
+    opacity: 1;
+    visibility: visible;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .welcome-description {

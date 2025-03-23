@@ -816,7 +816,7 @@ Status brisanja.
 
 ##### Summary
 
-Dohvaća podatke za graf - broj kupaca po proizvodu.
+Dohvaća podatke za graf - ukupan broj prodanih primjeraka po proizvodu.
 
 ##### Returns
 

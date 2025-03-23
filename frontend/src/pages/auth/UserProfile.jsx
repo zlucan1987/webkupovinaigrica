@@ -208,26 +208,26 @@ const UserProfile = () => {
                             <Tabs defaultActiveKey="account" className="mb-4">
                                 <Tab eventKey="account" title="Podaci o računu">
                                     <div className="p-3">
-                                        <h5 className="mb-3">Informacije o računu</h5>
-                                        <p><strong>Korisničko ime:</strong> {userInfo.sub || userInfo.name}</p>
-                                        <p><strong>Email:</strong> {AuthService.getUserEmail()}</p>
+                                        <h5 className="mb-3" style={{ color: 'white' }}>Informacije o računu</h5>
+                                        <p style={{ color: 'white' }}><strong>Korisničko ime:</strong> {userInfo.sub || userInfo.name}</p>
+                                        <p style={{ color: 'white' }}><strong>Email:</strong> {AuthService.getUserEmail()}</p>
                                         
-                                        <div className="mb-3">
-                                            <p>
-                                                <strong>Nadimak (Nickname):</strong> {AuthService.getUserNickname()}
-                                                {AuthService.isNicknameLocked() && (
-                                                    <FaLock className="ms-2 text-warning" title="Nadimak je zaključan" />
-                                                )}
-                                            </p>
-                                            
-                                            {AuthService.isNicknameLocked() ? (
-                                                <Alert variant="warning" className="mt-2 p-2">
-                                                    <small>Nadimak je zaključan od strane administratora i ne može se promijeniti.</small>
-                                                </Alert>
-                                            ) : (
+                                        <p style={{ color: 'white' }}>
+                                            <strong>Nadimak (Nickname):</strong> {AuthService.getUserNickname()}
+                                            {AuthService.isNicknameLocked() && (
+                                                <FaLock className="ms-2 text-warning" title="Nadimak je zaključan" />
+                                            )}
+                                        </p>
+                                        
+                                        <p style={{ color: 'white' }}><strong>Uloga:</strong> {userInfo.role || 'Korisnik'}</p>
+                                        <p style={{ color: 'white' }}><strong>Datum registracije:</strong> {new Date(userInfo.nbf * 1000).toLocaleDateString() || 'Nije dostupno'}</p>
+                                        
+                                        {/* Premješteno na kraj, nakon datuma registracije */}
+                                        {!AuthService.isNicknameLocked() ? (
+                                            <div className="mb-3">
                                                 <Form className="mt-2">
                                                     <Form.Group>
-                                                        <Form.Label>Promijeni nadimak</Form.Label>
+                                                        <Form.Label style={{ color: 'white' }}>Promijeni nadimak</Form.Label>
                                                         <div className="d-flex">
                                                             <Form.Control 
                                                                 type="text" 
@@ -257,11 +257,12 @@ const UserProfile = () => {
                                                         </div>
                                                     </Form.Group>
                                                 </Form>
-                                            )}
-                                        </div>
-                                        
-                                        <p><strong>Uloga:</strong> {userInfo.role || 'Korisnik'}</p>
-                                        <p><strong>Datum registracije:</strong> {new Date(userInfo.nbf * 1000).toLocaleDateString() || 'Nije dostupno'}</p>
+                                            </div>
+                                        ) : (
+                                            <Alert variant="warning" className="mt-2 p-2">
+                                                <small>Nadimak je zaključan od strane administratora i ne može se promijeniti.</small>
+                                            </Alert>
+                                        )}
                                     </div>
                                 </Tab>
                                 <Tab eventKey="password" title="Promjena lozinke">

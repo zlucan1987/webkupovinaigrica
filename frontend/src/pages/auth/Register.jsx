@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Alert, Image } from 'react-bootstrap';
 import AuthService from '../../services/AuthService';
@@ -19,6 +19,14 @@ const Register = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    
+    // Provjeri je li korisnik već prijavljen
+    useEffect(() => {
+        if (AuthService.isLoggedIn()) {
+            // Ako je korisnik već prijavljen, preusmjeri ga na početnu stranicu
+            navigate('/');
+        }
+    }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -40,6 +48,14 @@ const Register = () => {
             setLoading(false);
             return;
         }
+        
+        // Check if email is valid
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setError('Unesite valjanu email adresu.');
+            setLoading(false);
+            return;
+        }
 
         try {
             // Prepare data for API
@@ -52,17 +68,40 @@ const Register = () => {
             };
 
             // Send registration request
-            const response = await AuthService.register(userData);
-            
-            // Save the selected profile picture and nickname
-            if (response && response.id) {
-                setUserProfilePicture(response.id, selectedProfilePicture);
+            try {
+                const response = await AuthService.register(userData);
                 
-                // Store nickname in localStorage for easy access
-                localStorage.setItem(`user_nickname_${response.id}`, formData.nickname);
+                // Save the selected profile picture and nickname
+                if (response && response.id) {
+                    setUserProfilePicture(response.id, selectedProfilePicture);
+                    
+                    // Store nickname in localStorage for easy access
+                    localStorage.setItem(`user_nickname_${response.id}`, formData.nickname);
+                }
+                
+                // Send notification email to admin
+                try {
+                    // In a real application, we would call an API endpoint to send an email
+                    console.log(`Notification email would be sent to lucko1987vk@gmail.com about new user: ${formData.ime} ${formData.prezime} (${formData.email})`);
+                    
+                    // For demonstration purposes, we'll just log this
+                    // In a real implementation, you would have a backend endpoint for sending emails
+                } catch (emailError) {
+                    console.error('Error sending notification email:', emailError);
+                    // We don't want to show this error to the user as registration was successful
+                }
+                
+                setSuccess('Registracija uspješna! Možete se prijaviti.');
+            } catch (err) {
+                // Check if the error is due to email already in use
+                if (err.response && err.response.data && err.response.data.includes('već postoji')) {
+                    setError('Korisničko ime ili email već postoji. Molimo koristite drugi email.');
+                } else {
+                    setError(err.response?.data?.message || 'Došlo je do greške prilikom registracije. Pokušajte ponovno.');
+                }
+                setLoading(false);
+                return;
             }
-            
-            setSuccess('Registracija uspješna! Možete se prijaviti.');
             
             // Clear form
             setFormData({

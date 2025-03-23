@@ -2,6 +2,7 @@ export const RouteNames = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
+  RESET_PASSWORD: '/reset-password',
   MANUAL_TOKEN: '/manual-token',
   USER_PROFILE: '/profile',
   KUPAC_PREGLED: '/kupci',

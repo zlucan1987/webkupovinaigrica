@@ -7,13 +7,29 @@
   font-size: 1.5rem;
   margin-bottom: 20px;
   text-align: center;
+  color: white;
 }
 
 .chart-subtitle {
   font-size: 1.2rem;
   margin-bottom: 15px;
   text-align: center;
-  color: #666;
+  color: white;
+}
+
+/* Make axis labels white */
+.recharts-cartesian-axis-tick-value {
+  fill: white !important;
+}
+
+/* Make the number of customers text white */
+.recharts-label {
+  fill: white !important;
+}
+
+/* Make the legend text white */
+.recharts-legend-item-text {
+  color: white !important;
 }
 
 /* Make the tooltip more readable */

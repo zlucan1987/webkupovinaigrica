@@ -3,10 +3,21 @@
 }
 
 .user-management-container h2 {
-  color: #333;
+  color: white;
   border-bottom: 2px solid #eee;
   padding-bottom: 10px;
   margin-bottom: 20px;
+}
+
+/* Make search box text white */
+.user-management-container .form-control {
+  color: white !important;
+}
+
+/* Make form labels in modals black for better visibility */
+.modal .form-label {
+  color: black !important;
+  font-weight: 500;
 }
 
 .user-management-container .table {
@@ -28,6 +39,30 @@
 .user-management-container .modal-header {
   background-color: #f8f9fa;
   border-bottom: 1px solid #eee;
+}
+
+.user-management-container .modal-title {
+  color: black !important;
+  font-weight: 600;
+}
+
+.user-management-container .modal-body p,
+.user-management-container .modal-body p strong,
+.user-management-container .modal-body strong {
+  color: black !important;
+}
+
+.user-management-container .form-check-label,
+.user-management-container .modal-body div,
+.user-management-container .modal-body div p,
+.user-management-container .modal-body div strong {
+  color: black !important;
+}
+
+/* Ensure all text in modals is black */
+.modal-content,
+.modal-content * {
+  color: black !important;
 }
 
 .user-management-container .modal-footer {

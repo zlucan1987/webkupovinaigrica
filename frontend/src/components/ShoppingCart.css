@@ -43,12 +43,18 @@
 .cart-item-info h5 {
     margin: 0;
     font-size: 16px;
+    color: #000;
 }
 
 .cart-item-info p {
     margin: 5px 0 0;
     font-size: 14px;
     color: #666;
+}
+
+/* Make all text in the cart black */
+.offcanvas-body {
+    color: #000;
 }
 
 .cart-item-actions {

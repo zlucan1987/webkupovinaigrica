@@ -58,17 +58,23 @@
 
 .original-price {
     text-decoration: line-through;
-    color: #999;
+    color: #ffffff;
     margin-right: 10px;
 }
 
 .discounted-price {
-    color: #dc3545;
+    color: #ffffff;
     font-weight: bold;
 }
 
 .price {
+    color: #ffffff;
     font-weight: bold;
+}
+
+/* Make game titles white */
+.card-title {
+    color: #ffffff !important;
 }
 
 .add-to-cart-btn {

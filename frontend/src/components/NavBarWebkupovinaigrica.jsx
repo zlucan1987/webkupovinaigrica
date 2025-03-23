@@ -3,13 +3,15 @@ import Nav from 'react-bootstrap/Nav';
 import Dropdown from 'react-bootstrap/Dropdown'; 
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
+import Alert from 'react-bootstrap/Alert';
 import { useNavigate } from 'react-router-dom';
 import { RouteNames } from '../constants';
 import { useLocation } from 'react-router-dom';
 import ShoppingCart from './ShoppingCart';
 import SearchBar from './SearchBar';
 import AuthService from '../services/AuthService';
-import { useState, useEffect } from 'react';
+import { useCart } from '../context/CartContext';
+import { useState, useEffect, useCallback } from 'react';
 import './ShoppingCart.css';
 import './SearchBar.css';
 import './ProfileImage.css';
@@ -21,6 +23,28 @@ export default function Webkupovinaigrica() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [userProfilePicture, setUserProfilePicture] = useState('');
     const [userNickname, setUserNickname] = useState('');
+    const [tokenExpired, setTokenExpired] = useState(false);
+
+    // Function to check if token is expired
+    const checkTokenExpiration = useCallback(() => {
+        if (AuthService.isLoggedIn()) {
+            const userInfo = AuthService.getUserInfo();
+            if (userInfo && userInfo.exp) {
+                const expirationTime = userInfo.exp * 1000; // Convert to milliseconds
+                const currentTime = Date.now();
+                
+                if (currentTime > expirationTime) {
+                    // Token has expired
+                    setTokenExpired(true);
+                    setIsLoggedIn(false);
+                    setIsAdmin(false);
+                    // Don't logout here to keep the token for debugging
+                } else {
+                    setTokenExpired(false);
+                }
+            }
+        }
+    }, []);
 
     useEffect(() => {
         // Check login status and admin role on component mount and when location changes
@@ -28,20 +52,32 @@ export default function Webkupovinaigrica() {
         setIsLoggedIn(loggedIn);
         
         if (loggedIn) {
-            setIsAdmin(AuthService.hasRole('Admin'));
-            setUserProfilePicture(AuthService.getUserProfilePicture());
-            setUserNickname(AuthService.getUserNickname());
+            checkTokenExpiration();
+            if (!tokenExpired) {
+                setIsAdmin(AuthService.hasRole('Admin'));
+                setUserProfilePicture(AuthService.getUserProfilePicture());
+                setUserNickname(AuthService.getUserNickname());
+            }
         } else {
             setIsAdmin(false);
             setUserProfilePicture('');
             setUserNickname('');
         }
-    }, [location]);
+
+        // Set up interval to check token expiration every minute
+        const intervalId = setInterval(checkTokenExpiration, 60000);
+        
+        // Clean up interval on component unmount
+        return () => clearInterval(intervalId);
+    }, [location, checkTokenExpiration, tokenExpired]);
+
+    const { clearCart } = useCart();
 
     const handleLogout = () => {
-        AuthService.logout();
+        AuthService.logout(clearCart);
         setIsLoggedIn(false);
         setIsAdmin(false);
+        setTokenExpired(false);
         navigate(RouteNames.LOGIN);
     };
 
@@ -106,7 +142,6 @@ export default function Webkupovinaigrica() {
                                         <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_NOVA)}>Dodaj stavku</Dropdown.Item>
                                                 <Dropdown.Item onClick={() => navigate(RouteNames.USER_MANAGEMENT)}>Upravljanje korisnicima</Dropdown.Item>
                                                 <Dropdown.Item onClick={() => navigate(RouteNames.PRODUCT_IMAGE_MANAGEMENT)}>Upravljanje slikama proizvoda</Dropdown.Item>
-                                                <Dropdown.Item onClick={() => navigate(RouteNames.ADMIN_ROLE_TEST)}>Test admin uloge</Dropdown.Item>
                                     </>
                                 )}
                                 
@@ -134,7 +169,13 @@ export default function Webkupovinaigrica() {
                         <SearchBar />
                         <ShoppingCart />
                         
-                        {isLoggedIn ? (
+                        {tokenExpired && (
+                            <Alert variant="warning" className="mb-0 ms-3 py-1 px-2">
+                                <small>Sesija je istekla. Molimo <Alert.Link onClick={handleLogout}>prijavite se</Alert.Link> ponovno.</small>
+                            </Alert>
+                        )}
+                        
+                        {isLoggedIn && !tokenExpired ? (
                             <div className="d-flex align-items-center ms-3">
                                 <Dropdown>
                                     <Dropdown.Toggle 
@@ -147,7 +188,7 @@ export default function Webkupovinaigrica() {
                                             src={userProfilePicture} 
                                             className="profile-image-sm border border-light"
                                         />
-                                        <span className="ms-2">{userNickname}</span>
+                                        <span className="ms-2 user-nickname">{userNickname}</span>
                                     </Dropdown.Toggle>
 
                                     <Dropdown.Menu align="end">
@@ -166,12 +207,14 @@ export default function Webkupovinaigrica() {
                                 >
                                     Login
                                 </Button>
-                                <Button 
-                                    variant="outline-primary"
-                                    onClick={() => navigate(RouteNames.REGISTER)}
-                                >
-                                    Registracija
-                                </Button>
+                                {!isLoggedIn && (
+                                    <Button 
+                                        variant="outline-primary"
+                                        onClick={() => navigate(RouteNames.REGISTER)}
+                                    >
+                                        Registracija
+                                    </Button>
+                                )}
                             </>
                         )}
                     </Nav>

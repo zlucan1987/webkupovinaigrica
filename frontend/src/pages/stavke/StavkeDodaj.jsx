@@ -85,6 +85,7 @@ export default function StavkeDodaj() {
         dodaj({
             racunSifra: selectedRacun.value,
             proizvodSifra: selectedProizvod.value,
+            proizvodId: selectedProizvod.value, // Add this line to match the expected parameter in StavkaService
             kolicina: kolicina,
             cijena: cijena,
         });
