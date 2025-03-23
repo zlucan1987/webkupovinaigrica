@@ -20,139 +20,259 @@ const profilePictures = [
 // Default profilna slika za nove korisnike
 const DEFAULT_PROFILE_PICTURE = '/ProfilePictures/preview.webp';
 
-// Ključevi za localStorage
-const USER_PROFILE_PICTURES_KEY = 'user_profile_pictures';
-const KUPAC_PROFILE_PICTURES_KEY = 'kupac_profile_pictures';
-const MISSING_IMAGES_CACHE_KEY = 'missing_profile_images';
+// Ključevi za localStorage - konsolidirani pristup
+const IMAGE_CACHE_KEY = 'image_cache_v1';
+const CACHE_EXPIRY_TIME = 24 * 60 * 60 * 1000; // 24 sata u milisekundama
 
-// Dohvaća mapu profilnih slika korisnika iz localStorage
-const getUserProfilePicturesMap = () => {
-    const storedPictures = localStorage.getItem(USER_PROFILE_PICTURES_KEY);
-    return storedPictures ? JSON.parse(storedPictures) : {};
+/**
+ * Struktura image_cache_v1:
+ * {
+ *   profiles: {
+ *     [id]: { path: string, timestamp: number, exists: boolean }
+ *   },
+ *   products: {
+ *     [id]: { path: string, timestamp: number, exists: boolean }
+ *   },
+ *   lastCleanup: number
+ * }
+ */
+
+// Dohvaća cijeli cache slika
+const getImageCache = () => {
+    const cache = localStorage.getItem(IMAGE_CACHE_KEY);
+    if (!cache) {
+        // Inicijalizacija cache-a ako ne postoji
+        const initialCache = {
+            profiles: {},
+            products: {},
+            lastCleanup: Date.now()
+        };
+        localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify(initialCache));
+        return initialCache;
+    }
+    return JSON.parse(cache);
 };
 
-// Dohvaća mapu profilnih slika kupaca iz localStorage
-const getKupacProfilePicturesMap = () => {
-    const storedPictures = localStorage.getItem(KUPAC_PROFILE_PICTURES_KEY);
-    return storedPictures ? JSON.parse(storedPictures) : {};
+// Sprema cijeli cache slika
+const saveImageCache = (cache) => {
+    localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify(cache));
 };
 
-// Dohvaća mapu slika koje ne postoje na serveru
-const getMissingImagesMap = () => {
-    const storedMissingImages = localStorage.getItem(MISSING_IMAGES_CACHE_KEY);
-    return storedMissingImages ? JSON.parse(storedMissingImages) : {};
+// Čisti zastarjele zapise u cache-u
+const cleanupImageCache = () => {
+    const cache = getImageCache();
+    const now = Date.now();
+    
+    // Čistimo cache samo jednom dnevno
+    if (now - cache.lastCleanup < CACHE_EXPIRY_TIME) {
+        return cache;
+    }
+    
+    const cleanupCache = (section) => {
+        Object.keys(cache[section]).forEach(id => {
+            const entry = cache[section][id];
+            if (now - entry.timestamp > CACHE_EXPIRY_TIME) {
+                delete cache[section][id];
+            }
+        });
+    };
+    
+    cleanupCache('profiles');
+    cleanupCache('products');
+    cache.lastCleanup = now;
+    
+    saveImageCache(cache);
+    return cache;
 };
 
-// Dodaje sliku u mapu slika koje ne postoje na serveru
-const addToMissingImagesCache = (id) => {
-    const missingImagesMap = getMissingImagesMap();
-    missingImagesMap[id] = true;
-    localStorage.setItem(MISSING_IMAGES_CACHE_KEY, JSON.stringify(missingImagesMap));
+// Dohvaća informacije o slici profila iz cache-a
+const getProfileImageFromCache = (id) => {
+    const cache = cleanupImageCache();
+    return cache.profiles[id];
 };
 
-// Provjerava je li slika već poznata kao nepostojeća
-const isImageKnownMissing = (id) => {
-    const missingImagesMap = getMissingImagesMap();
-    return !!missingImagesMap[id];
+// Sprema informacije o slici profila u cache
+const saveProfileImageToCache = (id, path, exists = true) => {
+    const cache = getImageCache();
+    cache.profiles[id] = {
+        path,
+        timestamp: Date.now(),
+        exists
+    };
+    saveImageCache(cache);
 };
 
-// Uklanja sliku iz mape slika koje ne postoje na serveru (koristi se kada se slika doda)
-const removeFromMissingImagesCache = (id) => {
-    const missingImagesMap = getMissingImagesMap();
-    if (missingImagesMap[id]) {
-        delete missingImagesMap[id];
-        localStorage.setItem(MISSING_IMAGES_CACHE_KEY, JSON.stringify(missingImagesMap));
+// Dohvaća informacije o slici proizvoda iz cache-a
+const getProductImageFromCache = (id) => {
+    const cache = cleanupImageCache();
+    return cache.products[id];
+};
+
+// Sprema informacije o slici proizvoda u cache
+const saveProductImageToCache = (id, path, exists = true) => {
+    const cache = getImageCache();
+    cache.products[id] = {
+        path,
+        timestamp: Date.now(),
+        exists
+    };
+    saveImageCache(cache);
+};
+
+// Označava sliku kao nepostojeću u cache-u
+const markImageAsMissing = (type, id) => {
+    const cache = getImageCache();
+    if (type === 'profile') {
+        cache.profiles[id] = {
+            path: DEFAULT_PROFILE_PICTURE,
+            timestamp: Date.now(),
+            exists: false
+        };
+    } else if (type === 'product') {
+        cache.products[id] = {
+            path: null, // Null će signalizirati da treba koristiti fallback
+            timestamp: Date.now(),
+            exists: false
+        };
+    }
+    saveImageCache(cache);
+};
+
+// Uklanja sliku iz cache-a (koristi se kada se slika doda ili ažurira)
+const removeFromImageCache = (type, id) => {
+    const cache = getImageCache();
+    if (type === 'profile' && cache.profiles[id]) {
+        delete cache.profiles[id];
+    } else if (type === 'product' && cache.products[id]) {
+        delete cache.products[id];
+    }
+    saveImageCache(cache);
+};
+
+// Migracija starih podataka u novi cache sustav (jednokratno)
+const migrateOldCacheData = () => {
+    // Provjeri je li migracija već obavljena
+    if (localStorage.getItem('cache_migration_done')) {
+        return;
+    }
+    
+    try {
+        // Migriraj profile slike
+        const oldUserPictures = localStorage.getItem('user_profile_pictures');
+        const oldKupacPictures = localStorage.getItem('kupac_profile_pictures');
+        const oldMissingImages = localStorage.getItem('missing_profile_images');
+        
+        if (oldUserPictures) {
+            const userPictures = JSON.parse(oldUserPictures);
+            Object.keys(userPictures).forEach(id => {
+                saveProfileImageToCache(id, userPictures[id], true);
+            });
+        }
+        
+        if (oldKupacPictures) {
+            const kupacPictures = JSON.parse(oldKupacPictures);
+            Object.keys(kupacPictures).forEach(id => {
+                saveProfileImageToCache(id, kupacPictures[id], true);
+            });
+        }
+        
+        if (oldMissingImages) {
+            const missingImages = JSON.parse(oldMissingImages);
+            Object.keys(missingImages).forEach(id => {
+                if (missingImages[id]) {
+                    markImageAsMissing('profile', id);
+                }
+            });
+        }
+        
+        // Migriraj cache statuse proizvoda
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('img_cache_status_')) {
+                const productId = key.replace('img_cache_status_', '');
+                const status = localStorage.getItem(key);
+                
+                if (status === 'exists') {
+                    const path = `/slike/proizvodi/${productId}.png`;
+                    saveProductImageToCache(productId, path, true);
+                } else if (status === 'not_exists') {
+                    markImageAsMissing('product', productId);
+                }
+            }
+        });
+        
+        // Označi migraciju kao završenu
+        localStorage.setItem('cache_migration_done', 'true');
+        
+        // Obriši stare ključeve nakon uspješne migracije
+        localStorage.removeItem('user_profile_pictures');
+        localStorage.removeItem('kupac_profile_pictures');
+        localStorage.removeItem('missing_profile_images');
+        
+        // Obriši stare cache statuse proizvoda
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('img_cache_status_')) {
+                localStorage.removeItem(key);
+            }
+        });
+        
+        console.log('Migracija cache podataka uspješno završena');
+    } catch (error) {
+        console.error('Greška prilikom migracije cache podataka:', error);
     }
 };
+
+// Pokreni migraciju pri učitavanju
+migrateOldCacheData();
 
 // Dohvaća profilnu sliku za korisnika
 const getUserProfilePicture = (userId) => {
     if (!userId) return DEFAULT_PROFILE_PICTURE;
     
     try {
-        // Prvo provjeri u user_profile_pictures
-        const userPicturesMap = getUserProfilePicturesMap();
-        const savedUserPicture = userPicturesMap[userId];
+        // Provjeri u konsolidiranom cache-u
+        const cachedImage = getProfileImageFromCache(userId);
         
-        // Ako postoji slika u user_profile_pictures, koristi nju
-        if (savedUserPicture) {
+        if (cachedImage) {
+            // Ako je slika označena kao nepostojeća, vrati default
+            if (!cachedImage.exists) {
+                return DEFAULT_PROFILE_PICTURE;
+            }
+            
             // Ako je to lokalna slika, vrati je odmah
-            if (savedUserPicture.startsWith('/ProfilePictures/')) {
-                return savedUserPicture;
+            if (cachedImage.path.startsWith('/ProfilePictures/')) {
+                return cachedImage.path;
             }
             
             // Dodaj timestamp za izbjegavanje cache-a ako je to URL do slike na serveru
-            if (savedUserPicture.includes('/slike/kupci/')) {
-                const baseUrl = savedUserPicture.split('?')[0]; // Ukloni postojeći timestamp ako postoji
+            if (cachedImage.path.includes('/slike/kupci/')) {
+                const baseUrl = cachedImage.path.split('?')[0]; // Ukloni postojeći timestamp ako postoji
                 return `${baseUrl}?t=${new Date().getTime()}`;
             }
-            return savedUserPicture;
+            
+            return cachedImage.path;
         }
         
-        // Ako ne postoji slika u user_profile_pictures, provjeri u kupac_profile_pictures
-        // Ovo je za slučaj kada je korisnik ujedno i kupac s istim ID-om
-        const kupacPicturesMap = getKupacProfilePicturesMap();
-        const savedKupacPicture = kupacPicturesMap[userId];
-        
-        // Ako postoji slika u kupac_profile_pictures, koristi nju i spremi je u user_profile_pictures
-        if (savedKupacPicture) {
-            // Ako je to lokalna slika, vrati je odmah
-            if (savedKupacPicture.startsWith('/ProfilePictures/')) {
-                // Spremi sliku u user_profile_pictures za buduće korištenje
-                setUserProfilePicture(userId, savedKupacPicture);
-                return savedKupacPicture;
-            }
-            
-            // Dodaj timestamp za izbjegavanje cache-a ako je to URL do slike na serveru
-            if (savedKupacPicture.includes('/slike/kupci/')) {
-                const baseUrl = savedKupacPicture.split('?')[0]; // Ukloni postojeći timestamp ako postoji
-                const imageUrl = `${baseUrl}?t=${new Date().getTime()}`;
-                
-                // Spremi sliku u user_profile_pictures za buduće korištenje
-                setUserProfilePicture(userId, imageUrl);
-                
-                return imageUrl;
-            }
-            
-            // Spremi sliku u user_profile_pictures za buduće korištenje
-            setUserProfilePicture(userId, savedKupacPicture);
-            
-            return savedKupacPicture;
-        }
-        
-        // Provjeri je li slika već poznata kao nepostojeća
-        if (isImageKnownMissing(userId)) {
-            // Postavi defaultnu sliku za korisnika
-            setUserProfilePicture(userId, DEFAULT_PROFILE_PICTURE);
-            return DEFAULT_PROFILE_PICTURE;
-        }
-        
-        // Ako ne postoji slika ni u user_profile_pictures ni u kupac_profile_pictures,
-        // i nije poznato da ne postoji na serveru, provjeri postoji li slika na serveru
+        // Ako ne postoji u cache-u, provjeri postoji li slika na serveru
         const serverImageUrl = `https://www.brutallucko.online/slike/kupci/${userId}.png?t=${new Date().getTime()}`;
         
         // Provjeri postoji li slika na serveru
         const img = new window.Image();
         img.onload = () => {
             // Slika postoji na serveru
-            // Spremi URL u localStorage za buduće korištenje
-            setUserProfilePicture(userId, serverImageUrl);
-            // Ukloni iz cache-a nepostojećih slika ako je bila tamo
-            removeFromMissingImagesCache(userId);
+            // Spremi URL u cache za buduće korištenje
+            saveProfileImageToCache(userId, serverImageUrl, true);
         };
         img.onerror = () => {
             // Slika ne postoji na serveru
-            // Dodaj u cache nepostojećih slika
-            addToMissingImagesCache(userId);
-            // Postavi defaultnu sliku za korisnika
-            setUserProfilePicture(userId, DEFAULT_PROFILE_PICTURE);
+            // Označi kao nepostojeću u cache-u
+            markImageAsMissing('profile', userId);
         };
         img.src = serverImageUrl;
         
         // Vrati default sliku dok se ne provjeri postoji li slika na serveru
         return DEFAULT_PROFILE_PICTURE;
     } catch (error) {
-        console.error("Error getting user profile picture:", error);
+        console.error("Greška prilikom dohvaćanja profilne slike korisnika:", error);
         return DEFAULT_PROFILE_PICTURE;
     }
 };
@@ -162,137 +282,23 @@ const setUserProfilePicture = (userId, picturePath) => {
     if (!userId) return;
     
     try {
-        // Ako postavljamo novu sliku, ukloni iz cache-a nepostojećih slika
-        if (picturePath !== DEFAULT_PROFILE_PICTURE) {
-            removeFromMissingImagesCache(userId);
-        }
-        
-        const picturesMap = getUserProfilePicturesMap();
-        picturesMap[userId] = picturePath;
-        localStorage.setItem(USER_PROFILE_PICTURES_KEY, JSON.stringify(picturesMap));
-        
-        // Ako je korisnik ujedno i kupac, spremi sliku i u kupac_profile_pictures
-        const kupacPicturesMap = getKupacProfilePicturesMap();
-        kupacPicturesMap[userId] = picturePath;
-        localStorage.setItem(KUPAC_PROFILE_PICTURES_KEY, JSON.stringify(kupacPicturesMap));
+        // Spremi u konsolidirani cache
+        saveProfileImageToCache(userId, picturePath, picturePath !== DEFAULT_PROFILE_PICTURE);
     } catch (error) {
-        console.error("Error setting user profile picture:", error);
+        console.error("Greška prilikom postavljanja profilne slike korisnika:", error);
     }
 };
 
-// Dohvaća profilnu sliku za kupca
+// Dohvaća profilnu sliku za kupca (sada koristi isti cache kao i korisnici)
 const getKupacProfilePicture = (kupacSifra) => {
-    if (!kupacSifra) return DEFAULT_PROFILE_PICTURE;
-    
-    try {
-        // Prvo provjeri u kupac_profile_pictures
-        const kupacPicturesMap = getKupacProfilePicturesMap();
-        const savedKupacPicture = kupacPicturesMap[kupacSifra];
-        
-        // Ako postoji slika u kupac_profile_pictures, koristi nju
-        if (savedKupacPicture) {
-            // Ako je to lokalna slika, vrati je odmah
-            if (savedKupacPicture.startsWith('/ProfilePictures/')) {
-                return savedKupacPicture;
-            }
-            
-            // Dodaj timestamp za izbjegavanje cache-a ako je to URL do slike na serveru
-            if (savedKupacPicture.includes('/slike/kupci/')) {
-                const baseUrl = savedKupacPicture.split('?')[0]; // Ukloni postojeći timestamp ako postoji
-                return `${baseUrl}?t=${new Date().getTime()}`;
-            }
-            return savedKupacPicture;
-        }
-        
-        // Ako ne postoji slika u kupac_profile_pictures, provjeri u user_profile_pictures
-        // Ovo je za slučaj kada je kupac ujedno i korisnik s istim ID-om
-        const userPicturesMap = getUserProfilePicturesMap();
-        const savedUserPicture = userPicturesMap[kupacSifra];
-        
-        // Ako postoji slika u user_profile_pictures, koristi nju i spremi je u kupac_profile_pictures
-        if (savedUserPicture) {
-            // Ako je to lokalna slika, vrati je odmah
-            if (savedUserPicture.startsWith('/ProfilePictures/')) {
-                // Spremi sliku u kupac_profile_pictures za buduće korištenje
-                setKupacProfilePicture(kupacSifra, savedUserPicture);
-                return savedUserPicture;
-            }
-            
-            // Dodaj timestamp za izbjegavanje cache-a ako je to URL do slike na serveru
-            if (savedUserPicture.includes('/slike/kupci/')) {
-                const baseUrl = savedUserPicture.split('?')[0]; // Ukloni postojeći timestamp ako postoji
-                const imageUrl = `${baseUrl}?t=${new Date().getTime()}`;
-                
-                // Spremi sliku u kupac_profile_pictures za buduće korištenje
-                setKupacProfilePicture(kupacSifra, imageUrl);
-                
-                return imageUrl;
-            }
-            
-            // Spremi sliku u kupac_profile_pictures za buduće korištenje
-            setKupacProfilePicture(kupacSifra, savedUserPicture);
-            
-            return savedUserPicture;
-        }
-        
-        // Provjeri je li slika već poznata kao nepostojeća
-        if (isImageKnownMissing(kupacSifra)) {
-            // Postavi defaultnu sliku za kupca
-            setKupacProfilePicture(kupacSifra, DEFAULT_PROFILE_PICTURE);
-            return DEFAULT_PROFILE_PICTURE;
-        }
-        
-        // Ako ne postoji slika ni u kupac_profile_pictures ni u user_profile_pictures,
-        // i nije poznato da ne postoji na serveru, provjeri postoji li slika na serveru
-        const serverImageUrl = `https://www.brutallucko.online/slike/kupci/${kupacSifra}.png?t=${new Date().getTime()}`;
-        
-        // Provjeri postoji li slika na serveru
-        const img = new window.Image();
-        img.onload = () => {
-            // Slika postoji na serveru
-            // Spremi URL u localStorage za buduće korištenje
-            setKupacProfilePicture(kupacSifra, serverImageUrl);
-            // Ukloni iz cache-a nepostojećih slika ako je bila tamo
-            removeFromMissingImagesCache(kupacSifra);
-        };
-        img.onerror = () => {
-            // Slika ne postoji na serveru
-            // Dodaj u cache nepostojećih slika
-            addToMissingImagesCache(kupacSifra);
-            // Postavi defaultnu sliku za kupca
-            setKupacProfilePicture(kupacSifra, DEFAULT_PROFILE_PICTURE);
-        };
-        img.src = serverImageUrl;
-        
-        // Vrati default sliku dok se ne provjeri postoji li slika na serveru
-        return DEFAULT_PROFILE_PICTURE;
-    } catch (error) {
-        console.error("Error getting kupac profile picture:", error);
-        return DEFAULT_PROFILE_PICTURE;
-    }
+    // Koristimo istu funkciju kao i za korisnike jer sada imamo konsolidirani cache
+    return getUserProfilePicture(kupacSifra);
 };
 
-// Postavlja profilnu sliku za kupca
+// Postavlja profilnu sliku za kupca (sada koristi isti cache kao i korisnici)
 const setKupacProfilePicture = (kupacSifra, picturePath) => {
-    if (!kupacSifra) return;
-    
-    try {
-        // Ako postavljamo novu sliku, ukloni iz cache-a nepostojećih slika
-        if (picturePath !== DEFAULT_PROFILE_PICTURE) {
-            removeFromMissingImagesCache(kupacSifra);
-        }
-        
-        const picturesMap = getKupacProfilePicturesMap();
-        picturesMap[kupacSifra] = picturePath;
-        localStorage.setItem(KUPAC_PROFILE_PICTURES_KEY, JSON.stringify(picturesMap));
-        
-        // Ako je kupac ujedno i korisnik, spremi sliku i u user_profile_pictures
-        const userPicturesMap = getUserProfilePicturesMap();
-        userPicturesMap[kupacSifra] = picturePath;
-        localStorage.setItem(USER_PROFILE_PICTURES_KEY, JSON.stringify(userPicturesMap));
-    } catch (error) {
-        console.error("Error setting kupac profile picture:", error);
-    }
+    // Koristimo istu funkciju kao i za korisnike jer sada imamo konsolidirani cache
+    setUserProfilePicture(kupacSifra, picturePath);
 };
 
 // Putanje do slika igrica
@@ -374,20 +380,21 @@ const getProductImageWithFallback = async (productId, productName) => {
     const timestamp = new Date().getTime();
     const serverImageUrl = `/slike/proizvodi/${productId}.png?t=${timestamp}`;
     
-    // Provjeri postoji li slika u localStorage cache-u
-    const cacheKey = `img_cache_status_${productId}`;
-    const cachedStatus = localStorage.getItem(cacheKey);
+    // Provjeri postoji li slika u konsolidiranom cache-u
+    const cachedImage = getProductImageFromCache(productId);
     
-    // Ako znamo da slika postoji na serveru (iz cache-a)
-    if (cachedStatus === 'exists') {
-        console.log(`Slika za proizvod ID ${productId} pronađena u cache-u`);
-        return serverImageUrl;
-    }
-    
-    // Ako znamo da slika ne postoji na serveru (iz cache-a)
-    if (cachedStatus === 'not_exists') {
-        console.log(`Slika za proizvod ID ${productId} nije pronađena u cache-u, koristi se fallback`);
-        return getGameImage(productName);
+    // Ako imamo informaciju u cache-u
+    if (cachedImage) {
+        // Ako znamo da slika postoji
+        if (cachedImage.exists) {
+            console.log(`Slika za proizvod ID ${productId} pronađena u cache-u`);
+            return cachedImage.path;
+        } 
+        // Ako znamo da slika ne postoji
+        else {
+            console.log(`Slika za proizvod ID ${productId} nije pronađena u cache-u, koristi se fallback`);
+            return getGameImage(productName);
+        }
     }
     
     // Ako nemamo informaciju u cache-u, provjeri postoji li slika na serveru
@@ -396,11 +403,11 @@ const getProductImageWithFallback = async (productId, productName) => {
         
         if (exists) {
             console.log(`Slika za proizvod ID ${productId} pronađena na serveru, sprema se u cache`);
-            localStorage.setItem(cacheKey, 'exists');
+            saveProductImageToCache(productId, serverImageUrl, true);
             return serverImageUrl;
         } else {
             console.log(`Slika za proizvod ID ${productId} nije pronađena na serveru, koristi se fallback`);
-            localStorage.setItem(cacheKey, 'not_exists');
+            markImageAsMissing('product', productId);
             return getGameImage(productName);
         }
     } catch (error) {
@@ -424,26 +431,134 @@ const getDiscountPercentage = () => {
     return Math.floor(Math.random() * 50) + 10;
 };
 
-// Konvertira File objekt u Base64 string
-const convertToBase64 = (file) => {
+// Funkcija za konverziju u base64 je zamijenjena poboljšanom verzijom ispod
+
+// Dohvaća sliku proizvoda prema ID-u
+const getProductImageById = (productId) => {
+    // Provjeri postoji li slika u cache-u
+    const cachedImage = getProductImageFromCache(productId);
+    
+    // Ako imamo informaciju u cache-u i slika postoji
+    if (cachedImage && cachedImage.exists) {
+        // Vraćamo URL do slike na serveru s timestampom za izbjegavanje cache-a
+        return `${cachedImage.path.split('?')[0]}?t=${new Date().getTime()}`;
+    }
+    
+    // Ako nemamo informaciju ili slika ne postoji, vraćamo standardni URL
+    return `/slike/proizvodi/${productId}.png?t=${new Date().getTime()}`;
+};
+
+// Kompresira sliku prije konverzije u base64
+const compressImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.8) => {
     return new Promise((resolve, reject) => {
+        // Ako datoteka nije slika, vrati je bez kompresije
+        if (!file.type.startsWith('image/')) {
+            resolve(file);
+            return;
+        }
+        
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => {
-            // Uklanjamo prefix "data:image/png;base64," iz Base64 stringa
-            const base64String = reader.result.split(',')[1];
-            resolve(base64String);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            
+            img.onload = () => {
+                // Izračunaj nove dimenzije slike
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > maxWidth) {
+                    height = Math.round(height * (maxWidth / width));
+                    width = maxWidth;
+                }
+                
+                if (height > maxHeight) {
+                    width = Math.round(width * (maxHeight / height));
+                    height = maxHeight;
+                }
+                
+                // Kreiraj canvas za kompresiju
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Nacrtaj sliku na canvas
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Konvertiraj canvas u blob
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        reject(new Error('Canvas je prazan'));
+                        return;
+                    }
+                    
+                    // Kreiraj novu datoteku iz blob-a
+                    const compressedFile = new File([blob], file.name, {
+                        type: 'image/jpeg', // Uvijek koristimo JPEG za bolju kompresiju
+                        lastModified: Date.now()
+                    });
+                    
+                    console.log(`Slika kompresirana: ${file.size} -> ${compressedFile.size} (${Math.round(compressedFile.size / file.size * 100)}%)`);
+                    
+                    resolve(compressedFile);
+                }, 'image/jpeg', quality);
+            };
+            
+            img.onerror = (error) => {
+                reject(error);
+            };
         };
+        
         reader.onerror = (error) => {
             reject(error);
         };
     });
 };
 
-// Dohvaća sliku proizvoda prema ID-u
-const getProductImageById = (productId) => {
-    // Vraćamo URL do slike na serveru s timestampom za izbjegavanje cache-a
-    return `/slike/proizvodi/${productId}.png?t=${new Date().getTime()}`;
+// Poboljšana funkcija za konverziju u base64 s kompresijom
+const convertToBase64 = async (file) => {
+    try {
+        // Prvo kompresiramo sliku
+        const compressedFile = await compressImage(file);
+        
+        // Zatim je konvertiramo u base64
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(compressedFile);
+            reader.onload = () => {
+                // Uklanjamo prefix "data:image/jpeg;base64," iz Base64 stringa
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = (error) => {
+                reject(error);
+            };
+        });
+    } catch (error) {
+        console.error('Greška prilikom kompresije slike:', error);
+        
+        // Ako kompresija ne uspije, koristi originalnu sliku
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = (error) => {
+                reject(error);
+            };
+        });
+    }
+};
+
+// Osvježava sliku proizvoda u cache-u (koristi se nakon uploada nove slike)
+const refreshProductImage = (productId) => {
+    // Ukloni sliku iz cache-a da bi se ponovno dohvatila sa servera
+    removeFromImageCache('product', productId);
+    console.log(`Cache za sliku proizvoda ID ${productId} osvježen`);
 };
 
 export {
@@ -463,5 +578,7 @@ export {
     getProductImageById,
     checkImageExists,
     getProductImageWithFallback,
-    DEFAULT_PROFILE_PICTURE
+    DEFAULT_PROFILE_PICTURE,
+    refreshProductImage,
+    compressImage
 };

@@ -20,7 +20,7 @@ export default function Webkupovinaigrica() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [userProfilePicture, setUserProfilePicture] = useState('');
-    const [userName, setUserName] = useState('');
+    const [userNickname, setUserNickname] = useState('');
 
     useEffect(() => {
         // Check login status and admin role on component mount and when location changes
@@ -30,11 +30,11 @@ export default function Webkupovinaigrica() {
         if (loggedIn) {
             setIsAdmin(AuthService.hasRole('Admin'));
             setUserProfilePicture(AuthService.getUserProfilePicture());
-            setUserName(AuthService.getUserName());
+            setUserNickname(AuthService.getUserNickname());
         } else {
             setIsAdmin(false);
             setUserProfilePicture('');
-            setUserName('');
+            setUserNickname('');
         }
     }, [location]);
 
@@ -147,7 +147,7 @@ export default function Webkupovinaigrica() {
                                             src={userProfilePicture} 
                                             className="profile-image-sm border border-light"
                                         />
-                                        <span className="ms-2">{userName}</span>
+                                        <span className="ms-2">{userNickname}</span>
                                     </Dropdown.Toggle>
 
                                     <Dropdown.Menu align="end">

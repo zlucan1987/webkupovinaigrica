@@ -3,7 +3,15 @@ import ProizvodService from "../../services/ProizvodService";
 import { Button, Table, Form, InputGroup, Row, Col, Card } from "react-bootstrap";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import { getGameImage, getRandomRating, hasDiscount, getDiscountPercentage, getProductImageWithFallback } from "../../utils/imageUtils";
+import { 
+    getGameImage, 
+    getRandomRating, 
+    hasDiscount, 
+    getDiscountPercentage, 
+    getProductImageWithFallback,
+    refreshProductImage,
+    checkImageExists
+} from "../../utils/imageUtils";
 import { useCart } from "../../context/CartContext";
 import AuthService from "../../services/AuthService";
 import "./ProizvodiPregled.css";
@@ -34,14 +42,7 @@ export default function ProizvodiPregled() {
     }, [location]);
 
     // Funkcija za provjeru postoji li slika na serveru (koristi se u checkAllImages)
-    const checkImageExists = async (url) => {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-            img.src = url;
-        });
-    };
+    // Ova funkcija je sada dostupna iz imageUtils.js
 
     // Funkcija za dohvaćanje proizvoda
     const fetchProducts = async () => {
@@ -110,6 +111,13 @@ export default function ProizvodiPregled() {
     // Funkcija za ručno osvježavanje slika proizvoda
     const refreshProductImages = () => {
         console.log("Osvježavanje slika proizvoda");
+        
+        // Osvježi cache za sve proizvode
+        proizvodi.forEach(proizvod => {
+            refreshProductImage(proizvod.sifra);
+        });
+        
+        // Ažuriraj URL-ove slika s novim timestampom
         setProizvodi(prevProizvodi => 
             prevProizvodi.map(proizvod => ({
                 ...proizvod,
@@ -125,31 +133,12 @@ export default function ProizvodiPregled() {
         // Dodajemo event listener za osvježavanje slika kada korisnik dođe natrag na stranicu
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
-                // Provjeri je li bilo promjena slika
-                const imagesUpdated = localStorage.getItem('product_images_updated') === 'true';
-                if (imagesUpdated) {
-                    console.log('Otkrivene promjene slika, osvježavanje...');
-                    fetchProducts(); // Potpuno osvježavanje
-                    localStorage.removeItem('product_images_updated'); // Resetiraj zastavicu
-                } else {
-                    refreshProductImages(); // Samo osvježi URL-ove slika
-                }
+                // Osvježi slike proizvoda
+                refreshProductImages();
             }
         };
         
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        
-        // Provjeri je li bilo promjena slika pri učitavanju komponente
-        const imagesUpdated = localStorage.getItem('product_images_updated') === 'true';
-        if (imagesUpdated) {
-            console.log('Otkrivene promjene slika pri učitavanju, osvježavanje...');
-            // Možemo osvježiti samo sliku proizvoda koji je ažuriran
-            const lastUpdatedProduct = localStorage.getItem('last_updated_product');
-            if (lastUpdatedProduct) {
-                console.log(`Posljednji ažurirani proizvod: ${lastUpdatedProduct}`);
-            }
-            localStorage.removeItem('product_images_updated'); // Resetiraj zastavicu
-        }
         
         // Cleanup
         return () => {
@@ -311,8 +300,8 @@ export default function ProizvodiPregled() {
                                                 e.target.onerror = null;
                                                 e.target.src = proizvod.fallbackImageUrl;
                                                 
-                                                // Očisti cache za ovaj proizvod da bi se slika ponovno provjerila pri sljedećem učitavanju
-                                                localStorage.removeItem(`img_cache_status_${proizvod.sifra}`);
+                                                // Označi sliku kao nepostojeću u cache-u
+                                                refreshProductImage(proizvod.sifra);
                                             }}
                                             key={`${proizvod.sifra}-${proizvod.timestamp}`} // Dodajemo key za forsiranje ponovnog renderiranja
                                         />
@@ -399,8 +388,8 @@ export default function ProizvodiPregled() {
                                             e.target.onerror = null;
                                             e.target.src = proizvod.fallbackImageUrl;
                                             
-                                            // Očisti cache za ovaj proizvod da bi se slika ponovno provjerila pri sljedećem učitavanju
-                                            localStorage.removeItem(`img_cache_status_${proizvod.sifra}`);
+                                            // Označi sliku kao nepostojeću u cache-u
+                                            refreshProductImage(proizvod.sifra);
                                         }}
                                         key={`${proizvod.sifra}-${proizvod.timestamp}`} // Dodajemo key za forsiranje ponovnog renderiranja
                                     />

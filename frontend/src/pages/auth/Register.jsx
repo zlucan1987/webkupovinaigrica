@@ -9,6 +9,7 @@ const Register = () => {
     const [formData, setFormData] = useState({
         ime: '',
         prezime: '',
+        nickname: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -45,6 +46,7 @@ const Register = () => {
             const userData = {
                 Ime: formData.ime,
                 Prezime: formData.prezime,
+                Nickname: formData.nickname,
                 KorisnickoIme: formData.email,
                 Lozinka: formData.password
             };
@@ -52,9 +54,12 @@ const Register = () => {
             // Send registration request
             const response = await AuthService.register(userData);
             
-            // Save the selected profile picture
+            // Save the selected profile picture and nickname
             if (response && response.id) {
                 setUserProfilePicture(response.id, selectedProfilePicture);
+                
+                // Store nickname in localStorage for easy access
+                localStorage.setItem(`user_nickname_${response.id}`, formData.nickname);
             }
             
             setSuccess('Registracija uspješna! Možete se prijaviti.');
@@ -63,6 +68,7 @@ const Register = () => {
             setFormData({
                 ime: '',
                 prezime: '',
+                nickname: '',
                 email: '',
                 password: '',
                 confirmPassword: '',
@@ -113,6 +119,21 @@ const Register = () => {
                                 placeholder="Unesite vaše prezime"
                                 required
                             />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Nadimak (Nickname)</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="nickname"
+                                value={formData.nickname}
+                                onChange={handleChange}
+                                placeholder="Unesite vaš nadimak koji će biti javno vidljiv"
+                                required
+                            />
+                            <Form.Text className="text-muted">
+                                Ovaj nadimak će biti prikazan pored vaše profilne slike.
+                            </Form.Text>
                         </Form.Group>
 
                         <Form.Group className="mb-3">

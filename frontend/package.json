@@ -22,6 +22,7 @@
     "react-image-crop": "^11.0.7",
     "react-number-format": "^5.4.3",
     "react-router-dom": "^7.2.0",
+    "react-select": "^5.10.1",
     "recharts": "^2.15.1",
     "swagger-ui-dist": "^5.20.0"
   },

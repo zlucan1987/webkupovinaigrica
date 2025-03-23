@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, Alert, Image, Card, Tab, Tabs } from 'react-bootstrap';
+import { FaLock } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
 import { profilePictures } from '../../utils/imageUtils';
@@ -204,31 +205,63 @@ const UserProfile = () => {
                                 </p>
                             </div>
 
-                            <Tabs defaultActiveKey="profile" className="mb-4">
-                                <Tab eventKey="profile" title="Profilna slika">
-                                    <h5 className="mb-3">Odaberite novu profilnu sliku</h5>
-                                    
-                                    {/* Komponenta za upload vlastite slike */}
-                                    <div className="mb-4">
-                                        <h6>Upload vlastite slike</h6>
-                                        <ImageUploader onImageUpload={handleImageUpload} aspectRatio={1} />
-                                    </div>
-                                    
-                                    <h6>Ili odaberite jednu od predefiniranih slika</h6>
-                                    <div className="d-flex flex-wrap justify-content-center">
-                                        {profilePictures.map((picture, index) => (
-                                            <div 
-                                                key={index} 
-                                                className="m-2" 
-                                                style={{ cursor: 'pointer' }}
-                                                onClick={() => handleProfilePictureChange(picture)}
-                                            >
-                                                <Image 
-                                                    src={picture} 
-                                                    className={`profile-image-sm ${selectedProfilePicture === picture ? 'border border-primary border-3' : ''}`}
-                                                />
-                                            </div>
-                                        ))}
+                            <Tabs defaultActiveKey="account" className="mb-4">
+                                <Tab eventKey="account" title="Podaci o računu">
+                                    <div className="p-3">
+                                        <h5 className="mb-3">Informacije o računu</h5>
+                                        <p><strong>Korisničko ime:</strong> {userInfo.sub || userInfo.name}</p>
+                                        <p><strong>Email:</strong> {AuthService.getUserEmail()}</p>
+                                        
+                                        <div className="mb-3">
+                                            <p>
+                                                <strong>Nadimak (Nickname):</strong> {AuthService.getUserNickname()}
+                                                {AuthService.isNicknameLocked() && (
+                                                    <FaLock className="ms-2 text-warning" title="Nadimak je zaključan" />
+                                                )}
+                                            </p>
+                                            
+                                            {AuthService.isNicknameLocked() ? (
+                                                <Alert variant="warning" className="mt-2 p-2">
+                                                    <small>Nadimak je zaključan od strane administratora i ne može se promijeniti.</small>
+                                                </Alert>
+                                            ) : (
+                                                <Form className="mt-2">
+                                                    <Form.Group>
+                                                        <Form.Label>Promijeni nadimak</Form.Label>
+                                                        <div className="d-flex">
+                                                            <Form.Control 
+                                                                type="text" 
+                                                                placeholder="Novi nadimak" 
+                                                                id="newNickname"
+                                                                className="me-2"
+                                                            />
+                                                            <Button 
+                                                                variant="outline-primary" 
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    const newNickname = document.getElementById('newNickname').value;
+                                                                    if (newNickname) {
+                                                                        const success = AuthService.setUserNickname(newNickname);
+                                                                        if (success) {
+                                                                            setSuccess('Nadimak uspješno promijenjen!');
+                                                                            setTimeout(() => setSuccess(''), 3000);
+                                                                        } else {
+                                                                            setError('Došlo je do greške prilikom promjene nadimka.');
+                                                                            setTimeout(() => setError(''), 3000);
+                                                                        }
+                                                                    }
+                                                                }}
+                                                            >
+                                                                Spremi
+                                                            </Button>
+                                                        </div>
+                                                    </Form.Group>
+                                                </Form>
+                                            )}
+                                        </div>
+                                        
+                                        <p><strong>Uloga:</strong> {userInfo.role || 'Korisnik'}</p>
+                                        <p><strong>Datum registracije:</strong> {new Date(userInfo.nbf * 1000).toLocaleDateString() || 'Nije dostupno'}</p>
                                     </div>
                                 </Tab>
                                 <Tab eventKey="password" title="Promjena lozinke">
@@ -282,13 +315,30 @@ const UserProfile = () => {
                                         </div>
                                     </Form>
                                 </Tab>
-                                <Tab eventKey="account" title="Podaci o računu">
-                                    <div className="p-3">
-                                        <h5 className="mb-3">Informacije o računu</h5>
-                                        <p><strong>Korisničko ime:</strong> {userInfo.sub || userInfo.name}</p>
-                                        <p><strong>Email:</strong> {userInfo.email || 'Nije dostupno'}</p>
-                                        <p><strong>Uloga:</strong> {userInfo.role || 'Korisnik'}</p>
-                                        <p><strong>Datum registracije:</strong> {new Date(userInfo.nbf * 1000).toLocaleDateString() || 'Nije dostupno'}</p>
+                                <Tab eventKey="profile" title="Profilna slika">
+                                    <h5 className="mb-3">Odaberite novu profilnu sliku</h5>
+                                    
+                                    {/* Komponenta za upload vlastite slike */}
+                                    <div className="mb-4">
+                                        <h6>Upload vlastite slike</h6>
+                                        <ImageUploader onImageUpload={handleImageUpload} aspectRatio={1} />
+                                    </div>
+                                    
+                                    <h6>Ili odaberite jednu od predefiniranih slika</h6>
+                                    <div className="d-flex flex-wrap justify-content-center">
+                                        {profilePictures.map((picture, index) => (
+                                            <div 
+                                                key={index} 
+                                                className="m-2" 
+                                                style={{ cursor: 'pointer' }}
+                                                onClick={() => handleProfilePictureChange(picture)}
+                                            >
+                                                <Image 
+                                                    src={picture} 
+                                                    className={`profile-image-sm ${selectedProfilePicture === picture ? 'border border-primary border-3' : ''}`}
+                                                />
+                                            </div>
+                                        ))}
                                     </div>
                                 </Tab>
                             </Tabs>

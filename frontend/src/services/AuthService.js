@@ -101,12 +101,72 @@ class AuthService {
         return userInfo.name || userInfo.sub || '';
     }
     
+    // Dohvati korisnikov nadimak
+    getUserNickname() {
+        const userId = this.getUserId();
+        if (!userId) return '';
+        
+        // Dohvati nadimak iz localStorage
+        const nickname = localStorage.getItem(`user_nickname_${userId}`);
+        if (nickname) return nickname;
+        
+        // Ako nema nadimka, vrati ime ili korisničko ime
+        const userInfo = this.getUserInfo();
+        return userInfo?.nickname || this.getUserName();
+    }
+    
+    // Postavi korisnikov nadimak
+    setUserNickname(nickname) {
+        const userId = this.getUserId();
+        if (!userId) return false;
+        
+        // Provjeri je li nadimak zaključan
+        if (this.isNicknameLocked() && !this.hasRole('Admin')) {
+            logger.warn('Pokušaj promjene zaključanog nadimka od strane korisnika koji nije administrator');
+            return false;
+        }
+        
+        localStorage.setItem(`user_nickname_${userId}`, nickname);
+        return true;
+    }
+    
+    // Provjeri je li nadimak zaključan
+    isNicknameLocked() {
+        const userId = this.getUserId();
+        if (!userId) return false;
+        
+        return localStorage.getItem(`nickname_locked_${userId}`) === 'true';
+    }
+    
+    // Zaključaj/otključaj nadimak (samo za administratore)
+    setNicknameLocked(locked) {
+        const userId = this.getUserId();
+        if (!userId) return false;
+        
+        // Samo administrator može zaključati/otključati nadimak
+        if (!this.hasRole('Admin')) {
+            logger.warn('Pokušaj zaključavanja/otključavanja nadimka od strane korisnika koji nije administrator');
+            return false;
+        }
+        
+        localStorage.setItem(`nickname_locked_${userId}`, locked.toString());
+        return true;
+    }
+    
     // Get user's ID
     getUserId() {
         const userInfo = this.getUserInfo();
         if (!userInfo) return null;
         
         return userInfo.nameid || userInfo.sub || null;
+    }
+    
+    // Get user's email
+    getUserEmail() {
+        const userInfo = this.getUserInfo();
+        if (!userInfo) return '';
+        
+        return userInfo.email || userInfo.KorisnickoIme || '';
     }
     
     // Get user's profile picture

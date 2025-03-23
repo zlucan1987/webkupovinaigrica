@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Alert, Button } from 'react-bootstrap';
 import ProizvodService from '../../services/ProizvodService';
 import ImageUploader from '../../components/ImageUploader';
-import { getGameImage } from '../../utils/imageUtils';
+import { getGameImage, refreshProductImage } from '../../utils/imageUtils';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
 
@@ -40,22 +40,12 @@ const ProductImageManagement = () => {
 
     // Funkcija za čišćenje cache-a slika
     const clearImageCache = () => {
-        console.log(`Postavljanje zastavice za ažuriranu sliku proizvoda ID: ${selectedProduct?.sifra}`);
+        if (!selectedProduct) return;
         
-        // Postavimo zastavicu u localStorage da znamo da je slika promijenjena
-        localStorage.setItem('product_images_updated', 'true');
-        localStorage.setItem('last_updated_product', selectedProduct?.sifra?.toString() || '');
-        localStorage.setItem('last_update_time', new Date().getTime().toString());
+        console.log(`Osvježavanje cache-a za sliku proizvoda ID: ${selectedProduct.sifra}`);
         
-        // Također očistimo cache za sve slike koje koriste isti URL
-        const cacheKeys = Object.keys(localStorage).filter(key => 
-            key.startsWith('img_cache_') && key.includes(`_${selectedProduct?.sifra}_`)
-        );
-        
-        cacheKeys.forEach(key => {
-            console.log(`Brisanje cache-a za ključ: ${key}`);
-            localStorage.removeItem(key);
-        });
+        // Koristimo novu funkciju za osvježavanje slike proizvoda u cache-u
+        refreshProductImage(selectedProduct.sifra);
     };
     
     // Funkcija za provjeru je li slika stvarno uploadana na server
@@ -103,10 +93,13 @@ const ProductImageManagement = () => {
                     // Čistimo cache slika
                     clearImageCache();
                     
-                    // Ažuriramo prikaz
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
+                    // Ažuriramo prikaz bez potrebe za refreshom cijele stranice
+                    // Umjesto toga, samo osvježimo sliku
+                    const imageElement = document.getElementById(`product-image-${selectedProduct.sifra}`);
+                    if (imageElement) {
+                        const newSrc = `/slike/proizvodi/${selectedProduct.sifra}.png?t=${new Date().getTime()}`;
+                        imageElement.src = newSrc;
+                    }
                 } else {
                     setError('Slika je uploadana, ali nije pronađena na serveru. Molimo pokušajte ponovno.');
                 }
@@ -161,6 +154,7 @@ const ProductImageManagement = () => {
                             <div className="current-image mb-4">
                                 <h5 style={whiteTextStyle}>Trenutna slika</h5>
                                 <img 
+                                    id={`product-image-${selectedProduct.sifra}`}
                                     src={`/slike/proizvodi/${selectedProduct.sifra}.png?t=${new Date().getTime()}`}
                                     alt={selectedProduct.nazivIgre}
                                     onError={(e) => {
@@ -170,6 +164,20 @@ const ProductImageManagement = () => {
                                     }}
                                     style={{ maxWidth: '100%', maxHeight: '300px' }}
                                 />
+                                <Button 
+                                    variant="outline-info" 
+                                    size="sm" 
+                                    className="mt-2"
+                                    onClick={() => {
+                                        const imageElement = document.getElementById(`product-image-${selectedProduct.sifra}`);
+                                        if (imageElement) {
+                                            const newSrc = `/slike/proizvodi/${selectedProduct.sifra}.png?t=${new Date().getTime()}`;
+                                            imageElement.src = newSrc;
+                                        }
+                                    }}
+                                >
+                                    <i className="bi bi-arrow-clockwise"></i> Osvježi sliku
+                                </Button>
                             </div>
                             
                             <div className="upload-new-image">
@@ -177,6 +185,8 @@ const ProductImageManagement = () => {
                                 <ImageUploader 
                                     onImageUpload={handleImageUpload} 
                                     aspectRatio={16/9}
+                                    maxWidth={1200}
+                                    maxHeight={675}
                                 />
                                 {loading && (
                                     <div className="text-center mt-2">

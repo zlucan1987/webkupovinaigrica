@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, Row, Col, Badge, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import ProizvodService from '../services/ProizvodService';
-import { getGameImage, getRandomRating, hasDiscount, getDiscountPercentage } from '../utils/imageUtils';
+import { getGameImage, getRandomRating, hasDiscount, getDiscountPercentage, getProductImageWithFallback } from '../utils/imageUtils';
 import { useCart } from '../context/CartContext';
 import './GameGrid.css';
 
@@ -19,11 +19,18 @@ const GameGrid = () => {
                 const data = await ProizvodService.get();
                 
                 // Dodaj dodatne informacije igricama (slike, ocjene, popuste)
-                const enhancedGames = data.map(game => ({
-                    ...game,
-                    imageUrl: getGameImage(game.nazivIgre), // Dohvaća odgovarajuću sliku prema nazivu igrice
-                    rating: getRandomRating(),
-                    discount: hasDiscount() ? getDiscountPercentage() : null
+                const enhancedGames = await Promise.all(data.map(async game => {
+                    // Koristimo naprednu funkciju za dohvaćanje slike s fallback mehanizmom
+                    const imageUrl = await getProductImageWithFallback(game.sifra, game.nazivIgre);
+                    
+                    return {
+                        ...game,
+                        imageUrl: imageUrl,
+                        fallbackImageUrl: getGameImage(game.nazivIgre), // Fallback slika ako server slika ne postoji
+                        rating: getRandomRating(),
+                        discount: hasDiscount() ? getDiscountPercentage() : null,
+                        timestamp: new Date().getTime() // Dodajemo timestamp za izbjegavanje cache-a
+                    };
                 }));
                 
                 setGames(enhancedGames);
@@ -82,6 +89,12 @@ const GameGrid = () => {
                                     variant="top" 
                                     src={game.imageUrl} 
                                     alt={game.nazivIgre}
+                                    onError={(e) => {
+                                        console.log(`Slika nije pronađena za igricu: ${game.nazivIgre} (ID: ${game.sifra}), koristi se fallback slika`);
+                                        e.target.onerror = null;
+                                        e.target.src = game.fallbackImageUrl;
+                                    }}
+                                    key={`${game.sifra}-${game.timestamp}`} // Dodajemo key za forsiranje ponovnog renderiranja
                                 />
                                 <div className="rating">
                                     {renderRatingStars(game.rating)}

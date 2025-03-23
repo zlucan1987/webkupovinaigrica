@@ -1,7 +1,5 @@
-import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import { RouteNames } from './constants';
-import AuthService from './services/AuthService';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ManualTokenLogin from './pages/auth/ManualTokenLogin';
@@ -32,141 +30,13 @@ import Footer from './components/Footer';
 import EntryPage from './components/EntryPage.jsx';
 import SwaggerPage from './components/SwaggerPage.jsx';
 import EraDiagram from './components/EraDiagram.jsx';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Dropdown from 'react-bootstrap/Dropdown';
-import Button from 'react-bootstrap/Button';
 import { CartProvider } from './context/CartContext';
 
 function App() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    
-    useEffect(() => {
-        // Check login status on component mount and when location changes
-        setIsLoggedIn(AuthService.isLoggedIn());
-    }, [location]);
-    
-    const handleLogout = () => {
-        AuthService.logout();
-        setIsLoggedIn(false);
-        navigate(RouteNames.LOGIN);
-    };
-
     return (
         <CartProvider>
             <div className="app-container">
-            {location.pathname === '/' ? (
-                <Webkupovinaigrica />
-            ) : (
-                <Navbar expand="lg" className="navbar-lightgray">
-                    <Navbar.Brand
-                        className="ruka"
-                        onClick={() => navigate('/')}
-                    >
-                    </Navbar.Brand>
-                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mx-auto d-flex align-items-center">
-                            <Button 
-                                variant="primary" 
-                                className="me-3"
-                                onClick={() => navigate(RouteNames.HOME)}
-                            >
-                                Home
-                            </Button>
-
-                            <Dropdown className="me-3">
-                                <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-                                    Izaberite opciju
-                                </Dropdown.Toggle>
-
-                                <Dropdown.Menu>
-                                    {isLoggedIn && (
-                                        <>
-                                            {/* Svi korisnici vide Proizvode i Graf prodaje */}
-                                            <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}>Proizvodi</Dropdown.Item>
-                                            <Dropdown.Item onClick={() => navigate(RouteNames.SALES_GRAPH)}>Graf prodaje igrica</Dropdown.Item>
-                                            
-                                            {/* Samo admin vidi Kupce, Račune i Stavke */}
-                                            {AuthService.hasRole('Admin') && (
-                                                <>
-                                                    <Dropdown.Divider />
-                                                    <Dropdown.Header>Admin opcije</Dropdown.Header>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_PREGLED)}>Kupci</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_PREGLED)}>Računi</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_PREGLED)}>Stavke</Dropdown.Item>
-                                                    
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.KUPAC_NOVI)}>Dodaj kupca</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.PROIZVOD_NOVI)}>Dodaj proizvod</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.RACUN_NOVI)}>Dodaj račun</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_NOVA)}>Dodaj stavku</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.USER_MANAGEMENT)}>Upravljanje korisnicima</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.PRODUCT_IMAGE_MANAGEMENT)}>Upravljanje slikama proizvoda</Dropdown.Item>
-                                                    <Dropdown.Item onClick={() => navigate(RouteNames.ADMIN_ROLE_TEST)}>Test admin uloge</Dropdown.Item>
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-                                    
-                                    {!isLoggedIn && (
-                                        <Dropdown.Item>Prijavite se za pristup opcijama</Dropdown.Item>
-                                    )}
-                                </Dropdown.Menu>
-                            </Dropdown>
-                            
-                            <Button 
-                                variant="secondary" 
-                                className="me-3"
-                                onClick={() => navigate(RouteNames.ERA_DIAGRAM)}
-                            >
-                                ERA Dijagram
-                            </Button>
-                            
-                            <Button 
-                                variant="secondary"
-                                className="me-3"
-                                onClick={() => navigate(RouteNames.SWAGGER)}
-                            >
-                                Swagger
-                            </Button>
-                            
-                            {isLoggedIn ? (
-                                <Button 
-                                    variant="outline-danger"
-                                    onClick={handleLogout}
-                                >
-                                    Logout
-                                </Button>
-                            ) : (
-                                <>
-                                    <Button 
-                                        variant="outline-success"
-                                        className="me-2"
-                                        onClick={() => navigate(RouteNames.LOGIN)}
-                                    >
-                                        Login
-                                    </Button>
-                                    <Button 
-                                        variant="outline-primary"
-                                        className="me-2"
-                                        onClick={() => navigate(RouteNames.REGISTER)}
-                                    >
-                                        Registracija
-                                    </Button>
-                                    <Button 
-                                        variant="outline-info"
-                                        onClick={() => navigate(RouteNames.MANUAL_TOKEN)}
-                                    >
-                                        Use Token
-                                    </Button>
-                                </>
-                            )}
-                        </Nav>
-                    </Navbar.Collapse>
-                </Navbar>
-            )}
+            <Webkupovinaigrica />
 
             <Routes>
                 <Route path={RouteNames.HOME} element={<EntryPage />} />

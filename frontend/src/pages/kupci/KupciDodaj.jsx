@@ -64,38 +64,85 @@ export default function KupciDodaj() {
 
   return (
     <div className="kupci-komponenta bijeli-tekst">
-      Dodavanje kupca
+      <h2 className="mb-4">Dodavanje kupca</h2>
+      
+      {error && <Alert variant="danger">{error}</Alert>}
+      {success && <Alert variant="success">{success}</Alert>}
+      
       <Form onSubmit={odradiSubmit}>
         <Row className="gx-0">
           <Col md={9} className="pe-0">
             {/* Polja za unos */}
-            <Form.Group controlId="ime">
+            <Form.Group controlId="ime" className="mb-3">
               <Form.Label>Ime</Form.Label>
-              <Form.Control type="text" name="ime" required className="input-manja-sirina" />
+              <Form.Control 
+                type="text" 
+                name="ime" 
+                required 
+                className="input-manja-sirina"
+                style={{ 
+                  backgroundColor: '#333',
+                  borderColor: '#666',
+                  color: 'white',
+                  height: '38px',
+                  maxWidth: '400px'
+                }}
+              />
             </Form.Group>
 
-            <Form.Group controlId="prezime">
+            <Form.Group controlId="prezime" className="mb-3">
               <Form.Label>Prezime</Form.Label>
-              <Form.Control type="text" name="prezime" className="input-manja-sirina" />
+              <Form.Control 
+                type="text" 
+                name="prezime" 
+                className="input-manja-sirina"
+                style={{ 
+                  backgroundColor: '#333',
+                  borderColor: '#666',
+                  color: 'white',
+                  height: '38px',
+                  maxWidth: '400px'
+                }}
+              />
             </Form.Group>
 
-            <Form.Group controlId="ulica">
+            <Form.Group controlId="ulica" className="mb-3">
               <Form.Label>Ulica</Form.Label>
-              <Form.Control type="text" name="ulica" className="input-manja-sirina" />
+              <Form.Control 
+                type="text" 
+                name="ulica" 
+                className="input-manja-sirina"
+                style={{ 
+                  backgroundColor: '#333',
+                  borderColor: '#666',
+                  color: 'white',
+                  height: '38px',
+                  maxWidth: '400px'
+                }}
+              />
             </Form.Group>
 
-            <Form.Group controlId="mjesto">
+            <Form.Group controlId="mjesto" className="mb-3">
               <Form.Label>Mjesto</Form.Label>
-              <Form.Control type="text" name="mjesto" className="input-manja-sirina" />
+              <Form.Control 
+                type="text" 
+                name="mjesto" 
+                className="input-manja-sirina"
+                style={{ 
+                  backgroundColor: '#333',
+                  borderColor: '#666',
+                  color: 'white',
+                  height: '38px',
+                  maxWidth: '400px'
+                }}
+              />
             </Form.Group>
 
             <Form.Group controlId="profilnaSlika" className="mt-3">
               <Form.Label>Profilna slika</Form.Label>
-              {error && <Alert variant="danger">{error}</Alert>}
-              {success && <Alert variant="success">{success}</Alert>}
               
               {/* Komponenta za upload vlastite slike */}
-              <div className="mb-4">
+              <div className="mb-4" style={{ maxWidth: '400px' }}>
                 <h6>Upload vlastite slike</h6>
                 <ImageUploader 
                   onImageUpload={(base64Image) => handleImageUpload(base64Image)} 
@@ -112,7 +159,7 @@ export default function KupciDodaj() {
               </div>
               
               <h6>Ili odaberite jednu od predefiniranih slika</h6>
-              <div className="d-flex flex-wrap">
+              <div className="d-flex flex-wrap" style={{ maxWidth: '400px' }}>
                 {profilePictures.map((picture, index) => (
                   <div 
                     key={index} 
