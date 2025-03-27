@@ -4,9 +4,11 @@ import ProizvodService from "../../services/ProizvodService";
 import StavkaService from "../../services/StavkaService";
 import { useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row, Image } from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import Select from 'react-select';
+import { getProductImageWithFallback, getGameImage } from '../../utils/imageUtils';
+import './StavkePregled.css';
 
 export default function StavkeDodaj() {
     const [racuni, setRacuni] = useState([]);
@@ -15,6 +17,7 @@ export default function StavkeDodaj() {
     const [selectedProizvod, setSelectedProizvod] = useState(null);
     const [poruka, setPoruka] = useState('');
     const navigate = useNavigate();
+    const [proizvodSlika, setProizvodSlika] = useState('');
 
     useEffect(() => {
         async function dohvatiRacune() {
@@ -43,12 +46,21 @@ export default function StavkeDodaj() {
         cijena: proizvod.cijena
     }));
 
-    // Handle product selection to auto-fill price
-    const handleProizvodChange = (selectedOption) => {
+    // Handle product selection to auto-fill price and load image
+    const handleProizvodChange = async (selectedOption) => {
         setSelectedProizvod(selectedOption);
         if (selectedOption) {
             // Auto-fill the price field with the selected product's price
             document.getElementById('cijena').value = selectedOption.cijena;
+            
+            // Load product image
+            const proizvod = proizvodi.find(p => p.sifra === selectedOption.value);
+            if (proizvod) {
+                const imageUrl = await getProductImageWithFallback(proizvod.sifra, proizvod.nazivIgre);
+                setProizvodSlika(imageUrl);
+            }
+        } else {
+            setProizvodSlika('');
         }
     };
 
@@ -162,59 +174,76 @@ export default function StavkeDodaj() {
 
                         <Form.Group controlId="proizvod" className="mb-3">
                             <Form.Label>Proizvod:</Form.Label>
-                            <div style={{ width: '100%', maxWidth: '400px' }}>
-                                <Select
-                                    options={proizvodOptions}
-                                    value={selectedProizvod}
-                                    onChange={handleProizvodChange}
-                                    placeholder="Pretraži i odaberi proizvod..."
-                                    isSearchable={true}
-                                    noOptionsMessage={() => "Nema rezultata"}
-                                    styles={{
-                                        control: (base) => ({
-                                            ...base,
-                                            backgroundColor: '#333',
-                                            borderColor: '#666',
-                                            color: 'white',
-                                            height: '38px',
-                                            minHeight: '38px'
-                                        }),
-                                        valueContainer: (base) => ({
-                                            ...base,
-                                            padding: '0 8px',
-                                            height: '38px'
-                                        }),
-                                        menu: (base) => ({
-                                            ...base,
-                                            backgroundColor: '#333',
-                                            zIndex: 9999
-                                        }),
-                                        option: (base, state) => ({
-                                            ...base,
-                                            backgroundColor: state.isFocused ? '#555' : '#333',
-                                            color: 'white',
-                                            padding: '8px 12px'
-                                        }),
-                                        singleValue: (base) => ({
-                                            ...base,
-                                            color: 'white'
-                                        }),
-                                        input: (base) => ({
-                                            ...base,
-                                            color: 'white',
-                                            margin: '0',
-                                            padding: '0'
-                                        }),
-                                        placeholder: (base) => ({
-                                            ...base,
-                                            color: '#aaa'
-                                        }),
-                                        indicatorsContainer: (base) => ({
-                                            ...base,
-                                            height: '38px'
-                                        })
-                                    }}
-                                />
+                            <div className="d-flex align-items-center">
+                                <div style={{ width: '100%', maxWidth: '400px' }}>
+                                    <Select
+                                        options={proizvodOptions}
+                                        value={selectedProizvod}
+                                        onChange={handleProizvodChange}
+                                        placeholder="Pretraži i odaberi proizvod..."
+                                        isSearchable={true}
+                                        noOptionsMessage={() => "Nema rezultata"}
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                backgroundColor: '#333',
+                                                borderColor: '#666',
+                                                color: 'white',
+                                                height: '38px',
+                                                minHeight: '38px'
+                                            }),
+                                            valueContainer: (base) => ({
+                                                ...base,
+                                                padding: '0 8px',
+                                                height: '38px'
+                                            }),
+                                            menu: (base) => ({
+                                                ...base,
+                                                backgroundColor: '#333',
+                                                zIndex: 9999
+                                            }),
+                                            option: (base, state) => ({
+                                                ...base,
+                                                backgroundColor: state.isFocused ? '#555' : '#333',
+                                                color: 'white',
+                                                padding: '8px 12px'
+                                            }),
+                                            singleValue: (base) => ({
+                                                ...base,
+                                                color: 'white'
+                                            }),
+                                            input: (base) => ({
+                                                ...base,
+                                                color: 'white',
+                                                margin: '0',
+                                                padding: '0'
+                                            }),
+                                            placeholder: (base) => ({
+                                                ...base,
+                                                color: '#aaa'
+                                            }),
+                                            indicatorsContainer: (base) => ({
+                                                ...base,
+                                                height: '38px'
+                                            })
+                                        }}
+                                    />
+                                </div>
+                                {proizvodSlika && (
+                                    <div className="ms-3">
+                                        <Image 
+                                            src={proizvodSlika} 
+                                            alt={selectedProizvod?.label || 'Proizvod'} 
+                                            className="stavka-image"
+                                            onError={(e) => {
+                                                console.log(`Slika nije pronađena za proizvod, koristi se fallback slika`);
+                                                e.target.onerror = null;
+                                                const proizvod = proizvodi.find(p => p.sifra === selectedProizvod?.value);
+                                                e.target.src = proizvod ? getGameImage(proizvod.nazivIgre) : '';
+                                            }}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </Form.Group>
 

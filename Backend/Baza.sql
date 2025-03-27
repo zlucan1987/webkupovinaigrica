@@ -16,7 +16,13 @@ CREATE TABLE Operateri (
     Lozinka NVARCHAR(255) NOT NULL,
     Ime NVARCHAR(255) NULL,
     Prezime NVARCHAR(255) NULL,
-    Aktivan BIT NOT NULL DEFAULT 1
+    Aktivan BIT NOT NULL DEFAULT 1,
+    NickName NVARCHAR(255) NULL, -- Dodano polje NickName
+    NicknameLocked BIT NULL, -- Dodano polje NicknameLocked
+    ZadnjaPromjenaLozinke DATETIME NULL, -- Dodano polje ZadnjaPromjenaLozinke
+    NeuspjeliPokusajiPrijave INT NULL, -- Dodano polje NeuspjeliPokusajiPrijave
+    Datumzakljucavanja DATETIME NULL, -- Dodano polje Datumzakljucavanja
+    DatumKreiranja DATETIME NULL -- Dodano polje DatumKreiranja
 );
 
 -- Kreiranje tablice OperaterUloge
@@ -29,38 +35,40 @@ CREATE TABLE OperaterUloge (
 -- Kreiranje tablice OperaterOperaterUloge
 CREATE TABLE OperaterOperaterUloge (
     Sifra INT IDENTITY(1,1) PRIMARY KEY,
-    OperaterId INT NOT NULL,
-    OperaterUlogaId INT NOT NULL
+    OperaterId INT NOT NULL REFERENCES Operateri(Sifra), -- Dodan FOREIGN KEY
+    OperaterUlogaId INT NOT NULL REFERENCES OperaterUloge(Sifra) -- Dodan FOREIGN KEY
 );
 
-
-
-create table proizvodi(
-sifra int not null primary key identity(1,1), 
-nazivigre varchar(100) not null, 
-cijena decimal (18,2) not null
+-- Kreiranje tablice proizvodi
+CREATE TABLE proizvodi (
+    sifra INT IDENTITY(1,1) PRIMARY KEY,
+    nazivigre VARCHAR(100) NOT NULL,
+    cijena DECIMAL (18,2) NOT NULL
 );
 
-create table kupci(
-sifra int not null primary key identity(1,1),
-ime varchar(50) not null,
-prezime varchar(100) not null,
-ulica varchar(100) not null,
-mjesto varchar(100) not null
+-- Kreiranje tablice kupci
+CREATE TABLE kupci (
+    sifra INT IDENTITY(1,1) PRIMARY KEY,
+    ime VARCHAR(50) NOT NULL,
+    prezime VARCHAR(100) NOT NULL,
+    ulica VARCHAR(100) NOT NULL,
+    mjesto VARCHAR(100) NOT NULL
 );
 
-create table racuni(
-sifra int not null primary key identity(1,1),
-datum datetime not null, -- "Datum kupnje" upotpunosti uklonjen iz table(stavke) jer prilikom izrade racuna vec imamo datum kupnje, odnosno dana kada se izdao racun.
-kupac int not null references kupci(sifra)
+-- Kreiranje tablice racuni
+CREATE TABLE racuni (
+    sifra INT IDENTITY(1,1) PRIMARY KEY,
+    datum DATETIME NOT NULL,
+    kupac INT NOT NULL REFERENCES kupci(sifra)
 );
 
-create table stavke(
-sifra int not null primary key identity(1,1),
-racun int not null references racuni(sifra),
-proizvod int not null references proizvodi(sifra),
-kolicina int not null, 
-cijena decimal (18,2) not null--datumkupnje datetime --v 0.1"Datumkupnje" prebacen iz table (proizvodi) u table (stavke) jer ce datum biti upisan kada se odredjeni proizvod kupi. 
+-- Kreiranje tablice stavke
+CREATE TABLE stavke (
+    sifra INT IDENTITY(1,1) PRIMARY KEY,
+    racun INT NOT NULL REFERENCES racuni(sifra),
+    proizvod INT NOT NULL REFERENCES proizvodi(sifra),
+    kolicina INT NOT NULL,
+    cijena DECIMAL (18,2) NOT NULL
 );
 
 --1

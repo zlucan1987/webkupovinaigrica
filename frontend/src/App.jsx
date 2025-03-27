@@ -8,6 +8,7 @@ import UserProfile from './pages/auth/UserProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserManagement from './pages/admin/UserManagement';
 import ProductImageManagement from './pages/admin/ProductImageManagement';
+import DataMigration from './pages/admin/DataMigration';
 import AdminRoleTest from './components/AdminRoleTest';
 import KupciPregled from './pages/kupci/KupciPregled.jsx';
 import KupciDodaj from './pages/kupci/KupciDodaj.jsx';
@@ -29,117 +30,131 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './GamingTheme.css'; // Import our gaming theme
 import Footer from './components/Footer';
-import EntryPage from './components/EntryPage.jsx';
+import EntryPage, { NavbarContext } from './components/EntryPage.jsx';
 import SwaggerPage from './components/SwaggerPage.jsx';
 import EraDiagram from './components/EraDiagram.jsx';
 import { CartProvider } from './context/CartContext';
+import { useState } from 'react';
 
 function App() {
+    const [navbarVisible, setNavbarVisible] = useState(true);
+
     return (
         <CartProvider>
-            <div className="app-container">
-            <Webkupovinaigrica />
+            <NavbarContext.Provider value={{ navbarVisible, setNavbarVisible }}>
+                <div className="app-container">
+                    {navbarVisible && (
+                        <div className={`navbar-container ${navbarVisible ? 'navbar-slide-down' : ''}`}>
+                            <Webkupovinaigrica />
+                        </div>
+                    )}
 
-            <Routes>
-                <Route path={RouteNames.HOME} element={<EntryPage />} />
-          <Route path={RouteNames.LOGIN} element={<Login />} />
-          <Route path={RouteNames.REGISTER} element={<Register />} />
-          <Route path={RouteNames.RESET_PASSWORD} element={<ResetPassword />} />
-          <Route path={RouteNames.MANUAL_TOKEN} element={<ManualTokenLogin />} />
-                <Route path={RouteNames.USER_PROFILE} element={
-                    <ProtectedRoute>
-                        <UserProfile />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.KUPAC_PREGLED} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <KupciPregled />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.KUPAC_NOVI} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <KupciDodaj />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.KUPAC_PROMJENA} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <KupciPromjena />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.PROIZVOD_PREGLED} element={
-                    <ProtectedRoute>
-                        <ProizvodiPregled />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.PROIZVOD_NOVI} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <ProizvodiDodaj />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.PROIZVOD_PROMJENA} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <ProizvodiPromjena />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.RACUN_PREGLED} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <RacuniPregled />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.RACUN_NOVI} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <RacuniDodaj />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.RACUN_PROMJENA} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <RacuniPromjena />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.STAVKA_PREGLED} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <StavkePregled />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.STAVKA_NOVA} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <StavkeDodaj />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.STAVKA_PROMJENA} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <StavkePromjena />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.SWAGGER} element={
-                    <ProtectedRoute>
-                        <SwaggerPage />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.ERA_DIAGRAM} element={<EraDiagram />} />
-                <Route path={RouteNames.SALES_GRAPH} element={
-                    <ProtectedRoute>
-                        <SalesGraph />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.USER_MANAGEMENT} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <UserManagement />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.ADMIN_ROLE_TEST} element={
-                    <ProtectedRoute>
-                        <AdminRoleTest />
-                    </ProtectedRoute>
-                } />
-                <Route path={RouteNames.PRODUCT_IMAGE_MANAGEMENT} element={
-                    <ProtectedRoute requiredRoles={['Admin']}>
-                        <ProductImageManagement />
-                    </ProtectedRoute>
-                } />
-            </Routes>
-            <Footer />
-            </div>
+                    <Routes>
+                        <Route path={RouteNames.HOME} element={<EntryPage />} />
+                        <Route path={RouteNames.LOGIN} element={<Login />} />
+                        <Route path={RouteNames.REGISTER} element={<Register />} />
+                        <Route path={RouteNames.RESET_PASSWORD} element={<ResetPassword />} />
+                        <Route path={RouteNames.MANUAL_TOKEN} element={<ManualTokenLogin />} />
+                        <Route path={RouteNames.USER_PROFILE} element={
+                            <ProtectedRoute>
+                                <UserProfile />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.KUPAC_PREGLED} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <KupciPregled />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.KUPAC_NOVI} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <KupciDodaj />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.KUPAC_PROMJENA} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <KupciPromjena />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.PROIZVOD_PREGLED} element={
+                            <ProtectedRoute>
+                                <ProizvodiPregled />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.PROIZVOD_NOVI} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <ProizvodiDodaj />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.PROIZVOD_PROMJENA} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <ProizvodiPromjena />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.RACUN_PREGLED} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <RacuniPregled />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.RACUN_NOVI} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <RacuniDodaj />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.RACUN_PROMJENA} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <RacuniPromjena />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.STAVKA_PREGLED} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <StavkePregled />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.STAVKA_NOVA} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <StavkeDodaj />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.STAVKA_PROMJENA} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <StavkePromjena />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.SWAGGER} element={
+                            <ProtectedRoute>
+                                <SwaggerPage />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.ERA_DIAGRAM} element={<EraDiagram />} />
+                        <Route path={RouteNames.SALES_GRAPH} element={
+                            <ProtectedRoute>
+                                <SalesGraph />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.USER_MANAGEMENT} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <UserManagement />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.ADMIN_ROLE_TEST} element={
+                            <ProtectedRoute>
+                                <AdminRoleTest />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.PRODUCT_IMAGE_MANAGEMENT} element={
+                            <ProtectedRoute requiredRoles={['Admin']}>
+                                <ProductImageManagement />
+                            </ProtectedRoute>
+                        } />
+                        <Route path={RouteNames.DATA_MIGRATION} element={
+                            <ProtectedRoute>
+                                <DataMigration />
+                            </ProtectedRoute>
+                        } />
+                    </Routes>
+                    <Footer />
+                </div>
+            </NavbarContext.Provider>
         </CartProvider>
     );
 }

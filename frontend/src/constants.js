@@ -23,6 +23,7 @@ export const RouteNames = {
   USER_MANAGEMENT: '/admin/users',
   ADMIN_ROLE_TEST: '/admin/role-test',
   PRODUCT_IMAGE_MANAGEMENT: '/admin/product-images',
+  DATA_MIGRATION: '/admin/data-migration',
 };
 
 // API endpoint

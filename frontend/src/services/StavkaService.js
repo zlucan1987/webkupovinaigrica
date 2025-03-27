@@ -1,5 +1,6 @@
 import { HttpService } from './HttpService';
 import logger from '../utils/logger';
+import { getProductImageWithFallback, getGameImage } from '../utils/imageUtils';
 
 // Dohvaća sve stavke za sve račune
 async function get() {
@@ -24,7 +25,30 @@ async function get() {
     // Spoji sve rezultate u jedan array
     const sveStavke = rezultatiStavki.flat();
     
-    return sveStavke;
+    // Dodaj informacije o slikama proizvoda
+    const stavkeWithImages = await Promise.all(sveStavke.map(async (stavka) => {
+      try {
+        // Dohvati sliku proizvoda s fallback mehanizmom
+        const imageUrl = await getProductImageWithFallback(stavka.proizvodSifra, stavka.proizvodNaziv);
+        
+        return {
+          ...stavka,
+          imageUrl: imageUrl,
+          fallbackImageUrl: getGameImage(stavka.proizvodNaziv),
+          timestamp: new Date().getTime()
+        };
+      } catch (error) {
+        logger.error(`Greška pri dohvaćanju slike za proizvod ${stavka.proizvodSifra}:`, error);
+        return {
+          ...stavka,
+          imageUrl: getGameImage(stavka.proizvodNaziv),
+          fallbackImageUrl: getGameImage(stavka.proizvodNaziv),
+          timestamp: new Date().getTime()
+        };
+      }
+    }));
+    
+    return stavkeWithImages;
   } catch (e) {
     logger.error("Greška prilikom dohvaćanja stavki:", e.message);
     return [];
@@ -60,7 +84,25 @@ async function getBySifra(sifra) {
     const pronadenaStavka = rezultati.find(stavka => stavka !== null);
     
     if (pronadenaStavka) {
-      return pronadenaStavka;
+      // Dodaj informacije o slici proizvoda
+      try {
+        const imageUrl = await getProductImageWithFallback(pronadenaStavka.proizvodSifra, pronadenaStavka.proizvodNaziv);
+        
+        return {
+          ...pronadenaStavka,
+          imageUrl: imageUrl,
+          fallbackImageUrl: getGameImage(pronadenaStavka.proizvodNaziv),
+          timestamp: new Date().getTime()
+        };
+      } catch (error) {
+        logger.error(`Greška pri dohvaćanju slike za proizvod ${pronadenaStavka.proizvodSifra}:`, error);
+        return {
+          ...pronadenaStavka,
+          imageUrl: getGameImage(pronadenaStavka.proizvodNaziv),
+          fallbackImageUrl: getGameImage(pronadenaStavka.proizvodNaziv),
+          timestamp: new Date().getTime()
+        };
+      }
     }
     
     return { sifra: parseInt(sifra), racunSifra: 1, proizvodSifra: 1, proizvodNaziv: "Nepoznat", kolicina: 1, cijena: 0 };

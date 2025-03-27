@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import StavkaService from '../../services/StavkaService.js';
 import { useNavigate, Link } from 'react-router-dom';
 import { RouteNames } from '../../constants';
-import { Button, Table, Spinner } from "react-bootstrap";
+import { Button, Table, Spinner, Image } from "react-bootstrap";
+import './StavkePregled.css';
 
 export default function StavkePregled() {
   const [stavke, setStavke] = useState([]);
@@ -63,6 +64,7 @@ export default function StavkePregled() {
           <thead>
             <tr>
               <th>Račun</th>
+              <th>Slika</th>
               <th>Proizvod</th>
               <th>Šifra proizvoda</th>
               <th>Količina</th>
@@ -74,6 +76,19 @@ export default function StavkePregled() {
             {stavke && Array.isArray(stavke) && stavke.map((stavka) => (
               <tr key={stavka.sifra}>
                 <td>{stavka.racunSifra}</td>
+                <td>
+                  <Image 
+                    src={stavka.imageUrl} 
+                    alt={stavka.proizvodNaziv} 
+                    className="stavka-image"
+                    onError={(e) => {
+                      console.log(`Slika nije pronađena za proizvod: ${stavka.proizvodNaziv} (ID: ${stavka.proizvodSifra}), koristi se fallback slika`);
+                      e.target.onerror = null;
+                      e.target.src = stavka.fallbackImageUrl;
+                    }}
+                    key={`${stavka.proizvodSifra}-${stavka.timestamp}`}
+                  />
+                </td>
                 <td>{stavka.proizvodNaziv}</td>
                 <td>{stavka.proizvodSifra}</td>
                 <td>{stavka.kolicina}</td>

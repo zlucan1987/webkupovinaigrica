@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 namespace Backend.Models.DTO
 {
     /// <summary>
-    /// DTO za čitanje podataka o operateru.
+    /// DTO za detaljne podatke o operateru.
     /// </summary>
-    public class OperaterReadDTO
+    public class OperaterDetailsDTO
     {
         /// <summary>
         /// Šifra operatera
@@ -28,11 +28,6 @@ namespace Backend.Models.DTO
         public string? Prezime { get; set; }
         
         /// <summary>
-        /// Status aktivnosti operatera
-        /// </summary>
-        public bool Aktivan { get; set; }
-        
-        /// <summary>
         /// Nadimak operatera
         /// </summary>
         public string? Nickname { get; set; }
@@ -43,8 +38,23 @@ namespace Backend.Models.DTO
         public bool NicknameLocked { get; set; }
         
         /// <summary>
+        /// Status aktivnosti operatera
+        /// </summary>
+        public bool Aktivan { get; set; }
+        
+        /// <summary>
         /// Uloge operatera
         /// </summary>
         public List<string> Uloge { get; set; } = new List<string>();
+        
+        /// <summary>
+        /// Datum zadnje promjene lozinke
+        /// </summary>
+        public DateTime? ZadnjaPromjenaLozinke { get; set; }
+        
+        /// <summary>
+        /// Datum kreiranja operatera
+        /// </summary>
+        public DateTime DatumKreiranja { get; set; }
     }
 }

@@ -56,7 +56,24 @@ export default function Webkupovinaigrica() {
             if (!tokenExpired) {
                 setIsAdmin(AuthService.hasRole('Admin'));
                 setUserProfilePicture(AuthService.getUserProfilePicture());
-                setUserNickname(AuthService.getUserNickname());
+                
+                // Get nickname from local storage first for immediate display
+                const localNickname = AuthService.getUserNickname();
+                setUserNickname(localNickname);
+                
+                // Then fetch the latest nickname from the server asynchronously
+                const fetchNickname = async () => {
+                    try {
+                        const serverNickname = await AuthService.fetchUserNicknameFromServer();
+                        if (serverNickname && serverNickname !== localNickname) {
+                            setUserNickname(serverNickname);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching nickname from server:', error);
+                    }
+                };
+                
+                fetchNickname();
             }
         } else {
             setIsAdmin(false);
@@ -142,6 +159,7 @@ export default function Webkupovinaigrica() {
                                         <Dropdown.Item onClick={() => navigate(RouteNames.STAVKA_NOVA)}>Dodaj stavku</Dropdown.Item>
                                                 <Dropdown.Item onClick={() => navigate(RouteNames.USER_MANAGEMENT)}>Upravljanje korisnicima</Dropdown.Item>
                                                 <Dropdown.Item onClick={() => navigate(RouteNames.PRODUCT_IMAGE_MANAGEMENT)}>Upravljanje slikama proizvoda</Dropdown.Item>
+                                                <Dropdown.Item onClick={() => navigate(RouteNames.DATA_MIGRATION)}>Migracija podataka</Dropdown.Item>
                                     </>
                                 )}
                                 
@@ -193,6 +211,7 @@ export default function Webkupovinaigrica() {
 
                                     <Dropdown.Menu align="end">
                                         <Dropdown.Item onClick={() => navigate('/profile')}>Moj profil</Dropdown.Item>
+                                        <Dropdown.Item onClick={() => navigate(RouteNames.DATA_MIGRATION)}>Migracija podataka</Dropdown.Item>
                                         <Dropdown.Divider />
                                         <Dropdown.Item onClick={handleLogout}>Odjava</Dropdown.Item>
                                     </Dropdown.Menu>

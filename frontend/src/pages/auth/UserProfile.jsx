@@ -23,39 +23,65 @@ const UserProfile = () => {
 
     useEffect(() => {
         // Define a function to load user data
-        const loadUserData = () => {
-            // Check if user is logged in
-            if (!AuthService.isLoggedIn()) {
-                navigate('/login');
-                return;
-            }
+        const loadUserData = async () => {
+            try {
+                // Check if user is logged in
+                if (!AuthService.isLoggedIn()) {
+                    navigate('/login');
+                    return;
+                }
 
-            // Get user info
-            const info = AuthService.getUserInfo();
-            setUserInfo(info);
-
-            // Get user profile picture
-            const profilePicture = AuthService.getUserProfilePicture();
-            setSelectedProfilePicture(profilePicture);
-            
-            // Force refresh the profile picture by checking if it exists on the server
-            const userId = AuthService.getUserId();
-            if (userId) {
-                const serverImageUrl = `https://www.brutallucko.online/slike/kupci/${userId}.png?t=${new Date().getTime()}`;
+                // Get user info
+                const info = AuthService.getUserInfo();
+                if (!info) {
+                    console.error("UserProfile: Failed to get user info");
+                    setError('Došlo je do greške prilikom dohvaćanja korisničkih podataka.');
+                    return;
+                }
                 
-                // Check if the image exists on the server
-                const img = new window.Image();
-                img.onload = () => {
-                    console.log("UserProfile: Image loaded successfully from server");
-                    // Update the profile picture in the UI
-                    setSelectedProfilePicture(serverImageUrl);
-                    // Save the URL in localStorage for future use
-                    AuthService.updateUserProfilePicture(serverImageUrl);
-                };
-                img.onerror = () => {
-                    console.error("UserProfile: Failed to load image from URL", serverImageUrl);
-                };
-                img.src = serverImageUrl;
+                console.log("UserProfile: User info loaded:", info);
+                setUserInfo(info);
+
+                // Get user profile picture
+                const profilePicture = AuthService.getUserProfilePicture();
+                if (profilePicture) {
+                    setSelectedProfilePicture(profilePicture);
+                }
+                
+                // Fetch the latest nickname from the server
+                try {
+                    await AuthService.fetchUserNicknameFromServer();
+                    console.log("UserProfile: Nickname fetched from server");
+                } catch (error) {
+                    console.error("UserProfile: Error fetching nickname from server:", error);
+                }
+                
+                // Force refresh the profile picture by checking if it exists on the server
+                const userId = AuthService.getUserId();
+                if (userId) {
+                    const serverImageUrl = `https://www.brutallucko.online/slike/kupci/${userId}.png?t=${new Date().getTime()}`;
+                    
+                    try {
+                        // Check if the image exists on the server
+                        const img = new window.Image();
+                        img.onload = () => {
+                            console.log("UserProfile: Image loaded successfully from server");
+                            // Update the profile picture in the UI
+                            setSelectedProfilePicture(serverImageUrl);
+                            // Save the URL in localStorage for future use
+                            AuthService.updateUserProfilePicture(serverImageUrl);
+                        };
+                        img.onerror = () => {
+                            console.error("UserProfile: Failed to load image from URL", serverImageUrl);
+                        };
+                        img.src = serverImageUrl;
+                    } catch (error) {
+                        console.error("UserProfile: Error loading profile image:", error);
+                    }
+                }
+            } catch (error) {
+                console.error("UserProfile: Error in loadUserData:", error);
+                setError('Došlo je do greške prilikom učitavanja korisničkih podataka.');
             }
         };
 
@@ -146,17 +172,50 @@ const UserProfile = () => {
             return;
         }
 
-        // Here you would typically call an API to change the password
-        // For now, we'll just simulate a successful password change
-        setTimeout(() => {
-            setSuccess('Lozinka uspješno promijenjena!');
-            setPasswordData({
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: ''
-            });
+        // Provjeri ima li barem jedno veliko slovo
+        if (!/[A-Z]/.test(passwordData.newPassword)) {
+            setError('Nova lozinka mora sadržavati barem jedno veliko slovo.');
             setLoading(false);
-        }, 1000);
+            return;
+        }
+
+        // Provjeri ima li barem jedan broj
+        if (!/\d/.test(passwordData.newPassword)) {
+            setError('Nova lozinka mora sadržavati barem jedan broj.');
+            setLoading(false);
+            return;
+        }
+
+        // Provjeri ima li barem jedan specijalni znak
+        if (!/[^A-Za-z0-9]/.test(passwordData.newPassword)) {
+            setError('Nova lozinka mora sadržavati barem jedan specijalni znak.');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            // Pozovi API za promjenu lozinke
+            const result = await AuthService.changePassword(
+                passwordData.currentPassword,
+                passwordData.newPassword
+            );
+            
+            if (result.success) {
+                setSuccess('Lozinka uspješno promijenjena!');
+                setPasswordData({
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
+            } else {
+                setError(result.error || 'Došlo je do greške prilikom promjene lozinke.');
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
+            setError('Došlo je do greške prilikom promjene lozinke.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (!userInfo) {
@@ -177,7 +236,7 @@ const UserProfile = () => {
 
                             <div className="text-center mb-4">
                                 <Image 
-                                    src={selectedProfilePicture} 
+                                    src={selectedProfilePicture || profilePictures[0]} 
                                     className="profile-image border border-primary"
                                     onError={(e) => {
                                         console.error("Failed to load profile image:", selectedProfilePicture);
@@ -199,9 +258,9 @@ const UserProfile = () => {
                                         }
                                     }}
                                 />
-                                <h4 className="mt-3">{userInfo.name || userInfo.sub}</h4>
+                                <h4 className="mt-3">{(userInfo.name || userInfo.sub || 'Korisnik')}</h4>
                                 <p className="text-muted">
-                                    {userInfo.email || userInfo.sub}
+                                    {(userInfo.email || userInfo.sub || 'Nije dostupno')}
                                 </p>
                             </div>
 
@@ -209,18 +268,21 @@ const UserProfile = () => {
                                 <Tab eventKey="account" title="Podaci o računu">
                                     <div className="p-3">
                                         <h5 className="mb-3" style={{ color: 'white' }}>Informacije o računu</h5>
-                                        <p style={{ color: 'white' }}><strong>Korisničko ime:</strong> {userInfo.sub || userInfo.name}</p>
-                                        <p style={{ color: 'white' }}><strong>Email:</strong> {AuthService.getUserEmail()}</p>
+                                        <p style={{ color: 'white' }}><strong>Korisničko ime:</strong> {userInfo.sub || userInfo.name || 'Nije dostupno'}</p>
+                                        <p style={{ color: 'white' }}><strong>Email:</strong> {AuthService.getUserEmail() || 'Nije dostupno'}</p>
                                         
                                         <p style={{ color: 'white' }}>
-                                            <strong>Nadimak (Nickname):</strong> {AuthService.getUserNickname()}
+                                            <strong>Nadimak (Nickname):</strong> {AuthService.getUserNickname() || 'Nije postavljen'}
                                             {AuthService.isNicknameLocked() && (
                                                 <FaLock className="ms-2 text-warning" title="Nadimak je zaključan" />
                                             )}
+                                            <small className="d-block text-muted">
+                                                (Sinkronizirano s bazom podataka)
+                                            </small>
                                         </p>
                                         
                                         <p style={{ color: 'white' }}><strong>Uloga:</strong> {userInfo.role || 'Korisnik'}</p>
-                                        <p style={{ color: 'white' }}><strong>Datum registracije:</strong> {new Date(userInfo.nbf * 1000).toLocaleDateString() || 'Nije dostupno'}</p>
+                                        <p style={{ color: 'white' }}><strong>Datum registracije:</strong> {userInfo.nbf ? new Date(userInfo.nbf * 1000).toLocaleDateString() : 'Nije dostupno'}</p>
                                         
                                         {/* Premješteno na kraj, nakon datuma registracije */}
                                         {!AuthService.isNicknameLocked() ? (
@@ -238,16 +300,32 @@ const UserProfile = () => {
                                                             <Button 
                                                                 variant="outline-primary" 
                                                                 size="sm"
-                                                                onClick={() => {
+                                                                onClick={async () => {
                                                                     const newNickname = document.getElementById('newNickname').value;
                                                                     if (newNickname) {
-                                                                        const success = AuthService.setUserNickname(newNickname);
-                                                                        if (success) {
-                                                                            setSuccess('Nadimak uspješno promijenjen!');
-                                                                            setTimeout(() => setSuccess(''), 3000);
-                                                                        } else {
+                                                                        setLoading(true);
+                                                                        try {
+                                                                            const result = await AuthService.setUserNickname(newNickname);
+                                                                            if (result.success) {
+                                                                                setSuccess(result.warning 
+                                                                                    ? 'Nadimak uspješno promijenjen! (Spremljeno lokalno jer server nije dostupan)' 
+                                                                                    : 'Nadimak uspješno promijenjen i spremljen u bazu podataka!');
+                                                                                setTimeout(() => setSuccess(''), 3000);
+                                                                                
+                                                                                // Refresh the page to update the nickname in the navbar
+                                                                                setTimeout(() => {
+                                                                                    window.location.reload();
+                                                                                }, 1000);
+                                                                            } else {
+                                                                                setError(result.error || 'Došlo je do greške prilikom promjene nadimka.');
+                                                                                setTimeout(() => setError(''), 3000);
+                                                                            }
+                                                                        } catch (error) {
+                                                                            console.error('Error updating nickname:', error);
                                                                             setError('Došlo je do greške prilikom promjene nadimka.');
                                                                             setTimeout(() => setError(''), 3000);
+                                                                        } finally {
+                                                                            setLoading(false);
                                                                         }
                                                                     }
                                                                 }}

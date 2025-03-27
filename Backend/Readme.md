@@ -5,11 +5,17 @@
 
 - [AutentifikacijaController](#T-Backend-Controllers-AutentifikacijaController 'Backend.Controllers.AutentifikacijaController')
   - [#ctor(context,configuration,logger)](#M-Backend-Controllers-AutentifikacijaController-#ctor-Backend-Data-BackendContext,Microsoft-Extensions-Configuration-IConfiguration,Microsoft-Extensions-Logging-ILogger{Backend-Controllers-AutentifikacijaController}- 'Backend.Controllers.AutentifikacijaController.#ctor(Backend.Data.BackendContext,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{Backend.Controllers.AutentifikacijaController})')
+  - [ChangePassword(passwordDTO)](#M-Backend-Controllers-AutentifikacijaController-ChangePassword-Backend-Models-DTO-PasswordChangeDTO- 'Backend.Controllers.AutentifikacijaController.ChangePassword(Backend.Models.DTO.PasswordChangeDTO)')
+  - [DeleteUser(id)](#M-Backend-Controllers-AutentifikacijaController-DeleteUser-System-Int32- 'Backend.Controllers.AutentifikacijaController.DeleteUser(System.Int32)')
   - [GenerateJwtToken(operater,uloge)](#M-Backend-Controllers-AutentifikacijaController-GenerateJwtToken-Backend-Models-Operater,System-Collections-Generic-List{System-String}- 'Backend.Controllers.AutentifikacijaController.GenerateJwtToken(Backend.Models.Operater,System.Collections.Generic.List{System.String})')
+  - [GetUserDetails(id)](#M-Backend-Controllers-AutentifikacijaController-GetUserDetails-System-Int32- 'Backend.Controllers.AutentifikacijaController.GetUserDetails(System.Int32)')
   - [GetUsers()](#M-Backend-Controllers-AutentifikacijaController-GetUsers 'Backend.Controllers.AutentifikacijaController.GetUsers')
+  - [IsPasswordStrong(password)](#M-Backend-Controllers-AutentifikacijaController-IsPasswordStrong-System-String- 'Backend.Controllers.AutentifikacijaController.IsPasswordStrong(System.String)')
   - [Login(operaterDTO)](#M-Backend-Controllers-AutentifikacijaController-Login-Backend-Models-DTO-OperaterDTO- 'Backend.Controllers.AutentifikacijaController.Login(Backend.Models.DTO.OperaterDTO)')
   - [Register(registerDTO)](#M-Backend-Controllers-AutentifikacijaController-Register-Backend-Models-DTO-OperaterRegisterDTO- 'Backend.Controllers.AutentifikacijaController.Register(Backend.Models.DTO.OperaterRegisterDTO)')
   - [ResetAdminPassword()](#M-Backend-Controllers-AutentifikacijaController-ResetAdminPassword 'Backend.Controllers.AutentifikacijaController.ResetAdminPassword')
+  - [UpdateNickname(id,nicknameDTO)](#M-Backend-Controllers-AutentifikacijaController-UpdateNickname-System-Int32,Backend-Models-DTO-NicknameUpdateDTO- 'Backend.Controllers.AutentifikacijaController.UpdateNickname(System.Int32,Backend.Models.DTO.NicknameUpdateDTO)')
+  - [UpdateUser(id,updateDTO)](#M-Backend-Controllers-AutentifikacijaController-UpdateUser-System-Int32,Backend-Models-DTO-OperaterUpdateDTO- 'Backend.Controllers.AutentifikacijaController.UpdateUser(System.Int32,Backend.Models.DTO.OperaterUpdateDTO)')
   - [UpdateUserRoles(id,updateRolesDTO)](#M-Backend-Controllers-AutentifikacijaController-UpdateUserRoles-System-Int32,Backend-Models-DTO-OperaterUpdateRolesDTO- 'Backend.Controllers.AutentifikacijaController.UpdateUserRoles(System.Int32,Backend.Models.DTO.OperaterUpdateRolesDTO)')
 - [AutorizacijaController](#T-Backend-Controllers-AutorizacijaController 'Backend.Controllers.AutorizacijaController')
   - [#ctor(context)](#M-Backend-Controllers-AutorizacijaController-#ctor-Backend-Data-BackendContext- 'Backend.Controllers.AutorizacijaController.#ctor(Backend.Data.BackendContext)')
@@ -32,15 +38,49 @@
   - [Put(sifra,kupacDTO)](#M-Backend-Controllers-KupacController-Put-System-Int32,Backend-Models-DTO-KupacDTOInsertUpdate- 'Backend.Controllers.KupacController.Put(System.Int32,Backend.Models.DTO.KupacDTOInsertUpdate)')
   - [TraziKupac(uvjet)](#M-Backend-Controllers-KupacController-TraziKupac-System-String- 'Backend.Controllers.KupacController.TraziKupac(System.String)')
   - [TraziKupacStranicenje(stranica,uvjet)](#M-Backend-Controllers-KupacController-TraziKupacStranicenje-System-Int32,System-String- 'Backend.Controllers.KupacController.TraziKupacStranicenje(System.Int32,System.String)')
+- [NicknameUpdateDTO](#T-Backend-Models-DTO-NicknameUpdateDTO 'Backend.Models.DTO.NicknameUpdateDTO')
+  - [Locked](#P-Backend-Models-DTO-NicknameUpdateDTO-Locked 'Backend.Models.DTO.NicknameUpdateDTO.Locked')
+  - [Nickname](#P-Backend-Models-DTO-NicknameUpdateDTO-Nickname 'Backend.Models.DTO.NicknameUpdateDTO.Nickname')
+- [Operater](#T-Backend-Models-Operater 'Backend.Models.Operater')
+  - [Aktivan](#P-Backend-Models-Operater-Aktivan 'Backend.Models.Operater.Aktivan')
+  - [DatumKreiranja](#P-Backend-Models-Operater-DatumKreiranja 'Backend.Models.Operater.DatumKreiranja')
+  - [DatumZakljucavanja](#P-Backend-Models-Operater-DatumZakljucavanja 'Backend.Models.Operater.DatumZakljucavanja')
+  - [Ime](#P-Backend-Models-Operater-Ime 'Backend.Models.Operater.Ime')
+  - [KorisnickoIme](#P-Backend-Models-Operater-KorisnickoIme 'Backend.Models.Operater.KorisnickoIme')
+  - [Lozinka](#P-Backend-Models-Operater-Lozinka 'Backend.Models.Operater.Lozinka')
+  - [NeuspjeliPokusajiPrijave](#P-Backend-Models-Operater-NeuspjeliPokusajiPrijave 'Backend.Models.Operater.NeuspjeliPokusajiPrijave')
+  - [Nickname](#P-Backend-Models-Operater-Nickname 'Backend.Models.Operater.Nickname')
+  - [NicknameLocked](#P-Backend-Models-Operater-NicknameLocked 'Backend.Models.Operater.NicknameLocked')
+  - [OperaterOperaterUloge](#P-Backend-Models-Operater-OperaterOperaterUloge 'Backend.Models.Operater.OperaterOperaterUloge')
+  - [Prezime](#P-Backend-Models-Operater-Prezime 'Backend.Models.Operater.Prezime')
+  - [ZadnjaPromjenaLozinke](#P-Backend-Models-Operater-ZadnjaPromjenaLozinke 'Backend.Models.Operater.ZadnjaPromjenaLozinke')
 - [OperaterDTO](#T-Backend-Models-DTO-OperaterDTO 'Backend.Models.DTO.OperaterDTO')
   - [#ctor(KorisnickoIme,Password)](#M-Backend-Models-DTO-OperaterDTO-#ctor-System-String,System-String- 'Backend.Models.DTO.OperaterDTO.#ctor(System.String,System.String)')
   - [KorisnickoIme](#P-Backend-Models-DTO-OperaterDTO-KorisnickoIme 'Backend.Models.DTO.OperaterDTO.KorisnickoIme')
   - [Password](#P-Backend-Models-DTO-OperaterDTO-Password 'Backend.Models.DTO.OperaterDTO.Password')
+- [OperaterDetailsDTO](#T-Backend-Models-DTO-OperaterDetailsDTO 'Backend.Models.DTO.OperaterDetailsDTO')
+  - [Aktivan](#P-Backend-Models-DTO-OperaterDetailsDTO-Aktivan 'Backend.Models.DTO.OperaterDetailsDTO.Aktivan')
+  - [DatumKreiranja](#P-Backend-Models-DTO-OperaterDetailsDTO-DatumKreiranja 'Backend.Models.DTO.OperaterDetailsDTO.DatumKreiranja')
+  - [Id](#P-Backend-Models-DTO-OperaterDetailsDTO-Id 'Backend.Models.DTO.OperaterDetailsDTO.Id')
+  - [Ime](#P-Backend-Models-DTO-OperaterDetailsDTO-Ime 'Backend.Models.DTO.OperaterDetailsDTO.Ime')
+  - [KorisnickoIme](#P-Backend-Models-DTO-OperaterDetailsDTO-KorisnickoIme 'Backend.Models.DTO.OperaterDetailsDTO.KorisnickoIme')
+  - [Nickname](#P-Backend-Models-DTO-OperaterDetailsDTO-Nickname 'Backend.Models.DTO.OperaterDetailsDTO.Nickname')
+  - [NicknameLocked](#P-Backend-Models-DTO-OperaterDetailsDTO-NicknameLocked 'Backend.Models.DTO.OperaterDetailsDTO.NicknameLocked')
+  - [Prezime](#P-Backend-Models-DTO-OperaterDetailsDTO-Prezime 'Backend.Models.DTO.OperaterDetailsDTO.Prezime')
+  - [Uloge](#P-Backend-Models-DTO-OperaterDetailsDTO-Uloge 'Backend.Models.DTO.OperaterDetailsDTO.Uloge')
+  - [ZadnjaPromjenaLozinke](#P-Backend-Models-DTO-OperaterDetailsDTO-ZadnjaPromjenaLozinke 'Backend.Models.DTO.OperaterDetailsDTO.ZadnjaPromjenaLozinke')
+- [OperaterOperaterUloga](#T-Backend-Models-OperaterOperaterUloga 'Backend.Models.OperaterOperaterUloga')
+  - [Operater](#P-Backend-Models-OperaterOperaterUloga-Operater 'Backend.Models.OperaterOperaterUloga.Operater')
+  - [OperaterId](#P-Backend-Models-OperaterOperaterUloga-OperaterId 'Backend.Models.OperaterOperaterUloga.OperaterId')
+  - [OperaterUloga](#P-Backend-Models-OperaterOperaterUloga-OperaterUloga 'Backend.Models.OperaterOperaterUloga.OperaterUloga')
+  - [OperaterUlogaId](#P-Backend-Models-OperaterOperaterUloga-OperaterUlogaId 'Backend.Models.OperaterOperaterUloga.OperaterUlogaId')
 - [OperaterReadDTO](#T-Backend-Models-DTO-OperaterReadDTO 'Backend.Models.DTO.OperaterReadDTO')
   - [Aktivan](#P-Backend-Models-DTO-OperaterReadDTO-Aktivan 'Backend.Models.DTO.OperaterReadDTO.Aktivan')
   - [Id](#P-Backend-Models-DTO-OperaterReadDTO-Id 'Backend.Models.DTO.OperaterReadDTO.Id')
   - [Ime](#P-Backend-Models-DTO-OperaterReadDTO-Ime 'Backend.Models.DTO.OperaterReadDTO.Ime')
   - [KorisnickoIme](#P-Backend-Models-DTO-OperaterReadDTO-KorisnickoIme 'Backend.Models.DTO.OperaterReadDTO.KorisnickoIme')
+  - [Nickname](#P-Backend-Models-DTO-OperaterReadDTO-Nickname 'Backend.Models.DTO.OperaterReadDTO.Nickname')
+  - [NicknameLocked](#P-Backend-Models-DTO-OperaterReadDTO-NicknameLocked 'Backend.Models.DTO.OperaterReadDTO.NicknameLocked')
   - [Prezime](#P-Backend-Models-DTO-OperaterReadDTO-Prezime 'Backend.Models.DTO.OperaterReadDTO.Prezime')
   - [Uloge](#P-Backend-Models-DTO-OperaterReadDTO-Uloge 'Backend.Models.DTO.OperaterReadDTO.Uloge')
 - [OperaterRegisterDTO](#T-Backend-Models-DTO-OperaterRegisterDTO 'Backend.Models.DTO.OperaterRegisterDTO')
@@ -48,19 +88,31 @@
   - [KorisnickoIme](#P-Backend-Models-DTO-OperaterRegisterDTO-KorisnickoIme 'Backend.Models.DTO.OperaterRegisterDTO.KorisnickoIme')
   - [Lozinka](#P-Backend-Models-DTO-OperaterRegisterDTO-Lozinka 'Backend.Models.DTO.OperaterRegisterDTO.Lozinka')
   - [Prezime](#P-Backend-Models-DTO-OperaterRegisterDTO-Prezime 'Backend.Models.DTO.OperaterRegisterDTO.Prezime')
+- [OperaterUloga](#T-Backend-Models-OperaterUloga 'Backend.Models.OperaterUloga')
+  - [Naziv](#P-Backend-Models-OperaterUloga-Naziv 'Backend.Models.OperaterUloga.Naziv')
+  - [OperaterOperaterUloge](#P-Backend-Models-OperaterUloga-OperaterOperaterUloge 'Backend.Models.OperaterUloga.OperaterOperaterUloge')
+  - [Opis](#P-Backend-Models-OperaterUloga-Opis 'Backend.Models.OperaterUloga.Opis')
 - [OperaterUlogaDTO](#T-Backend-Models-DTO-OperaterUlogaDTO 'Backend.Models.DTO.OperaterUlogaDTO')
   - [Id](#P-Backend-Models-DTO-OperaterUlogaDTO-Id 'Backend.Models.DTO.OperaterUlogaDTO.Id')
   - [Naziv](#P-Backend-Models-DTO-OperaterUlogaDTO-Naziv 'Backend.Models.DTO.OperaterUlogaDTO.Naziv')
   - [Opis](#P-Backend-Models-DTO-OperaterUlogaDTO-Opis 'Backend.Models.DTO.OperaterUlogaDTO.Opis')
+- [OperaterUpdateDTO](#T-Backend-Models-DTO-OperaterUpdateDTO 'Backend.Models.DTO.OperaterUpdateDTO')
+  - [Ime](#P-Backend-Models-DTO-OperaterUpdateDTO-Ime 'Backend.Models.DTO.OperaterUpdateDTO.Ime')
+  - [KorisnickoIme](#P-Backend-Models-DTO-OperaterUpdateDTO-KorisnickoIme 'Backend.Models.DTO.OperaterUpdateDTO.KorisnickoIme')
+  - [Prezime](#P-Backend-Models-DTO-OperaterUpdateDTO-Prezime 'Backend.Models.DTO.OperaterUpdateDTO.Prezime')
 - [OperaterUpdateRolesDTO](#T-Backend-Models-DTO-OperaterUpdateRolesDTO 'Backend.Models.DTO.OperaterUpdateRolesDTO')
   - [OperaterId](#P-Backend-Models-DTO-OperaterUpdateRolesDTO-OperaterId 'Backend.Models.DTO.OperaterUpdateRolesDTO.OperaterId')
   - [Uloge](#P-Backend-Models-DTO-OperaterUpdateRolesDTO-Uloge 'Backend.Models.DTO.OperaterUpdateRolesDTO.Uloge')
+- [PasswordChangeDTO](#T-Backend-Models-DTO-PasswordChangeDTO 'Backend.Models.DTO.PasswordChangeDTO')
+  - [NovaLozinka](#P-Backend-Models-DTO-PasswordChangeDTO-NovaLozinka 'Backend.Models.DTO.PasswordChangeDTO.NovaLozinka')
+  - [TrenutnaLozinka](#P-Backend-Models-DTO-PasswordChangeDTO-TrenutnaLozinka 'Backend.Models.DTO.PasswordChangeDTO.TrenutnaLozinka')
 - [PocetnaController](#T-Backend-Controllers-PocetnaController 'Backend.Controllers.PocetnaController')
   - [#ctor(_context)](#M-Backend-Controllers-PocetnaController-#ctor-Backend-Data-BackendContext- 'Backend.Controllers.PocetnaController.#ctor(Backend.Data.BackendContext)')
   - [DostupneStavke()](#M-Backend-Controllers-PocetnaController-DostupneStavke 'Backend.Controllers.PocetnaController.DostupneStavke')
   - [GrafPodaci()](#M-Backend-Controllers-PocetnaController-GrafPodaci 'Backend.Controllers.PocetnaController.GrafPodaci')
   - [UkupnoKupaca()](#M-Backend-Controllers-PocetnaController-UkupnoKupaca 'Backend.Controllers.PocetnaController.UkupnoKupaca')
 - [ProizvodController](#T-Backend-Controllers-ProizvodController 'Backend.Controllers.ProizvodController')
+  - [#ctor(context,mapper)](#M-Backend-Controllers-ProizvodController-#ctor-Backend-Data-BackendContext,AutoMapper-IMapper- 'Backend.Controllers.ProizvodController.#ctor(Backend.Data.BackendContext,AutoMapper.IMapper)')
   - [Delete(sifra)](#M-Backend-Controllers-ProizvodController-Delete-System-Int32- 'Backend.Controllers.ProizvodController.Delete(System.Int32)')
   - [DohvatiPodatkeZaGraf()](#M-Backend-Controllers-ProizvodController-DohvatiPodatkeZaGraf 'Backend.Controllers.ProizvodController.DohvatiPodatkeZaGraf')
   - [Get()](#M-Backend-Controllers-ProizvodController-Get 'Backend.Controllers.ProizvodController.Get')
@@ -108,6 +160,56 @@ Konstruktor za AutentifikacijaController.
 | configuration | [Microsoft.Extensions.Configuration.IConfiguration](#T-Microsoft-Extensions-Configuration-IConfiguration 'Microsoft.Extensions.Configuration.IConfiguration') | Konfiguracija aplikacije. |
 | logger | [Microsoft.Extensions.Logging.ILogger{Backend.Controllers.AutentifikacijaController}](#T-Microsoft-Extensions-Logging-ILogger{Backend-Controllers-AutentifikacijaController} 'Microsoft.Extensions.Logging.ILogger{Backend.Controllers.AutentifikacijaController}') | Logger za bilježenje događaja. |
 
+<a name='M-Backend-Controllers-AutentifikacijaController-ChangePassword-Backend-Models-DTO-PasswordChangeDTO-'></a>
+### ChangePassword(passwordDTO) `method`
+
+##### Summary
+
+Promjena lozinke korisnika.
+
+##### Returns
+
+Rezultat promjene lozinke.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| passwordDTO | [Backend.Models.DTO.PasswordChangeDTO](#T-Backend-Models-DTO-PasswordChangeDTO 'Backend.Models.DTO.PasswordChangeDTO') | Podaci za promjenu lozinke. |
+
+##### Remarks
+
+Primjer zahtjeva:
+
+     POST /api/v1/Autentifikacija/ChangePassword
+     {
+        "trenutnaLozinka": "StariPassword1!",
+        "novaLozinka": "NoviPassword2@"
+     }
+
+<a name='M-Backend-Controllers-AutentifikacijaController-DeleteUser-System-Int32-'></a>
+### DeleteUser(id) `method`
+
+##### Summary
+
+Briše korisnika iz sustava.
+
+##### Returns
+
+Rezultat brisanja.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | ID korisnika kojeg treba obrisati. |
+
+##### Remarks
+
+Primjer zahtjeva:
+
+     DELETE /api/v1/Autentifikacija/Users/1
+
 <a name='M-Backend-Controllers-AutentifikacijaController-GenerateJwtToken-Backend-Models-Operater,System-Collections-Generic-List{System-String}-'></a>
 ### GenerateJwtToken(operater,uloge) `method`
 
@@ -126,6 +228,29 @@ JWT token.
 | operater | [Backend.Models.Operater](#T-Backend-Models-Operater 'Backend.Models.Operater') | Operater za kojeg se generira token. |
 | uloge | [System.Collections.Generic.List{System.String}](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Collections.Generic.List 'System.Collections.Generic.List{System.String}') | Uloge operatera. |
 
+<a name='M-Backend-Controllers-AutentifikacijaController-GetUserDetails-System-Int32-'></a>
+### GetUserDetails(id) `method`
+
+##### Summary
+
+Dohvaća detalje o korisniku.
+
+##### Returns
+
+Detalji o korisniku.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | ID korisnika. |
+
+##### Remarks
+
+Primjer zahtjeva:
+
+     GET /api/v1/Autentifikacija/Users/1/Details
+
 <a name='M-Backend-Controllers-AutentifikacijaController-GetUsers'></a>
 ### GetUsers() `method`
 
@@ -140,6 +265,29 @@ Lista korisnika.
 ##### Parameters
 
 This method has no parameters.
+
+##### Remarks
+
+Primjer zahtjeva:
+
+     GET /api/v1/Autentifikacija/Users
+
+<a name='M-Backend-Controllers-AutentifikacijaController-IsPasswordStrong-System-String-'></a>
+### IsPasswordStrong(password) `method`
+
+##### Summary
+
+Provjera složenosti lozinke.
+
+##### Returns
+
+True ako je lozinka dovoljno jaka, inače false.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| password | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Lozinka za provjeru. |
 
 <a name='M-Backend-Controllers-AutentifikacijaController-Login-Backend-Models-DTO-OperaterDTO-'></a>
 ### Login(operaterDTO) `method`
@@ -158,6 +306,16 @@ JWT token ako je prijava uspješna, inače 403 Forbidden.
 | ---- | ---- | ----------- |
 | operaterDTO | [Backend.Models.DTO.OperaterDTO](#T-Backend-Models-DTO-OperaterDTO 'Backend.Models.DTO.OperaterDTO') | Podaci za prijavu. |
 
+##### Remarks
+
+Primjer zahtjeva:
+
+     POST /api/v1/Autentifikacija/Login
+     {
+        "korisnickoIme": "admin@admin.com",
+        "password": "admin123"
+     }
+
 <a name='M-Backend-Controllers-AutentifikacijaController-Register-Backend-Models-DTO-OperaterRegisterDTO-'></a>
 ### Register(registerDTO) `method`
 
@@ -175,6 +333,18 @@ Rezultat registracije.
 | ---- | ---- | ----------- |
 | registerDTO | [Backend.Models.DTO.OperaterRegisterDTO](#T-Backend-Models-DTO-OperaterRegisterDTO 'Backend.Models.DTO.OperaterRegisterDTO') | Podaci za registraciju. |
 
+##### Remarks
+
+Primjer zahtjeva:
+
+     POST /api/v1/Autentifikacija/Register
+     {
+        "korisnickoIme": "novi.korisnik@example.com",
+        "lozinka": "Lozinka1!",
+        "ime": "Novi",
+        "prezime": "Korisnik"
+     }
+
 <a name='M-Backend-Controllers-AutentifikacijaController-ResetAdminPassword'></a>
 ### ResetAdminPassword() `method`
 
@@ -189,6 +359,69 @@ Rezultat resetiranja lozinke ili kreiranja admin korisnika.
 ##### Parameters
 
 This method has no parameters.
+
+##### Remarks
+
+Primjer zahtjeva:
+
+     POST /api/v1/Autentifikacija/ResetAdminPassword
+
+<a name='M-Backend-Controllers-AutentifikacijaController-UpdateNickname-System-Int32,Backend-Models-DTO-NicknameUpdateDTO-'></a>
+### UpdateNickname(id,nicknameDTO) `method`
+
+##### Summary
+
+Ažurira nadimak korisnika.
+
+##### Returns
+
+Rezultat ažuriranja.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | ID korisnika. |
+| nicknameDTO | [Backend.Models.DTO.NicknameUpdateDTO](#T-Backend-Models-DTO-NicknameUpdateDTO 'Backend.Models.DTO.NicknameUpdateDTO') | Podaci za ažuriranje nadimka. |
+
+##### Remarks
+
+Primjer zahtjeva:
+
+     PUT /api/v1/Autentifikacija/Users/1/Nickname
+     {
+        "nickname": "CoolGamer123",
+        "locked": true
+     }
+
+<a name='M-Backend-Controllers-AutentifikacijaController-UpdateUser-System-Int32,Backend-Models-DTO-OperaterUpdateDTO-'></a>
+### UpdateUser(id,updateDTO) `method`
+
+##### Summary
+
+Ažurira podatke o korisniku.
+
+##### Returns
+
+Rezultat ažuriranja.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| id | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | ID korisnika. |
+| updateDTO | [Backend.Models.DTO.OperaterUpdateDTO](#T-Backend-Models-DTO-OperaterUpdateDTO 'Backend.Models.DTO.OperaterUpdateDTO') | Podaci za ažuriranje. |
+
+##### Remarks
+
+Primjer zahtjeva:
+
+     PUT /api/v1/Autentifikacija/Users/1
+     {
+        "ime": "Ažurirano",
+        "prezime": "Prezime",
+        "korisnickoIme": "azurirano.prezime@example.com"
+     }
 
 <a name='M-Backend-Controllers-AutentifikacijaController-UpdateUserRoles-System-Int32,Backend-Models-DTO-OperaterUpdateRolesDTO-'></a>
 ### UpdateUserRoles(id,updateRolesDTO) `method`
@@ -207,6 +440,16 @@ Rezultat ažuriranja.
 | ---- | ---- | ----------- |
 | id | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | ID korisnika. |
 | updateRolesDTO | [Backend.Models.DTO.OperaterUpdateRolesDTO](#T-Backend-Models-DTO-OperaterUpdateRolesDTO 'Backend.Models.DTO.OperaterUpdateRolesDTO') | Podaci za ažuriranje uloga. |
+
+##### Remarks
+
+Primjer zahtjeva:
+
+     PUT /api/v1/Autentifikacija/Users/1/Roles
+     {
+        "operaterId": 1,
+        "uloge": ["User", "Admin"]
+     }
 
 <a name='T-Backend-Controllers-AutorizacijaController'></a>
 ## AutorizacijaController `type`
@@ -518,6 +761,126 @@ Lista kupaca.
 | stranica | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | Broj stranice. |
 | uvjet | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | Uvjet pretrage. |
 
+<a name='T-Backend-Models-DTO-NicknameUpdateDTO'></a>
+## NicknameUpdateDTO `type`
+
+##### Namespace
+
+Backend.Models.DTO
+
+##### Summary
+
+DTO za ažuriranje nadimka operatera.
+
+<a name='P-Backend-Models-DTO-NicknameUpdateDTO-Locked'></a>
+### Locked `property`
+
+##### Summary
+
+Označava treba li zaključati nadimak (korisnik ga ne može mijenjati)
+
+<a name='P-Backend-Models-DTO-NicknameUpdateDTO-Nickname'></a>
+### Nickname `property`
+
+##### Summary
+
+Novi nadimak operatera
+
+<a name='T-Backend-Models-Operater'></a>
+## Operater `type`
+
+##### Namespace
+
+Backend.Models
+
+##### Summary
+
+Model operatera (korisnika) u sustavu
+
+<a name='P-Backend-Models-Operater-Aktivan'></a>
+### Aktivan `property`
+
+##### Summary
+
+Status aktivnosti operatera
+
+<a name='P-Backend-Models-Operater-DatumKreiranja'></a>
+### DatumKreiranja `property`
+
+##### Summary
+
+Datum kreiranja korisničkog računa
+
+<a name='P-Backend-Models-Operater-DatumZakljucavanja'></a>
+### DatumZakljucavanja `property`
+
+##### Summary
+
+Datum i vrijeme zaključavanja računa zbog previše neuspjelih pokušaja prijave
+
+<a name='P-Backend-Models-Operater-Ime'></a>
+### Ime `property`
+
+##### Summary
+
+Ime operatera
+
+<a name='P-Backend-Models-Operater-KorisnickoIme'></a>
+### KorisnickoIme `property`
+
+##### Summary
+
+Korisničko ime operatera (email adresa)
+
+<a name='P-Backend-Models-Operater-Lozinka'></a>
+### Lozinka `property`
+
+##### Summary
+
+Lozinka operatera (hashirana)
+
+<a name='P-Backend-Models-Operater-NeuspjeliPokusajiPrijave'></a>
+### NeuspjeliPokusajiPrijave `property`
+
+##### Summary
+
+Broj neuspjelih pokušaja prijave
+
+<a name='P-Backend-Models-Operater-Nickname'></a>
+### Nickname `property`
+
+##### Summary
+
+Nadimak korisnika koji se prikazuje javno
+
+<a name='P-Backend-Models-Operater-NicknameLocked'></a>
+### NicknameLocked `property`
+
+##### Summary
+
+Označava je li nadimak zaključan (korisnik ga ne može mijenjati)
+
+<a name='P-Backend-Models-Operater-OperaterOperaterUloge'></a>
+### OperaterOperaterUloge `property`
+
+##### Summary
+
+Veza s ulogama (many-to-many)
+
+<a name='P-Backend-Models-Operater-Prezime'></a>
+### Prezime `property`
+
+##### Summary
+
+Prezime operatera
+
+<a name='P-Backend-Models-Operater-ZadnjaPromjenaLozinke'></a>
+### ZadnjaPromjenaLozinke `property`
+
+##### Summary
+
+Datum i vrijeme zadnje promjene lozinke
+
 <a name='T-Backend-Models-DTO-OperaterDTO'></a>
 ## OperaterDTO `type`
 
@@ -563,6 +926,126 @@ Korisničko ime operatera
 
 Lozinka operatera
 
+<a name='T-Backend-Models-DTO-OperaterDetailsDTO'></a>
+## OperaterDetailsDTO `type`
+
+##### Namespace
+
+Backend.Models.DTO
+
+##### Summary
+
+DTO za detaljne podatke o operateru.
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-Aktivan'></a>
+### Aktivan `property`
+
+##### Summary
+
+Status aktivnosti operatera
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-DatumKreiranja'></a>
+### DatumKreiranja `property`
+
+##### Summary
+
+Datum kreiranja operatera
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-Id'></a>
+### Id `property`
+
+##### Summary
+
+Šifra operatera
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-Ime'></a>
+### Ime `property`
+
+##### Summary
+
+Ime operatera
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-KorisnickoIme'></a>
+### KorisnickoIme `property`
+
+##### Summary
+
+Korisničko ime operatera
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-Nickname'></a>
+### Nickname `property`
+
+##### Summary
+
+Nadimak operatera
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-NicknameLocked'></a>
+### NicknameLocked `property`
+
+##### Summary
+
+Označava je li nadimak zaključan
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-Prezime'></a>
+### Prezime `property`
+
+##### Summary
+
+Prezime operatera
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-Uloge'></a>
+### Uloge `property`
+
+##### Summary
+
+Uloge operatera
+
+<a name='P-Backend-Models-DTO-OperaterDetailsDTO-ZadnjaPromjenaLozinke'></a>
+### ZadnjaPromjenaLozinke `property`
+
+##### Summary
+
+Datum zadnje promjene lozinke
+
+<a name='T-Backend-Models-OperaterOperaterUloga'></a>
+## OperaterOperaterUloga `type`
+
+##### Namespace
+
+Backend.Models
+
+##### Summary
+
+Model veze između operatera i uloge (many-to-many)
+
+<a name='P-Backend-Models-OperaterOperaterUloga-Operater'></a>
+### Operater `property`
+
+##### Summary
+
+Referenca na operatera
+
+<a name='P-Backend-Models-OperaterOperaterUloga-OperaterId'></a>
+### OperaterId `property`
+
+##### Summary
+
+ID operatera
+
+<a name='P-Backend-Models-OperaterOperaterUloga-OperaterUloga'></a>
+### OperaterUloga `property`
+
+##### Summary
+
+Referenca na ulogu operatera
+
+<a name='P-Backend-Models-OperaterOperaterUloga-OperaterUlogaId'></a>
+### OperaterUlogaId `property`
+
+##### Summary
+
+ID uloge operatera
+
 <a name='T-Backend-Models-DTO-OperaterReadDTO'></a>
 ## OperaterReadDTO `type`
 
@@ -601,6 +1084,20 @@ Ime operatera
 ##### Summary
 
 Korisničko ime operatera
+
+<a name='P-Backend-Models-DTO-OperaterReadDTO-Nickname'></a>
+### Nickname `property`
+
+##### Summary
+
+Nadimak operatera
+
+<a name='P-Backend-Models-DTO-OperaterReadDTO-NicknameLocked'></a>
+### NicknameLocked `property`
+
+##### Summary
+
+Označava je li nadimak zaključan
 
 <a name='P-Backend-Models-DTO-OperaterReadDTO-Prezime'></a>
 ### Prezime `property`
@@ -655,6 +1152,38 @@ Lozinka operatera
 
 Prezime operatera
 
+<a name='T-Backend-Models-OperaterUloga'></a>
+## OperaterUloga `type`
+
+##### Namespace
+
+Backend.Models
+
+##### Summary
+
+Model uloge operatera u sustavu
+
+<a name='P-Backend-Models-OperaterUloga-Naziv'></a>
+### Naziv `property`
+
+##### Summary
+
+Naziv uloge
+
+<a name='P-Backend-Models-OperaterUloga-OperaterOperaterUloge'></a>
+### OperaterOperaterUloge `property`
+
+##### Summary
+
+Veza s operaterima (many-to-many)
+
+<a name='P-Backend-Models-OperaterUloga-Opis'></a>
+### Opis `property`
+
+##### Summary
+
+Opis uloge
+
 <a name='T-Backend-Models-DTO-OperaterUlogaDTO'></a>
 ## OperaterUlogaDTO `type`
 
@@ -687,6 +1216,38 @@ Naziv uloge
 
 Opis uloge
 
+<a name='T-Backend-Models-DTO-OperaterUpdateDTO'></a>
+## OperaterUpdateDTO `type`
+
+##### Namespace
+
+Backend.Models.DTO
+
+##### Summary
+
+DTO za ažuriranje podataka o operateru.
+
+<a name='P-Backend-Models-DTO-OperaterUpdateDTO-Ime'></a>
+### Ime `property`
+
+##### Summary
+
+Ime operatera
+
+<a name='P-Backend-Models-DTO-OperaterUpdateDTO-KorisnickoIme'></a>
+### KorisnickoIme `property`
+
+##### Summary
+
+Korisničko ime operatera
+
+<a name='P-Backend-Models-DTO-OperaterUpdateDTO-Prezime'></a>
+### Prezime `property`
+
+##### Summary
+
+Prezime operatera
+
 <a name='T-Backend-Models-DTO-OperaterUpdateRolesDTO'></a>
 ## OperaterUpdateRolesDTO `type`
 
@@ -711,6 +1272,31 @@ DTO za ažuriranje uloga operatera.
 ##### Summary
 
 Lista uloga koje se dodjeljuju operateru
+
+<a name='T-Backend-Models-DTO-PasswordChangeDTO'></a>
+## PasswordChangeDTO `type`
+
+##### Namespace
+
+Backend.Models.DTO
+
+##### Summary
+
+DTO za promjenu lozinke.
+
+<a name='P-Backend-Models-DTO-PasswordChangeDTO-NovaLozinka'></a>
+### NovaLozinka `property`
+
+##### Summary
+
+Nova lozinka operatera
+
+<a name='P-Backend-Models-DTO-PasswordChangeDTO-TrenutnaLozinka'></a>
+### TrenutnaLozinka `property`
+
+##### Summary
+
+Trenutna lozinka operatera
 
 <a name='T-Backend-Controllers-PocetnaController'></a>
 ## PocetnaController `type`
@@ -793,6 +1379,24 @@ This method has no parameters.
 ##### Namespace
 
 Backend.Controllers
+
+##### Summary
+
+Kontroler za upravljanje proizvodima.
+
+<a name='M-Backend-Controllers-ProizvodController-#ctor-Backend-Data-BackendContext,AutoMapper-IMapper-'></a>
+### #ctor(context,mapper) `constructor`
+
+##### Summary
+
+Konstruktor za ProizvodController.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| context | [Backend.Data.BackendContext](#T-Backend-Data-BackendContext 'Backend.Data.BackendContext') | Kontekst baze podataka. |
+| mapper | [AutoMapper.IMapper](#T-AutoMapper-IMapper 'AutoMapper.IMapper') | Mapper za mapiranje između modela i DTO-a. |
 
 <a name='M-Backend-Controllers-ProizvodController-Delete-System-Int32-'></a>
 ### Delete(sifra) `method`

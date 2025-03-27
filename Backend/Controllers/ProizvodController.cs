@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using AutoMapper;
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.DTO;
@@ -11,11 +11,19 @@ using System.Linq;
 
 namespace Backend.Controllers
 {
+    /// <summary>
+    /// Kontroler za upravljanje proizvodima.
+    /// </summary>
     [ApiController]
     [Route("api/v1/[controller]")]
     [Authorize]
     public class ProizvodController : BackendController
     {
+        /// <summary>
+        /// Konstruktor za ProizvodController.
+        /// </summary>
+        /// <param name="context">Kontekst baze podataka.</param>
+        /// <param name="mapper">Mapper za mapiranje između modela i DTO-a.</param>
         public ProizvodController(BackendContext context, IMapper mapper) : base(context, mapper)
         {
         }

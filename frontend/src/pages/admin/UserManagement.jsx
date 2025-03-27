@@ -43,18 +43,34 @@ const UserManagement = () => {
             if (Array.isArray(response.data) && response.data.length > 0) {
                 console.log('Prvi korisnik iz niza:', response.data[0]);
                 
-                // Dohvati informacije o zaključanim nadimcima iz localStorage
-                const usersWithLockInfo = response.data.map(user => {
-                    const isLocked = localStorage.getItem(`nickname_locked_${user.id}`) === 'true';
-                    const nickname = localStorage.getItem(`user_nickname_${user.id}`) || '';
-                    return {
-                        ...user,
-                        isNicknameLocked: isLocked,
-                        nickname: nickname
-                    };
-                });
+                // Dohvati detaljne informacije o korisnicima
+                const usersWithDetails = await Promise.all(
+                    response.data.map(async (user) => {
+                        // Pokušaj dohvatiti detalje s backenda
+                        const userDetails = await fetchUserDetails(user.id);
+                        
+                        if (userDetails) {
+                            // Ako su detalji uspješno dohvaćeni, koristi ih
+                            return {
+                                ...user,
+                                nickname: userDetails.nickname || '',
+                                isNicknameLocked: userDetails.nicknameLocked || false,
+                                datumKreiranja: userDetails.datumKreiranja
+                            };
+                        } else {
+                            // Ako detalji nisu dostupni, koristi localStorage kao fallback
+                            const isLocked = localStorage.getItem(`nickname_locked_${user.id}`) === 'true';
+                            const nickname = localStorage.getItem(`user_nickname_${user.id}`) || '';
+                            return {
+                                ...user,
+                                isNicknameLocked: isLocked,
+                                nickname: nickname
+                            };
+                        }
+                    })
+                );
                 
-                setUsers(usersWithLockInfo);
+                setUsers(usersWithDetails);
             } else {
                 console.error('Expected array but got:', typeof response.data);
                 setError('Neočekivani format podataka od API-ja.');
@@ -112,7 +128,25 @@ const UserManagement = () => {
         setIsNicknameLocked(!isNicknameLocked);
     };
     
-    const handleDeleteUser = (user) => {
+    // Funkcija za dohvaćanje korisničkih detalja s backenda
+    const fetchUserDetails = async (userId) => {
+        try {
+            const userDetails = await AuthService.getUserDetails(userId);
+            if (userDetails) {
+                return userDetails;
+            }
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+        }
+        // Return a default object with empty values instead of null
+        return {
+            nickname: '',
+            nicknameLocked: false,
+            datumKreiranja: new Date().toISOString()
+        };
+    };
+    
+    const handleDeleteUser = async (user) => {
         // Check if user has Admin role
         if (user.uloge && user.uloge.includes('Admin')) {
             alert('Nije moguće obrisati korisnika s administratorskim pravima. Prvo uklonite administratorska prava.');
@@ -124,20 +158,29 @@ const UserManagement = () => {
             return;
         }
         
-        // In a real application, we would call an API endpoint to delete the user
-        // Since we don't have that endpoint, we'll just remove the user from the local state
         try {
-            // Remove user from local state
-            setUsers(users.filter(u => u.id !== user.id));
+            setLoading(true);
             
-            // Clean up localStorage items related to this user
-            localStorage.removeItem(`user_nickname_${user.id}`);
-            localStorage.removeItem(`nickname_locked_${user.id}`);
+            // Call the API to delete the user
+            const result = await AuthService.deleteUser(user.id);
             
-            alert('Korisnik je uspješno obrisan.');
+            if (result.success) {
+                // Remove user from local state
+                setUsers(users.filter(u => u.id !== user.id));
+                
+                // Clean up localStorage items related to this user
+                localStorage.removeItem(`user_nickname_${user.id}`);
+                localStorage.removeItem(`nickname_locked_${user.id}`);
+                
+                alert('Korisnik je uspješno obrisan.');
+            } else {
+                alert(result.error || 'Došlo je do greške prilikom brisanja korisnika.');
+            }
         } catch (error) {
             console.error('Error deleting user:', error);
             alert('Došlo je do greške prilikom brisanja korisnika.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -186,14 +229,30 @@ const UserManagement = () => {
             
             if (selectedUser) {
                 // Ažuriranje postojećeg korisnika
-                // Spremi nadimak
-                localStorage.setItem(`user_nickname_${selectedUser.id}`, editFormData.nickname);
-                
-                // Spremi status zaključavanja nadimka
-                localStorage.setItem(`nickname_locked_${selectedUser.id}`, isNicknameLocked.toString());
-                
-                // Budući da backend nema endpoint za ažuriranje korisničkih podataka,
-                // spremamo podatke samo lokalno
+                try {
+                    // Prvo ažuriraj osnovne podatke korisnika
+                    await HttpService.put(`/Autentifikacija/Users/${selectedUser.id}`, {
+                        Ime: editFormData.ime,
+                        Prezime: editFormData.prezime,
+                        KorisnickoIme: editFormData.korisnickoIme
+                    });
+                    
+                    // Zatim ažuriraj nadimak i status zaključanosti
+                    await HttpService.put(`/Autentifikacija/Users/${selectedUser.id}/Nickname`, {
+                        Nickname: editFormData.nickname,
+                        Locked: isNicknameLocked
+                    });
+                    
+                    // Ako je uspješno, ažuriraj i lokalno
+                    localStorage.setItem(`user_nickname_${selectedUser.id}`, editFormData.nickname);
+                    localStorage.setItem(`nickname_locked_${selectedUser.id}`, isNicknameLocked.toString());
+                } catch (error) {
+                    console.error('Error updating user on server:', error);
+                    
+                    // Ako ne uspije, spremi samo lokalno
+                    localStorage.setItem(`user_nickname_${selectedUser.id}`, editFormData.nickname);
+                    localStorage.setItem(`nickname_locked_${selectedUser.id}`, isNicknameLocked.toString());
+                }
                 
                 // Ažuriraj lokalno stanje
                 setUsers(users.map(user => 
@@ -223,14 +282,13 @@ const UserManagement = () => {
                 }
                 
                 // Kreiraj novog korisnika putem API-ja
+                // Prilagođavamo format podataka da odgovara onome što backend očekuje (OperaterRegisterDTO)
                 const response = await HttpService.post('/Autentifikacija/Register', {
-                    ime: editFormData.ime,
-                    prezime: editFormData.prezime,
-                    email: editFormData.email,
-                    korisnickoIme: editFormData.korisnickoIme,
-                    lozinka: editFormData.lozinka,
-                    nickname: editFormData.nickname,
-                    uloge: ["User"] // Dodajemo defaultnu ulogu "User"
+                    Ime: editFormData.ime,
+                    Prezime: editFormData.prezime,
+                    KorisnickoIme: editFormData.korisnickoIme || editFormData.email, // Koristimo korisničko ime ili email ako korisničko ime nije uneseno
+                    Lozinka: editFormData.lozinka
+                    // Napomena: backend ne podržava spremanje nadimka i uloga prilikom registracije
                 });
                 
                 // Ako je uspješno, dodaj korisnika u lokalno stanje

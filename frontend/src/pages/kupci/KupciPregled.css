@@ -56,6 +56,31 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Stil za kontejner kada nema stavki */
+.no-items-container {
+  text-align: center;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.no-items-container p {
+  margin-bottom: 10px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.no-items-container button {
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.no-items-container button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 /* Responzivnost za mobilne uređaje */
 @media (max-width: 768px) {
   .profile-image {
@@ -66,5 +91,9 @@
   .stavke-popup {
     margin: 5px;
     padding: 10px;
+  }
+  
+  .no-items-container {
+    padding: 15px;
   }
 }

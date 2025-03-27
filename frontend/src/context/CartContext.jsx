@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { Toast, ToastContainer } from 'react-bootstrap';
+import { Toast } from 'react-bootstrap';
 
 const CartContext = createContext();
 
@@ -8,7 +8,7 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
-    const [notification, setNotification] = useState({ show: false, message: '', product: null });
+    const [notifications, setNotifications] = useState([]);
     
     useEffect(() => {
         calculateTotal();
@@ -29,17 +29,25 @@ export const CartProvider = ({ children }) => {
             setCartItems([...cartItems, { ...product, quantity: 1 }]);
         }
         
-        // Show notification
-        setNotification({ 
-            show: true, 
+        // Create a new notification with unique ID
+        const newNotification = { 
+            id: Date.now(), // Use timestamp as unique ID
             message: `${product.nazivIgre} dodana u košaricu`, 
             product 
-        });
+        };
+        
+        // Add new notification to the array
+        setNotifications(prev => [...prev, newNotification]);
         
         // Hide notification after 3 seconds
         setTimeout(() => {
-            setNotification({ show: false, message: '', product: null });
+            removeNotification(newNotification.id);
         }, 3000);
+    };
+    
+    // Function to remove a specific notification by ID
+    const removeNotification = (id) => {
+        setNotifications(prev => prev.filter(notification => notification.id !== id));
     };
     
     const removeFromCart = (productId) => {
@@ -86,35 +94,41 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateQuantity,
         clearCart,
-        applyDiscount,
-        notification
+        applyDiscount
     };
     
     return (
         <CartContext.Provider value={value}>
             {children}
             
-            {/* Notification Toast */}
-            <ToastContainer 
-                position="bottom-end" 
-                className="p-3" 
-                style={{ zIndex: 1070 }}
+            {/* Notification Toasts */}
+            <div 
+                style={{ 
+                    position: 'fixed', 
+                    bottom: '20px', 
+                    right: '20px', 
+                    zIndex: 1070,
+                    display: 'flex',
+                    flexDirection: 'column-reverse', // Newest at the bottom
+                    gap: '10px'
+                }}
             >
-                <Toast 
-                    show={notification.show} 
-                    onClose={() => setNotification({ show: false, message: '', product: null })}
-                    bg="success"
-                    delay={3000}
-                    autohide
-                >
-                    <Toast.Header closeButton={true}>
-                        <strong className="me-auto">Košarica</strong>
-                    </Toast.Header>
-                    <Toast.Body className="text-white">
-                        {notification.message}
-                    </Toast.Body>
-                </Toast>
-            </ToastContainer>
+                {notifications.map(notification => (
+                    <Toast 
+                        key={notification.id}
+                        onClose={() => removeNotification(notification.id)}
+                        bg="success"
+                        className="mb-2"
+                    >
+                        <Toast.Header closeButton={true}>
+                            <strong className="me-auto">Košarica</strong>
+                        </Toast.Header>
+                        <Toast.Body className="text-white">
+                            {notification.message}
+                        </Toast.Body>
+                    </Toast>
+                ))}
+            </div>
         </CartContext.Provider>
     );
 };

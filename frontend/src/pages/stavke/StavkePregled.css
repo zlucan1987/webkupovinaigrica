@@ -1,0 +1,39 @@
+/* Stilovi za komponentu StavkePregled */
+
+.stavke-komponenta {
+  margin: 20px 0;
+}
+
+/* Stilovi za slike proizvoda u tablici */
+.stavka-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  transition: transform 0.2s ease-in-out;
+}
+
+.stavka-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Stilovi za tablicu */
+.stavke-komponenta table {
+  margin-top: 20px;
+}
+
+.stavke-komponenta th {
+  background-color: #343a40;
+  color: white;
+}
+
+/* Stilovi za gumbe */
+.stavke-komponenta .btn {
+  margin-right: 5px;
+}
+
+.siroko {
+  margin-bottom: 20px;
+}

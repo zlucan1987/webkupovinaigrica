@@ -58,13 +58,13 @@ const Register = () => {
         }
 
         try {
-            // Prepare data for API
+            // Prepare data for API - format data according to what backend expects
             const userData = {
                 Ime: formData.ime,
                 Prezime: formData.prezime,
-                Nickname: formData.nickname,
                 KorisnickoIme: formData.email,
                 Lozinka: formData.password
+                // Note: Nickname is not supported by the backend API, it will be stored locally
             };
 
             // Send registration request
@@ -76,7 +76,26 @@ const Register = () => {
                     setUserProfilePicture(response.id, selectedProfilePicture);
                     
                     // Store nickname in localStorage for easy access
+                    // Note: In a production environment, this should be stored on the server
                     localStorage.setItem(`user_nickname_${response.id}`, formData.nickname);
+                    
+                    console.log('User registered successfully with ID:', response.id);
+                } else {
+                    // If response doesn't contain ID, try to extract it from the message
+                    console.log('Registration response:', response);
+                    
+                    // Try to login to get the user ID
+                    try {
+                        await AuthService.login(formData.email, formData.password);
+                        const userInfo = AuthService.getUserInfo();
+                        if (userInfo && userInfo.nameid) {
+                            setUserProfilePicture(userInfo.nameid, selectedProfilePicture);
+                            localStorage.setItem(`user_nickname_${userInfo.nameid}`, formData.nickname);
+                            console.log('User ID retrieved after login:', userInfo.nameid);
+                        }
+                    } catch (loginError) {
+                        console.error('Error logging in after registration:', loginError);
+                    }
                 }
                 
                 // Send notification email to admin

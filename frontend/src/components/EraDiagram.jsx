@@ -8,7 +8,7 @@ export default function EraDiagram() {
       <h2 className="text-center mb-4" style={{ color: 'white' }}>ERA Dijagram</h2>
       <div className="mt-4 text-center">
         <Image 
-          src="/era-diagram.jpg" 
+          src="/era-diagram.jpeg" 
           alt="ERA Dijagram" 
           fluid 
           className="mx-auto d-block"
@@ -19,59 +19,103 @@ export default function EraDiagram() {
       <Card className="mt-5 bg-dark text-white">
         <Card.Header as="h4">Objašnjenje ERA dijagrama</Card.Header>
         <Card.Body>
-          <h5>Entiteti i njihovi atributi:</h5>
+          <h5>Entiteti i njihovi atributi (detaljan opis):</h5>
           <ul>
             <li>
-              <strong>Kupci</strong> - Sadrži podatke o kupcima
+              <strong>Operateri</strong>:
               <ul>
-                <li><strong>Sifra</strong> (PK) - Primarni ključ, jedinstveni identifikator kupca</li>
-                <li><strong>Ime</strong> - Ime kupca</li>
-                <li><strong>Prezime</strong> - Prezime kupca</li>
-                <li><strong>Ulica</strong> - Adresa kupca</li>
-                <li><strong>Mjesto</strong> - Mjesto stanovanja kupca</li>
+                <li><strong>Sifra</strong> (INT, PRIMARY KEY): Jedinstveni brojčani identifikator svakog operatera u sustavu.</li>
+                <li><strong>KorisnickoIme</strong> (NVARCHAR(255), NOT NULL): Korisničko ime operatera za prijavu u sustav (obavezno).</li>
+                <li><strong>Lozinka</strong> (NVARCHAR(255), NOT NULL): Lozinka operatera za prijavu u sustav (obavezno).</li>
+                <li><strong>Ime</strong> (NVARCHAR(255), NULL): Ime operatera (nije obavezno).</li>
+                <li><strong>Prezime</strong> (NVARCHAR(255), NULL): Prezime operatera (nije obavezno).</li>
+                <li><strong>Aktivan</strong> (BIT, NOT NULL, DEFAULT 1): Označava je li operater aktivan u sustavu (1 = aktivan, 0 = neaktivan). Standardno je postavljeno na 1 (aktivan).</li>
+                <li><strong>NickName</strong> (NVARCHAR(255), NULL): Nadimak operatera (nije obavezno).</li>
+                <li><strong>NicknameLocked</strong> (BIT, NULL): Označava je li nadimak zaključan (1 = zaključan, 0 = otključan).</li>
+                <li><strong>ZadnjaPromjenaLozinke</strong> (DATETIME, NULL): Datum i vrijeme zadnje promjene lozinke operatera.</li>
+                <li><strong>NeuspjeliPokusajiPrijave</strong> (INT, NULL): Broj neuspjelih pokušaja prijave operatera.</li>
+                <li><strong>Datumzakljucavanja</strong> (DATETIME, NULL): Datum i vrijeme zaključavanja računa operatera.</li>
+                <li><strong>DatumKreiranja</strong> (DATETIME, NULL): Datum i vrijeme kreiranja računa operatera.</li>
               </ul>
             </li>
             <li>
-              <strong>Proizvodi</strong> - Sadrži podatke o proizvodima (igricama)
+              <strong>OperaterUloge</strong>:
               <ul>
-                <li><strong>Sifra</strong> (PK) - Primarni ključ, jedinstveni identifikator proizvoda</li>
-                <li><strong>NazivIgre</strong> - Naziv igrice</li>
-                <li><strong>Cijena</strong> - Cijena proizvoda</li>
+                <li><strong>Sifra</strong> (INT, PRIMARY KEY): Jedinstveni brojčani identifikator svake uloge operatera.</li>
+                <li><strong>Naziv</strong> (NVARCHAR(50), NOT NULL): Naziv uloge (npr. &quot;administrator&quot;, &quot;korisnik&quot;).</li>
+                <li><strong>Opis</strong> (NVARCHAR(255), NULL): Opis uloge.</li>
               </ul>
             </li>
             <li>
-              <strong>Racuni</strong> - Sadrži podatke o računima
+              <strong>OperaterOperaterUloge</strong>:
               <ul>
-                <li><strong>Sifra</strong> (PK) - Primarni ključ, jedinstveni identifikator računa</li>
-                <li><strong>Datum</strong> - Datum izdavanja računa</li>
-                <li><strong>Kupac</strong> (FK) - Strani ključ koji povezuje račun s kupcem</li>
+                <li><strong>Sifra</strong> (INT, PRIMARY KEY): Jedinstveni brojčani identifikator svake veze između operatera i uloge.</li>
+                <li><strong>OperaterId</strong> (INT, NOT NULL, FOREIGN KEY): Strani ključ koji povezuje ovu tablicu s tablicom &quot;Operateri&quot;.</li>
+                <li><strong>OperaterUlogaId</strong> (INT, NOT NULL, FOREIGN KEY): Strani ključ koji povezuje ovu tablicu s tablicom &quot;OperaterUloge&quot;.</li>
               </ul>
             </li>
             <li>
-              <strong>Stavke</strong> - Sadrži podatke o stavkama na računima
+              <strong>proizvodi</strong>:
               <ul>
-                <li><strong>Sifra</strong> (PK) - Primarni ključ, jedinstveni identifikator stavke</li>
-                <li><strong>Racun</strong> (FK) - Strani ključ koji povezuje stavku s računom</li>
-                <li><strong>Proizvod</strong> (FK) - Strani ključ koji povezuje stavku s proizvodom</li>
-                <li><strong>Kolicina</strong> - Količina proizvoda na stavci</li>
-                <li><strong>Cijena</strong> - Cijena proizvoda na stavci</li>
+                <li><strong>sifra</strong> (INT, PRIMARY KEY): Jedinstveni brojčani identifikator svakog proizvoda (igre).</li>
+                <li><strong>nazivigre</strong> (VARCHAR(100), NOT NULL): Naziv igre.</li>
+                <li><strong>cijena</strong> (DECIMAL(18,2), NOT NULL): Cijena igre.</li>
+              </ul>
+            </li>
+            <li>
+              <strong>kupci</strong>:
+              <ul>
+                <li><strong>sifra</strong> (INT, PRIMARY KEY): Jedinstveni brojčani identifikator svakog kupca.</li>
+                <li><strong>ime</strong> (VARCHAR(50), NOT NULL): Ime kupca.</li>
+                <li><strong>prezime</strong> (VARCHAR(100), NOT NULL): Prezime kupca.</li>
+                <li><strong>ulica</strong> (VARCHAR(100), NOT NULL): Ulica kupca.</li>
+                <li><strong>mjesto</strong> (VARCHAR(100), NOT NULL): Mjesto kupca.</li>
+              </ul>
+            </li>
+            <li>
+              <strong>racuni</strong>:
+              <ul>
+                <li><strong>sifra</strong> (INT, PRIMARY KEY): Jedinstveni brojčani identifikator svakog računa.</li>
+                <li><strong>datum</strong> (DATETIME, NOT NULL): Datum i vrijeme izdavanja računa.</li>
+                <li><strong>kupac</strong> (INT, NOT NULL, FOREIGN KEY): Strani ključ koji povezuje ovaj račun s kupcem iz tablice &quot;kupci&quot;.</li>
+              </ul>
+            </li>
+            <li>
+              <strong>stavke</strong>:
+              <ul>
+                <li><strong>sifra</strong> (INT, PRIMARY KEY): Jedinstveni brojčani identifikator svake stavke računa.</li>
+                <li><strong>racun</strong> (INT, NOT NULL, FOREIGN KEY): Strani ključ koji povezuje ovu stavku s računom iz tablice &quot;racuni&quot;.</li>
+                <li><strong>proizvod</strong> (INT, NOT NULL, FOREIGN KEY): Strani ključ koji povezuje ovu stavku s proizvodom iz tablice &quot;proizvodi&quot;.</li>
+                <li><strong>kolicina</strong> (INT, NOT NULL): Količina proizvoda u stavci.</li>
+                <li><strong>cijena</strong> (DECIMAL(18,2), NOT NULL): Cijena proizvoda u stavci.</li>
               </ul>
             </li>
           </ul>
 
           <h5 className="mt-4">Relacije:</h5>
           <ul>
-            <li><strong>Kupac → Racun</strong>: Jedan kupac može imati više računa (1:N)</li>
-            <li><strong>Racun → Stavka</strong>: Jedan račun može imati više stavki (1:N)</li>
-            <li><strong>Proizvod → Stavka</strong>: Jedan proizvod može biti na više stavki (1:N)</li>
+            <li><strong>Jedan-na-više</strong>:
+              <ul>
+                <li>kupci → racuni (jedan kupac može imati više računa)</li>
+                <li>racuni → stavke (jedan račun može imati više stavki)</li>
+                <li>proizvodi → stavke (jedan proizvod se može pojaviti u više stavki)</li>
+              </ul>
+            </li>
+            <li><strong>Više-na-više</strong>:
+              <ul>
+                <li>Operateri ↔ OperaterUloge (preko tablice OperaterOperaterUloge)</li>
+              </ul>
+            </li>
           </ul>
 
           <h5 className="mt-4">Ključne značajke:</h5>
           <ul>
-            <li>Svaki entitet ima svoj primarni ključ (PK) koji jedinstveno identificira svaki zapis</li>
-            <li>Strani ključevi (FK) uspostavljaju veze između entiteta</li>
-            <li>Struktura baze podataka omogućuje praćenje kupovina igrica po kupcima</li>
-            <li>Moguće je pratiti koje igrice su kupljene, kada i po kojoj cijeni</li>
+            <li><strong>Primarni ključevi</strong>: Jedinstveno identificiraju svaki zapis u tablici, osiguravajući integritet podataka.</li>
+            <li><strong>Strani ključevi</strong>: Uspostavljaju veze između tablica, osiguravajući referencijalni integritet i omogućujući povezivanje podataka.</li>
+            <li><strong>Veze jedan-na-više</strong>: Predstavljaju hijerarhijske odnose između entiteta, gdje jedan entitet može biti povezan s više drugih entiteta.</li>
+            <li><strong>Veza više-na-više</strong>: Omogućuje složenije odnose između entiteta, koristeći posredničku tablicu za povezivanje više zapisa iz obje tablice.</li>
+            <li><strong>Tablica Operateri</strong> sadrži dodatne sigurnosne atribute, za detaljnije praćenje korisnika i sigurnost sustava.</li>
+            <li><strong>Baza podataka</strong> modelira sustav za web kupovinu igrica, s entitetima koji predstavljaju ključne aspekte poslovanja, uključujući operatore, kupce, proizvode i račune.</li>
           </ul>
         </Card.Body>
       </Card>

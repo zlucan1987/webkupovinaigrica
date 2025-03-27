@@ -144,12 +144,49 @@ export default function KupciPregled() {
     }
 
     async function brisanjeKupca(sifra) {
-        const odgovor = await KupacService.obrisi(sifra);
-        if (odgovor.greska) {
-            alert(odgovor.poruka);
-            return;
+        try {
+            // 1. Dohvati sve račune
+            const sviRacuni = await RacunService.get();
+            
+            // 2. Filtriraj račune koji pripadaju odabranom kupcu
+            const racuniKupca = sviRacuni.filter(racun => racun.kupacSifra === sifra);
+            
+            if (racuniKupca.length > 0) {
+                // 3. Dohvati sve stavke
+                const sveStavke = await StavkaService.get();
+                
+                // 4. Za svaki račun, obriši njegove stavke
+                for (const racun of racuniKupca) {
+                    const stavkeRacuna = sveStavke.filter(stavka => stavka.racunSifra === racun.sifra);
+                    
+                    for (const stavka of stavkeRacuna) {
+                        const odgovorStavka = await StavkaService.obrisi(stavka.sifra);
+                        if (odgovorStavka.greska) {
+                            console.error(`Greška pri brisanju stavke ${stavka.sifra}:`, odgovorStavka.poruka);
+                        }
+                    }
+                    
+                    // 5. Obriši račun
+                    const odgovorRacun = await RacunService.obrisi(racun.sifra);
+                    if (odgovorRacun.greska) {
+                        console.error(`Greška pri brisanju računa ${racun.sifra}:`, odgovorRacun.poruka);
+                    }
+                }
+            }
+            
+            // 6. Konačno, obriši kupca
+            const odgovor = await KupacService.obrisi(sifra);
+            if (odgovor.greska) {
+                alert(odgovor.poruka);
+                return;
+            }
+            
+            alert("Kupac i svi povezani podaci uspješno obrisani!");
+            dohvatiKupce();
+        } catch (error) {
+            console.error("Greška prilikom kaskadnog brisanja:", error);
+            alert("Došlo je do greške prilikom brisanja kupca i povezanih podataka.");
         }
-        dohvatiKupce();
     }
 
     return (
@@ -307,7 +344,17 @@ export default function KupciPregled() {
                                                             })}
                                                         </Accordion>
                                                     ) : (
-                                                        <p>Nema stavki za ovog kupca.</p>
+                                                        <div className="no-items-container">
+                                                            <p>Nema stavki za ovog kupca.</p>
+                                                            <Button 
+                                                                variant="primary" 
+                                                                onClick={() => handleAddGameClick()}
+                                                                className="mt-2"
+                                                            >
+                                                                <i className="bi bi-plus-circle me-2"></i>
+                                                                Dodaj prvu igricu
+                                                            </Button>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </td>

@@ -4,8 +4,10 @@ import StavkaService from '../../services/StavkaService.js';
 import RacunService from "../../services/RacunService";
 import ProizvodService from "../../services/ProizvodService";
 import { RouteNames } from "../../constants";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row, Image } from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { getProductImageWithFallback, getGameImage } from '../../utils/imageUtils';
+import './StavkePregled.css';
 
 export default function StavkePromjena() {
   const { sifra } = useParams();
@@ -16,6 +18,9 @@ export default function StavkePromjena() {
   const [poruka, setPoruka] = useState('');
   // Dodajemo state za praćenje originalnog računa
   const [originalniRacunSifra, setOriginalniRacunSifra] = useState(null);
+  // Dodajemo state za sliku proizvoda
+  const [proizvodSlika, setProizvodSlika] = useState('');
+  const [odabraniProizvod, setOdabraniProizvod] = useState(null);
 
   useEffect(() => {
     async function dohvatiPodatke() {
@@ -30,12 +35,43 @@ export default function StavkePromjena() {
 
         const proizvodiData = await ProizvodService.get();
         setProizvodi(proizvodiData);
+        
+        // Postavljamo odabrani proizvod
+        if (stavkaData.proizvodSifra) {
+          const proizvod = proizvodiData.find(p => p.sifra === stavkaData.proizvodSifra);
+          setOdabraniProizvod(proizvod);
+          
+          // Dohvaćamo sliku proizvoda
+          if (proizvod) {
+            const imageUrl = await getProductImageWithFallback(proizvod.sifra, proizvod.nazivIgre);
+            setProizvodSlika(imageUrl);
+          }
+        }
       } catch {
         setPoruka('Greška pri učitavanju podataka.');
       }
     }
     dohvatiPodatke();
   }, [sifra]);
+  
+  // Funkcija za promjenu odabranog proizvoda
+  const handleProizvodChange = async (e) => {
+    const proizvodSifra = parseInt(e.target.value);
+    if (proizvodSifra) {
+      const proizvod = proizvodi.find(p => p.sifra === proizvodSifra);
+      setOdabraniProizvod(proizvod);
+      
+      if (proizvod) {
+        const imageUrl = await getProductImageWithFallback(proizvod.sifra, proizvod.nazivIgre);
+        setProizvodSlika(imageUrl);
+      } else {
+        setProizvodSlika('');
+      }
+    } else {
+      setOdabraniProizvod(null);
+      setProizvodSlika('');
+    }
+  };
 
   async function promjeni(sifra, stavka) {
     // Koristimo originalnu šifru računa umjesto one iz forme
@@ -102,14 +138,33 @@ export default function StavkePromjena() {
 
             <Form.Group controlId="proizvod">
               <Form.Label>Proizvod:</Form.Label>
-              <Form.Select name="proizvod" defaultValue={stavka.proizvodSifra} className="input-manja-sirina">
-                <option value="">Odaberi proizvod</option>
-                {proizvodi.map((proizvod) => (
-                  <option key={proizvod.sifra} value={proizvod.sifra}>
-                    {proizvod.nazivIgre}
-                  </option>
-                ))}
-              </Form.Select>
+              <div className="d-flex align-items-center">
+                <Form.Select 
+                  name="proizvod" 
+                  defaultValue={stavka.proizvodSifra} 
+                  className="input-manja-sirina me-3"
+                  onChange={handleProizvodChange}
+                >
+                  <option value="">Odaberi proizvod</option>
+                  {proizvodi.map((proizvod) => (
+                    <option key={proizvod.sifra} value={proizvod.sifra}>
+                      {proizvod.nazivIgre}
+                    </option>
+                  ))}
+                </Form.Select>
+                {proizvodSlika && (
+                  <Image 
+                    src={proizvodSlika} 
+                    alt={odabraniProizvod?.nazivIgre || 'Proizvod'} 
+                    className="stavka-image"
+                    onError={(e) => {
+                      console.log(`Slika nije pronađena za proizvod, koristi se fallback slika`);
+                      e.target.onerror = null;
+                      e.target.src = odabraniProizvod ? getGameImage(odabraniProizvod.nazivIgre) : '';
+                    }}
+                  />
+                )}
+              </div>
             </Form.Group>
 
             <Form.Group controlId="kolicina">

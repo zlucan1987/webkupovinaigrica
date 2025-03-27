@@ -6,31 +6,46 @@ import { RouteNames } from '../constants';
 import { useState, useEffect } from 'react';
 import AuthService from '../services/AuthService';
 
+// Create a context for navbar visibility
+import { createContext, useContext } from 'react';
+export const NavbarContext = createContext({ navbarVisible: false, setNavbarVisible: () => {} });
+export const useNavbar = () => useContext(NavbarContext);
+
 const EntryPage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [showContent, setShowContent] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const { setNavbarVisible } = useNavbar();
     
     useEffect(() => {
+        // Hide navbar initially
+        setNavbarVisible(false);
+        
         // Check if user is logged in
         setIsLoggedIn(AuthService.isLoggedIn());
         
-        // Show logo animation for 2 seconds
+        // Show logo animation for 4 seconds (extended from 2 seconds)
         const timer1 = setTimeout(() => {
             setLoading(false);
-        }, 2000);
+        }, 4000);
         
         // After logo animation, fade in the rest of the content
         const timer2 = setTimeout(() => {
             setShowContent(true);
-        }, 2500);
+        }, 4500);
+        
+        // Show navbar 1 second after logo animation completes
+        const timer3 = setTimeout(() => {
+            setNavbarVisible(true);
+        }, 5000);
         
         return () => {
             clearTimeout(timer1);
             clearTimeout(timer2);
+            clearTimeout(timer3);
         };
-    }, []);
+    }, [setNavbarVisible]);
     
     return (
         <div className="entry-page">
@@ -48,24 +63,32 @@ const EntryPage = () => {
                 <p className={`welcome-description ${showContent ? 'fade-in' : 'hidden'}`}>
                     Vaša destinacija za kupovinu najnovijih i najpopularnijih igrica po najboljim cijenama.
                 </p>
-                <div className={`action-buttons ${showContent ? 'fade-in' : 'hidden'}`}>
-                    <Button 
-                        variant="primary" 
-                        size="lg" 
-                        className="action-button"
-                        onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}
-                    >
-                        Pregledaj igrice
-                    </Button>
-                    <Button 
-                        variant="outline-primary" 
-                        size="lg" 
-                        className="action-button"
-                        onClick={() => navigate('/register')}
-                    >
-                        Registriraj se
-                    </Button>
-                </div>
+                {!isLoggedIn && (
+                    <div className={`action-buttons ${showContent ? 'fade-in' : 'hidden'}`}>
+                        <Button 
+                            variant="primary" 
+                            size="lg" 
+                            className="action-button"
+                            onClick={() => navigate(RouteNames.PROIZVOD_PREGLED)}
+                        >
+                            Pregledaj igrice
+                        </Button>
+                        <Button 
+                            variant="outline-primary" 
+                            size="lg" 
+                            className="action-button"
+                            onClick={() => navigate('/register')}
+                        >
+                            Registriraj se
+                        </Button>
+                    </div>
+                )}
+                
+                {/* Scroll indicator */}
+                <div 
+                    className={`scroll-indicator ${showContent ? 'fade-in' : 'hidden'}`}
+                    onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                ></div>
             </div>
             
             {isLoggedIn && (

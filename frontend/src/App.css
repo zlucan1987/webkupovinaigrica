@@ -18,6 +18,28 @@
   overflow-x: hidden;
 }
 
+/* Navbar animation styles */
+.navbar-container {
+  width: 100%;
+  position: relative;
+  z-index: 1000;
+}
+
+.navbar-slide-down {
+  animation: slideDown 0.5s ease-in-out forwards;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .navbar-lightgray {
   width: 100%;
   height: auto;

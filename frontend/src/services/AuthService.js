@@ -27,7 +27,7 @@ class AuthService {
     // Parse JWT token to get user info
     getUserInfo() {
         const token = this.getToken();
-        if (!token) return null;
+        if (!token) return {};
         
         try {
             // Get the payload part of the JWT token
@@ -40,10 +40,13 @@ class AuthService {
                     .join('')
             );
             
-            return JSON.parse(jsonPayload);
+            const parsedPayload = JSON.parse(jsonPayload);
+            logger.debug('Parsed JWT payload:', parsedPayload);
+            
+            return parsedPayload;
         } catch (error) {
             logger.error('Error parsing token:', error);
-            return null;
+            return {};  // Return empty object instead of null to prevent errors
         }
     }
 
@@ -101,56 +104,224 @@ class AuthService {
         return userInfo.name || userInfo.sub || '';
     }
     
+    // Dohvati detalje o korisniku
+    async getUserDetails(userId = null) {
+        try {
+            // Ako nije proslijeđen ID, koristi ID trenutnog korisnika
+            const id = userId || this.getUserId();
+            if (!id) return null;
+            
+            logger.debug('Dohvaćanje detalja o korisniku:', id);
+            
+            const response = await HttpService.get(`/Autentifikacija/Users/${id}/Details`);
+            logger.debug('Dohvaćeni detalji o korisniku:', response.data);
+            
+            return response.data;
+        } catch (error) {
+            logger.error('Error fetching user details:', error);
+            return null;
+        }
+    }
+    
+    // Dohvati sve korisnike (samo za administratore)
+    async getAllUsers() {
+        try {
+            if (!this.hasRole('Admin')) {
+                logger.warn('Pokušaj dohvaćanja svih korisnika od strane korisnika koji nije administrator');
+                return null;
+            }
+            
+            logger.debug('Dohvaćanje svih korisnika');
+            
+            const response = await HttpService.get('/Autentifikacija/Users');
+            logger.debug('Dohvaćeni svi korisnici:', response.data);
+            
+            return response.data;
+        } catch (error) {
+            logger.error('Error fetching all users:', error);
+            return null;
+        }
+    }
+    
+    // Obriši korisnika (samo za administratore)
+    async deleteUser(userId) {
+        try {
+            if (!this.hasRole('Admin')) {
+                logger.warn('Pokušaj brisanja korisnika od strane korisnika koji nije administrator');
+                return { success: false, error: 'Samo administrator može brisati korisnike' };
+            }
+            
+            logger.debug('Brisanje korisnika:', userId);
+            
+            await HttpService.delete(`/Autentifikacija/Users/${userId}`);
+            
+            return { success: true };
+        } catch (error) {
+            logger.error('Error deleting user:', error);
+            return { 
+                success: false, 
+                error: error.response?.data || 'Došlo je do greške prilikom brisanja korisnika' 
+            };
+        }
+    }
+    
     // Dohvati korisnikov nadimak
     getUserNickname() {
         const userId = this.getUserId();
         if (!userId) return '';
         
-        // Dohvati nadimak iz localStorage
-        const nickname = localStorage.getItem(`user_nickname_${userId}`);
-        if (nickname) return nickname;
+        // Prvo provjeri u localStorage kao brzi pristup
+        const localNickname = localStorage.getItem(`user_nickname_${userId}`);
+        if (localNickname) {
+            logger.debug('Retrieved nickname from localStorage:', localNickname);
+            return localNickname;
+        }
+        
+        // Ako nema u localStorage, provjeri u JWT tokenu
+        const userInfo = this.getUserInfo();
+        if (userInfo && userInfo.nickname) {
+            logger.debug('Retrieved nickname from JWT token:', userInfo.nickname);
+            // Spremi u localStorage za buduće korištenje
+            localStorage.setItem(`user_nickname_${userId}`, userInfo.nickname);
+            return userInfo.nickname;
+        }
         
         // Ako nema nadimka, vrati ime ili korisničko ime
-        const userInfo = this.getUserInfo();
-        return userInfo?.nickname || this.getUserName();
+        const fallbackName = this.getUserName();
+        logger.debug('Using fallback name as nickname:', fallbackName);
+        return fallbackName;
+    }
+    
+    // Dohvati korisnikov nadimak s backenda (asinkrono)
+    async fetchUserNicknameFromServer() {
+        const userId = this.getUserId();
+        if (!userId) return '';
+        
+        try {
+            logger.debug('Fetching nickname from server for user:', userId);
+            // Pokušaj dohvatiti nadimak s backenda
+            const userDetails = await this.getUserDetails(userId);
+            if (userDetails && userDetails.nickname) {
+                logger.debug('Retrieved nickname from server:', userDetails.nickname);
+                // Spremi u localStorage za buduće korištenje
+                localStorage.setItem(`user_nickname_${userId}`, userDetails.nickname);
+                return userDetails.nickname;
+            }
+        } catch (error) {
+            logger.error('Error fetching nickname from server:', error);
+        }
+        
+        // Ako nije uspjelo dohvatiti s backenda, vrati što već imamo
+        return this.getUserNickname();
     }
     
     // Postavi korisnikov nadimak
-    setUserNickname(nickname) {
+    async setUserNickname(nickname) {
         const userId = this.getUserId();
-        if (!userId) return false;
+        if (!userId) return { success: false, error: 'Korisnik nije prijavljen' };
         
-        // Provjeri je li nadimak zaključan
-        if (this.isNicknameLocked() && !this.hasRole('Admin')) {
-            logger.warn('Pokušaj promjene zaključanog nadimka od strane korisnika koji nije administrator');
-            return false;
+        try {
+            // Prvo pokušaj ažurirati nadimak na backendu
+            await HttpService.put(`/Autentifikacija/Users/${userId}/Nickname`, {
+                Nickname: nickname,
+                Locked: false
+            });
+            
+            // Ako je uspješno, ažuriraj i lokalno
+            localStorage.setItem(`user_nickname_${userId}`, nickname);
+            
+            return { success: true };
+        } catch (error) {
+            logger.error('Error updating nickname on server:', error);
+            
+            // Ako backend nije dostupan, provjeri je li nadimak zaključan lokalno
+            if (this.isNicknameLocked() && !this.hasRole('Admin')) {
+                logger.warn('Pokušaj promjene zaključanog nadimka od strane korisnika koji nije administrator');
+                return { success: false, error: 'Nadimak je zaključan i ne može se promijeniti' };
+            }
+            
+            // Spremi lokalno kao fallback
+            localStorage.setItem(`user_nickname_${userId}`, nickname);
+            return { success: true, warning: 'Nadimak je spremljen samo lokalno jer server nije dostupan' };
         }
-        
-        localStorage.setItem(`user_nickname_${userId}`, nickname);
-        return true;
     }
     
     // Provjeri je li nadimak zaključan
-    isNicknameLocked() {
+    async isNicknameLocked() {
         const userId = this.getUserId();
         if (!userId) return false;
         
+        try {
+            // Prvo pokušaj dohvatiti status zaključanosti s backenda
+            const userDetails = await this.getUserDetails(userId);
+            if (userDetails && userDetails.nicknameLocked !== undefined) {
+                return userDetails.nicknameLocked;
+            }
+        } catch (error) {
+            logger.error('Error fetching nickname lock status from server:', error);
+        }
+        
+        // Ako nije uspjelo dohvatiti s backenda, koristi localStorage kao fallback
         return localStorage.getItem(`nickname_locked_${userId}`) === 'true';
     }
     
     // Zaključaj/otključaj nadimak (samo za administratore)
-    setNicknameLocked(locked) {
-        const userId = this.getUserId();
-        if (!userId) return false;
-        
-        // Samo administrator može zaključati/otključati nadimak
+    async setNicknameLocked(userId, locked) {
         if (!this.hasRole('Admin')) {
             logger.warn('Pokušaj zaključavanja/otključavanja nadimka od strane korisnika koji nije administrator');
-            return false;
+            return { success: false, error: 'Samo administrator može zaključati/otključati nadimak' };
         }
         
-        localStorage.setItem(`nickname_locked_${userId}`, locked.toString());
-        return true;
+        try {
+            // Dohvati trenutni nadimak korisnika
+            const userDetails = await this.getUserDetails(userId);
+            const nickname = userDetails?.nickname || '';
+            
+            // Ažuriraj nadimak i status zaključanosti na backendu
+            await HttpService.put(`/Autentifikacija/Users/${userId}/Nickname`, {
+                Nickname: nickname,
+                Locked: locked
+            });
+            
+            // Ako je uspješno, ažuriraj i lokalno
+            localStorage.setItem(`nickname_locked_${userId}`, locked.toString());
+            
+            return { success: true };
+        } catch (error) {
+            logger.error('Error updating nickname lock status on server:', error);
+            
+            // Spremi lokalno kao fallback
+            localStorage.setItem(`nickname_locked_${userId}`, locked.toString());
+            return { success: true, warning: 'Status zaključanosti je spremljen samo lokalno jer server nije dostupan' };
+        }
+    }
+    
+    // Ažuriraj korisničke podatke
+    async updateUserProfile(userData) {
+        const userId = this.getUserId();
+        if (!userId) return { success: false, error: 'Korisnik nije prijavljen' };
+        
+        try {
+            await HttpService.put(`/Autentifikacija/Users/${userId}`, userData);
+            return { success: true };
+        } catch (error) {
+            logger.error('Error updating user profile:', error);
+            return { success: false, error: error.response?.data || 'Došlo je do greške prilikom ažuriranja profila' };
+        }
+    }
+    
+    // Promijeni lozinku
+    async changePassword(currentPassword, newPassword) {
+        try {
+            await HttpService.post('/Autentifikacija/ChangePassword', {
+                TrenutnaLozinka: currentPassword,
+                NovaLozinka: newPassword
+            });
+            return { success: true };
+        } catch (error) {
+            logger.error('Error changing password:', error);
+            return { success: false, error: error.response?.data || 'Došlo je do greške prilikom promjene lozinke' };
+        }
     }
     
     // Get user's ID
@@ -166,7 +337,16 @@ class AuthService {
         const userInfo = this.getUserInfo();
         if (!userInfo) return '';
         
-        return userInfo.email || userInfo.KorisnickoIme || '';
+        // Prvo pokušaj dohvatiti email iz JWT tokena
+        // JWT token može sadržavati email u različitim formatima ovisno o tome kako je generiran
+        const email = userInfo.email || 
+                     userInfo.Email || 
+                     userInfo.KorisnickoIme || 
+                     userInfo['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
+                     '';
+        
+        logger.debug('Retrieved user email:', email);
+        return email;
     }
     
     // Get user's profile picture
