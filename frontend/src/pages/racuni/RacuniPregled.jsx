@@ -4,9 +4,11 @@ import { Button, Table } from "react-bootstrap";
 import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../constants";
+import AuthService from "../../services/AuthService";
 
 export default function RacuniPregled() {
     const [racuni, setRacuni] = useState([]);
+    const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
 
     async function dohvatiRacune() {
@@ -16,6 +18,8 @@ export default function RacuniPregled() {
 
     useEffect(() => {
         dohvatiRacune();
+        // Provjeri je li korisnik administrator
+        setIsAdmin(AuthService.hasRole('Admin'));
     }, []);
 
     function formatirajDatum(datum) {
@@ -50,6 +54,7 @@ export default function RacuniPregled() {
                 <thead>
                     <tr>
                         <th>Datum izdavanja</th>
+                        {isAdmin && <th>Broj računa</th>}
                         <th>Kupac</th>
                         <th>Akcija</th>
                     </tr>
@@ -59,6 +64,7 @@ export default function RacuniPregled() {
                         racuni.map((racun, index) => (
                             <tr key={index}>
                                 <td>{formatirajDatum(racun.datum)}</td>
+                                {isAdmin && <td>{racun.sifra}</td>}
                                 <td>{racun.kupacImePrezime}</td>
                                 <td>
                                     <Button onClick={() => {

@@ -19,32 +19,54 @@ const EntryPage = () => {
     const { setNavbarVisible } = useNavbar();
     
     useEffect(() => {
+        // Check if user has seen the animation before
+        const hasSeenAnimation = localStorage.getItem('hasSeenAnimation');
+        
         // Hide navbar initially
         setNavbarVisible(false);
         
         // Check if user is logged in
         setIsLoggedIn(AuthService.isLoggedIn());
         
-        // Show logo animation for 4 seconds (extended from 2 seconds)
-        const timer1 = setTimeout(() => {
+        if (!hasSeenAnimation) {
+            // First visit - show full animation
+            // Save that user has seen the animation
+            localStorage.setItem('hasSeenAnimation', 'true');
+            
+            // Show logo animation for 4 seconds
+            const timer1 = setTimeout(() => {
+                setLoading(false);
+            }, 4000);
+            
+            // After logo animation, fade in the rest of the content
+            const timer2 = setTimeout(() => {
+                setShowContent(true);
+            }, 4500);
+            
+            // Show navbar 1 second after logo animation completes
+            const timer3 = setTimeout(() => {
+                setNavbarVisible(true);
+            }, 5000);
+            
+            return () => {
+                clearTimeout(timer1);
+                clearTimeout(timer2);
+                clearTimeout(timer3);
+            };
+        } else {
+            // Returning visit - skip animation
             setLoading(false);
-        }, 4000);
-        
-        // After logo animation, fade in the rest of the content
-        const timer2 = setTimeout(() => {
             setShowContent(true);
-        }, 4500);
-        
-        // Show navbar 1 second after logo animation completes
-        const timer3 = setTimeout(() => {
-            setNavbarVisible(true);
-        }, 5000);
-        
-        return () => {
-            clearTimeout(timer1);
-            clearTimeout(timer2);
-            clearTimeout(timer3);
-        };
+            
+            // Show navbar with a small delay for smooth transition
+            const timer = setTimeout(() => {
+                setNavbarVisible(true);
+            }, 500);
+            
+            return () => {
+                clearTimeout(timer);
+            };
+        }
     }, [setNavbarVisible]);
     
     return (
@@ -99,6 +121,18 @@ const EntryPage = () => {
             
             <div className={`scroll-to-top ${showContent ? 'fade-in' : 'hidden'}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                 ↑
+            </div>
+            
+            {/* Reset animation button */}
+            <div 
+                className={`reset-animation ${showContent ? 'fade-in' : 'hidden'}`}
+                onClick={() => {
+                    localStorage.removeItem('hasSeenAnimation');
+                    window.location.reload();
+                }}
+                title="Ponovno prikaži animaciju"
+            >
+                ↻
             </div>
         </div>
     );
